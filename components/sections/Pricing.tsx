@@ -27,12 +27,12 @@ export default function Pricing() {
         </div>
 
         {/* 견적서 양식 스타일 표 */}
-        <div className="rounded-lg border border-gray-200 shadow-sm overflow-hidden bg-white">
+        <div className="rounded-lg border border-gray-200 shadow-sm overflow-hidden bg-white overflow-x-auto">
           <div className="bg-[#0A3D91] px-6 py-3.5 flex items-center justify-between">
             <span className="text-white font-bold text-base tracking-tight">표준 작업 항목표</span>
             <span className="text-blue-200 text-sm font-mono">주식회사 우앤주전력</span>
           </div>
-          <table className="w-full text-base">
+          <table className="w-full text-sm sm:text-base min-w-[480px]">
             <thead>
               <tr className="bg-[#F8FAFC] text-left border-b-2 border-gray-200">
                 <th className="px-4 py-4 font-bold text-[#0F172A] w-12 text-center">No.</th>

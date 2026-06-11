@@ -44,6 +44,10 @@ next-env.d.ts
 /_starter_extract
 /next-app-temp
 *.zip
+*.docx
+*.hwp
+*.xlsx
+*.pdf
 
 # Claude Code 로컬 설정
 .claude/

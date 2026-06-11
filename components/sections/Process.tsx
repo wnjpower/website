@@ -33,7 +33,7 @@ export default function Process() {
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] mb-3">
             진행 프로세스
           </h2>
-          <p className="text-lg text-gray-500">문의부터 사후관리까지, 각 단계 소요 기간을 미리 알려드립니다</p>
+          <p className="text-base sm:text-lg text-gray-500">문의부터 사후관리까지, 각 단계 소요 기간을 미리 알려드립니다</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

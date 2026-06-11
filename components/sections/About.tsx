@@ -6,7 +6,7 @@ export default function About() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A]">
-            전기공사 전문 법인,<br className="sm:hidden" /> 우앤주전력입니다
+            전기공사 전문 법인, 우앤주전력입니다
           </h2>
         </div>
 

@@ -32,11 +32,11 @@ export default function Contact() {
                   <div>
                     <p className="text-sm text-gray-400 font-medium mb-0.5">{item.label}</p>
                     {item.href ? (
-                      <a href={item.href} className="text-lg text-[#0F172A] font-semibold hover:text-[#0A3D91] transition-colors">
+                      <a href={item.href} className="text-base sm:text-lg text-[#0F172A] font-semibold hover:text-[#0A3D91] transition-colors">
                         {item.value}
                       </a>
                     ) : (
-                      <p className="text-lg text-[#0F172A] font-semibold">{item.value}</p>
+                      <p className="text-base sm:text-lg text-[#0F172A] font-semibold">{item.value}</p>
                     )}
                   </div>
                 </div>

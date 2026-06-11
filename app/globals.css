@@ -108,6 +108,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* 한국어 자연스러운 단어 단위 줄바꿈 */
+body {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
 /* 고정 헤더 높이만큼 앵커 스크롤 보정 (상단 띠 2.5rem + 헤더 5rem = 7.5rem) */
 section[id] {
   scroll-margin-top: 7.5rem;

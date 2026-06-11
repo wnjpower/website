@@ -22,8 +22,8 @@ export default function QuoteSection({ defaultCategory, defaultCustomerType }: P
           </h2>
           <p className="text-lg text-slate-400">
             아래 양식을 작성해 주시면 1영업일 내에 연락드립니다.
-            <br />
-            빠른 상담을 원하시면{' '}
+            <br className="hidden sm:block" />
+            {' '}빠른 상담을 원하시면{' '}
             <a href="tel:010-8552-9994" className="text-[#FFB800] font-semibold hover:underline">
               010-8552-9994
             </a>

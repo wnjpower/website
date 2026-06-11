@@ -9,10 +9,17 @@ export default function TrustBar() {
   return (
     <div className="bg-[#0A3D91] text-white py-3 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm font-medium">
+        {/* 모바일: 2열 그리드 */}
+        <div className="grid grid-cols-2 sm:hidden gap-x-4 gap-y-1.5 text-sm font-medium">
+          {items.map((item, i) => (
+            <span key={i} className="text-center text-blue-100">{item}</span>
+          ))}
+        </div>
+        {/* sm+: 한 줄 */}
+        <div className="hidden sm:flex flex-wrap justify-center gap-x-6 text-sm font-medium">
           {items.map((item, i) => (
             <span key={i} className="flex items-center gap-2">
-              {i > 0 && <span className="hidden sm:inline text-blue-200">·</span>}
+              {i > 0 && <span className="text-blue-200">·</span>}
               {item}
             </span>
           ))}

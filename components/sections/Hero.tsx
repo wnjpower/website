@@ -33,7 +33,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative pt-28 pb-16 sm:pt-36 sm:pb-20 overflow-hidden bg-[#F8FAFC] bg-blueprint"
+      className="relative pt-32 pb-16 sm:pt-44 sm:pb-20 overflow-hidden bg-[#F8FAFC] bg-blueprint"
     >
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
@@ -44,16 +44,15 @@ export default function Hero() {
           </div>
 
           {/* 헤드라인 */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#0F172A] leading-tight tracking-tight mb-5">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#0F172A] leading-tight tracking-tight mb-5">
             대구·경북 전기공사,
             <br />
             <span className="text-[#0A3D91]">우앤주전력</span>이 책임집니다
           </h1>
 
           {/* 서브헤드 */}
-          <p className="text-xl sm:text-2xl text-gray-500 mb-10 leading-relaxed">
-            아파트 인테리어 전기부터 상가 창업, 상업건물 시공까지
-            <br className="hidden sm:block" />
+          <p className="text-base sm:text-xl md:text-2xl text-gray-500 mb-10 leading-relaxed">
+            아파트 인테리어 전기부터 상가 창업, 상업건물 시공까지{' '}
             <span className="text-[#0F172A] font-semibold">견적·출장 완전 무료</span>로 상담해 드립니다.
           </p>
 
