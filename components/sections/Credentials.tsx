@@ -47,7 +47,7 @@ export default function Credentials() {
             return (
               <div
                 key={cred.title}
-                className="bg-white/5 border border-white/10 rounded-lg p-7 flex flex-col backdrop-blur-sm"
+                className="group bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FFB800]/40 rounded-lg p-7 flex flex-col backdrop-blur-sm hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/20 transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-5">
                   <div className="w-14 h-14 rounded-md bg-[#FFB800]/10 border border-[#FFB800]/20 flex items-center justify-center">

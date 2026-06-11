@@ -69,11 +69,11 @@ export default function Header() {
             평일 09:00–18:00 &nbsp;·&nbsp; 견적·출장 무료
           </div>
 
-          {/* 오른쪽: 사업자 정보 */}
+          {/* 오른쪽: 서비스 강점 */}
           <div className="flex items-center gap-2 text-sm font-medium text-blue-100 sm:ml-auto">
             <span className="w-2 h-2 rounded-full bg-[#FFB800] flex-shrink-0" />
-            <span className="hidden sm:inline">사업자등록번호 637-81-02833 &nbsp;·&nbsp; 대구광역시 서구</span>
-            <span className="sm:hidden">637-81-02833 · 대구 서구</span>
+            <span className="hidden sm:inline">견적·출장 완전 무료 &nbsp;·&nbsp; 대구·경북 당일 출동 A/S</span>
+            <span className="sm:hidden">견적·출장 무료 · 당일 출동</span>
           </div>
         </div>
       </div>

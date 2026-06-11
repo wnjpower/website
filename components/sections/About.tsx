@@ -33,8 +33,6 @@ export default function About() {
               </p>
               <div className="text-base text-gray-400">
                 <span className="font-semibold text-[#0F172A]">주식회사 우앤주전력 대표 임태훈</span>
-                <span className="mx-2">·</span>
-                대구광역시 서구 문화로63길 19, 1층
               </div>
             </div>
           </div>

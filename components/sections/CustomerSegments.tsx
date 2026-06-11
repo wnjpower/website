@@ -102,7 +102,7 @@ export default function CustomerSegments({ onSelectSegment }: Props) {
             return (
               <div
                 key={seg.type}
-                className="relative rounded-lg border border-gray-200 bg-white flex flex-col overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-[#0A3D91]/40"
+                className="relative rounded-lg border border-gray-200 bg-white flex flex-col overflow-hidden transition-all duration-200 hover:shadow-xl hover:border-[#0A3D91]/40 hover:-translate-y-1.5"
               >
                 {/* 상단 컬러 바 (배선 상색 모티프) */}
                 <div className={`h-1.5 ${seg.barColor}`} />

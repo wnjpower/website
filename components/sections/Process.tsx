@@ -39,7 +39,7 @@ export default function Process() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {steps.map((s, i) => (
             <div key={i} className="relative">
-              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 border-t-4 border-t-[#0A3D91] h-full flex flex-col">
+              <div className="group bg-white rounded-lg p-6 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200 border border-gray-200 hover:border-[#0A3D91]/40 border-t-4 border-t-[#0A3D91] h-full flex flex-col">
                 <p className="text-sm font-bold text-gray-300 tracking-widest mb-2 tabular-nums">STEP {s.step}</p>
                 <h3 className="text-lg font-bold text-[#0F172A] tracking-tight mb-2">{s.title}</h3>
                 <span className="inline-block w-fit text-sm font-bold text-[#0A3D91] bg-[#0A3D91]/8 rounded-md px-3 py-1 mb-3">

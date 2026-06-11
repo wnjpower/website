@@ -37,12 +37,6 @@ export default function Hero() {
     >
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
-          {/* 배지 */}
-          <div className="inline-flex items-center gap-2 bg-white border border-[#0A3D91]/20 rounded-md px-3.5 py-1.5 mb-6 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-[#FFB800]" />
-            <span className="text-sm text-[#0A3D91] font-bold tracking-tight">전기공사업 등록업체 · 대구·경북</span>
-          </div>
-
           {/* 헤드라인 */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#0F172A] leading-tight tracking-tight mb-5">
             대구·경북 전기공사,

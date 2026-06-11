@@ -26,12 +26,12 @@ export default function Services({ onSelectCategory }: Props) {
             return (
               <div
                 key={svc.id}
-                className="bg-white rounded-lg p-7 shadow-sm hover:shadow-md transition-shadow border border-gray-200 flex flex-col"
+                className="group bg-white rounded-lg p-7 shadow-sm hover:shadow-xl transition-all duration-200 border border-gray-200 hover:border-[#0A3D91]/40 hover:-translate-y-1.5 flex flex-col"
               >
                 {/* 번호 + 아이콘 */}
                 <div className="flex items-start justify-between mb-5">
-                  <div className="w-14 h-14 rounded-md bg-[#0A3D91]/8 flex items-center justify-center">
-                    <Icon className="w-7 h-7 text-[#0A3D91]" />
+                  <div className="w-14 h-14 rounded-md bg-[#0A3D91]/8 group-hover:bg-[#0A3D91] flex items-center justify-center transition-colors duration-200">
+                    <Icon className="w-7 h-7 text-[#0A3D91] group-hover:text-white transition-colors duration-200" />
                   </div>
                   <span className="text-3xl font-bold text-gray-200 tabular-nums tracking-tight">
                     {String(idx + 1).padStart(2, '0')}

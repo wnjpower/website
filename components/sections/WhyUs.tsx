@@ -36,8 +36,8 @@ export default function WhyUs() {
           {items.map((item, i) => {
             const Icon = item.icon;
             return (
-              <div key={i} className="flex gap-5 p-7 rounded-lg border border-gray-200 hover:shadow-md transition-shadow bg-white">
-                <div className="flex-shrink-0 w-14 h-14 rounded-md bg-[#0A3D91] flex items-center justify-center shadow-md shadow-[#0A3D91]/20">
+              <div key={i} className="group flex gap-5 p-7 rounded-lg border border-gray-200 hover:border-[#0A3D91]/40 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200 bg-white">
+                <div className="flex-shrink-0 w-14 h-14 rounded-md bg-[#0A3D91] group-hover:bg-[#0A3D91]/90 flex items-center justify-center shadow-md shadow-[#0A3D91]/20 group-hover:shadow-lg group-hover:shadow-[#0A3D91]/30 transition-all duration-200">
                   <Icon className="w-7 h-7 text-white" />
                 </div>
                 <div>
