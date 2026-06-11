@@ -47,3 +47,5 @@ next-env.d.ts
 
 # Claude Code 로컬 설정
 .claude/
+
+.vercel
