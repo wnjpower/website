@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const url     = process.env.NEXT_PUBLIC_SUPABASE_URL     ?? 'https://placeholder.supabase.co';
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder';
 
 /** 브라우저/서버 공용 anon 클라이언트. RLS로 보호됨. */
 export const supabase = createClient(url, anonKey, {
@@ -12,5 +12,7 @@ export const supabase = createClient(url, anonKey, {
 export const supabaseAdmin = () => {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY가 설정되지 않았습니다');
-  return createClient(url, serviceKey, { auth: { persistSession: false } });
+  const adminUrl     = process.env.NEXT_PUBLIC_SUPABASE_URL     ?? '';
+  const adminAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+  return createClient(adminUrl, serviceKey, { auth: { persistSession: false } });
 };
