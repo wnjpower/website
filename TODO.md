@@ -2,11 +2,20 @@
 
 > **프로덕션 URL**: https://wnj-website.vercel.app  
 > **GitHub**: https://github.com/sinequanon2002/wnjpower  
-> **최종 업데이트**: 2026-06-14 (3차 — 공장·산업 전기공사 중심 전면 개편)
+> **최종 업데이트**: 2026-06-14 (4차 — Supabase 마이그레이션 완료)
 
 ---
 
 ## ✅ 완료된 작업
+
+### Supabase DB 구축 완료 (2026-06-14 4차)
+- [x] **Supabase 신규 프로젝트 생성** — 조직 `wnjpower`, 프로젝트 ID `ugxydqyjajozsnbzagbe` (도쿄 리전)
+- [x] **`quotes` 테이블 전체 스키마 생성** — `customer_type` 컬럼 포함, `category` CHECK 제약 없음(Zod 검증으로 대체)
+- [x] **RLS 정책 설정** — 익명 INSERT 허용 + SELECT 차단 (개인정보 보호)
+- [x] **E2E 검증 완료** — `category='factory_new'`, `customer_type='industrial'` INSERT 성공(HTTP 201) + SELECT 차단 확인
+- [x] **Supabase 연결 정보 확보**
+  - URL: `https://ugxydqyjajozsnbzagbe.supabase.co`
+  - 퍼블리셔블 키: `sb_publishable_tS4v-YA5g_nyMa4Wq2HBLQ_vi6KPxFo`
 
 ### 공장·산업 전기공사 중심 전면 개편 (2026-06-14 3차)
 - [x] **사이트 전체 포지셔닝 전환** — 공장 신축·증축·증설 전기공사를 최우선 주력으로, 인테리어 전기는 부수 서비스로 재편
@@ -90,21 +99,17 @@
 
 - [ ] **환경변수 설정** — Vercel 대시보드 → Settings → Environment Variables
   ```
-  NEXT_PUBLIC_SUPABASE_URL       = (Supabase 프로젝트 URL)
-  NEXT_PUBLIC_SUPABASE_ANON_KEY  = (Supabase anon key)
-  SUPABASE_SERVICE_ROLE_KEY      = (Supabase service role key — 절대 외부 노출 금지)
-  RESEND_API_KEY                 = (Resend API key)
+  NEXT_PUBLIC_SUPABASE_URL       = https://ugxydqyjajozsnbzagbe.supabase.co  ✅ 확보됨
+  NEXT_PUBLIC_SUPABASE_ANON_KEY  = sb_publishable_tS4v-YA5g_nyMa4Wq2HBLQ_vi6KPxFo  ✅ 확보됨
+  SUPABASE_SERVICE_ROLE_KEY      = (Supabase 대시보드 Settings → API에서 복사 — 절대 외부 노출 금지)
+  RESEND_API_KEY                 = (Resend 대시보드에서 발급)
   NOTIFY_TO_EMAIL                = wnj-2023@naver.com
-  NOTIFY_FROM_EMAIL              = (발신 이메일)
+  NOTIFY_FROM_EMAIL              = onboarding@resend.dev  (또는 인증된 발신 도메인)
   NEXT_PUBLIC_SITE_URL           = (커스텀 도메인 연결 후 실제 도메인 주소)
   ```
-- [ ] **🔴 Supabase 마이그레이션 (필수·최우선)** — 카테고리 체계가 바뀌었고, 기존 `quotes` 테이블의 `category CHECK` 제약이 신규 값과 불일치해 **현재 견적 제출이 DB 단계에서 실패**합니다. Supabase SQL 에디터에서 아래 실행:
-  ```sql
-  alter table public.quotes drop constraint if exists quotes_category_check;
-  alter table public.quotes add column if not exists customer_type text;
-  ```
-  (신규 설치는 `supabase/schema.sql` 전체 실행)
-- [ ] **견적 폼 실제 제출 테스트** — 환경변수 설정 후 폼 제출 → DB 저장 + 이메일 수신 확인
+  > ⚠️ Supabase URL과 anon 키는 이미 확보. Resend 키만 추가 발급하면 이메일 알림까지 완전 작동.
+- [x] **~~🔴 Supabase 마이그레이션 (필수·최우선)~~** ✅ **완료** — 신규 프로젝트에 스키마 전체 생성. CHECK 제약 없음, `customer_type` 컬럼 포함. E2E 검증 통과.
+- [ ] **견적 폼 실제 제출 테스트** — Vercel 환경변수 설정 후 폼 제출 → DB 저장 + 이메일 수신 확인
 - [ ] **커스텀 도메인 연결** — Vercel 대시보드 → Domains → 도메인 입력 → DNS 설정 후 `NEXT_PUBLIC_SITE_URL` 업데이트
 
 ### 🟡 콘텐츠 — 사장님 제공 필요
