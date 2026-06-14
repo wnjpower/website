@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Phone, Zap, Menu, X, Clock, Mail } from 'lucide-react';
+import { Phone, Zap, Menu, X, Clock, Mail, CheckCircle2 } from 'lucide-react';
 
 const navItems = [
   { label: '서비스',       href: '#services' },
@@ -10,16 +10,23 @@ const navItems = [
   { label: '자주묻는질문', href: '#faq' },
 ];
 
-// 상단 띠 높이: 2.5rem(40px) / 메인 헤더: 5rem(80px)
-const TOP_BAR_H  = 'h-10';          // 40px
-const HEADER_H   = 'h-20';          // 80px
-const TOP_BAR_REM = 'top-10';       // 헤더가 띠 아래에 위치
-const MENU_TOP_SCROLLED   = 'top-20';               // 80px
-const MENU_TOP_DEFAULT    = 'top-[7.5rem]';          // 40+80=120px
+const topBarItems = [
+  { icon: Clock,        text: '평일 09:00–18:00 · 토 09:00–13:00' },
+  { icon: Mail,         text: 'wnj-2023@naver.com' },
+  { icon: CheckCircle2, text: '현장 견적 출장비 무료' },
+];
+
+// 상단 띠 높이: 3.5rem(56px) / 메인 헤더: 5rem(80px)
+const TOP_BAR_H   = 'h-14';         // 56px
+const HEADER_H    = 'h-20';         // 80px
+const TOP_BAR_REM = 'top-14';       // 헤더가 띠 아래에 위치
+const MENU_TOP_SCROLLED = 'top-20';              // 80px
+const MENU_TOP_DEFAULT  = 'top-[8.5rem]';         // 56+80=136px
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -33,6 +40,14 @@ export default function Header() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
+  // 상단 띠 자동 슬라이드 (3.5초 간격)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIdx((i) => (i + 1) % topBarItems.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   const handleNavClick = (href: string) => {
@@ -44,37 +59,40 @@ export default function Header() {
 
   return (
     <>
-      {/* ── 상단 정보 띠 ── */}
+      {/* ── 상단 공지 띠 ── */}
       <div
         className={`fixed top-0 inset-x-0 z-50 bg-[#0A3D91] transition-all duration-200 overflow-hidden ${
           scrolled || menuOpen ? 'h-0 opacity-0' : `${TOP_BAR_H} opacity-100`
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-4">
-          {/* 왼쪽: 영업시간·이메일 (sm 이상) */}
-          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-blue-100">
-            <span className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#FFB800]" />
-              평일 09:00–18:00 &nbsp;·&nbsp; 토 09:00–13:00
-            </span>
-            <span className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-[#FFB800]" />
-              wnj-2023@naver.com
-            </span>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center relative">
+          {/* 슬라이드 아이템: key로 재마운트 → CSS 애니메이션 재실행 */}
+          {(() => {
+            const { icon: Icon, text } = topBarItems[activeIdx];
+            return (
+              <div
+                key={activeIdx}
+                className="animate-topbar-in flex items-center gap-2.5 text-sm sm:text-base font-semibold text-white"
+              >
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFB800] flex-shrink-0" />
+                <span>{text}</span>
+              </div>
+            );
+          })()}
+        </div>
 
-          {/* 모바일: 핵심 한 줄 */}
-          <div className="sm:hidden flex items-center gap-2 text-sm font-medium text-blue-100">
-            <Clock className="w-4 h-4 text-[#FFB800]" />
-            평일 09:00–18:00 &nbsp;·&nbsp; 현장 견적 출장비 무료
-          </div>
-
-          {/* 오른쪽: 서비스 강점 */}
-          <div className="flex items-center gap-2 text-sm font-medium text-blue-100 sm:ml-auto">
-            <span className="w-2 h-2 rounded-full bg-[#FFB800] flex-shrink-0" />
-            <span className="hidden sm:inline">현장 견적 출장비 무료 &nbsp;·&nbsp; 대구·경북 당일 출동 A/S</span>
-            <span className="sm:hidden">견적 출장비 무료 · 당일 출동</span>
-          </div>
+        {/* 슬라이드 인디케이터 도트 */}
+        <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1.5">
+          {topBarItems.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIdx(i)}
+              aria-label={`${i + 1}번 항목`}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${
+                i === activeIdx ? 'bg-white' : 'bg-white/40'
+              }`}
+            />
+          ))}
         </div>
       </div>
 
@@ -128,7 +146,7 @@ export default function Header() {
               {/* 데스크톱 전화 버튼 */}
               <a
                 href="tel:010-8552-9994"
-                className="hidden sm:inline-flex items-center gap-2.5 bg-[#FFB800] hover:bg-[#E6A600] text-[#0F172A] font-bold px-5 py-3 rounded-lg transition-colors shadow-sm text-[1.0625rem]"
+                className="hidden sm:inline-flex items-center gap-2.5 bg-[#FF5500] hover:bg-[#E04A00] text-white font-bold px-5 py-3 rounded-lg transition-colors shadow-sm text-[1.0625rem]"
               >
                 <Phone className="w-5 h-5 flex-shrink-0" />
                 010-8552-9994
@@ -138,9 +156,9 @@ export default function Header() {
               <a
                 href="tel:010-8552-9994"
                 aria-label="전화상담"
-                className="sm:hidden w-11 h-11 flex items-center justify-center rounded-lg bg-[#FFB800] hover:bg-[#E6A600] transition-colors"
+                className="sm:hidden w-11 h-11 flex items-center justify-center rounded-lg bg-[#FF5500] hover:bg-[#E04A00] transition-colors"
               >
-                <Phone className="w-5 h-5 text-[#0F172A]" />
+                <Phone className="w-5 h-5 text-white" />
               </a>
 
               {/* 햄버거 버튼 */}
@@ -190,7 +208,7 @@ export default function Header() {
             <a
               href="tel:010-8552-9994"
               onClick={closeMenu}
-              className="flex items-center justify-center gap-3 bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold text-lg px-4 py-4 rounded-xl transition-colors"
+              className="flex items-center justify-center gap-3 bg-[#FF5500] hover:bg-[#E04A00] text-white font-bold text-lg px-4 py-4 rounded-xl transition-colors"
             >
               <Phone className="w-5 h-5" />
               010-8552-9994 전화상담
@@ -198,7 +216,7 @@ export default function Header() {
             <a
               href="#quote"
               onClick={closeMenu}
-              className="flex items-center justify-center gap-2 bg-[#FFB800] hover:bg-[#E6A600] text-[#0F172A] font-bold text-lg px-4 py-4 rounded-xl transition-colors"
+              className="flex items-center justify-center gap-2 bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold text-lg px-4 py-4 rounded-xl transition-colors"
             >
               무료 견적문의
             </a>

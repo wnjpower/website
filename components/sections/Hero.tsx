@@ -33,7 +33,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative pt-32 pb-16 sm:pt-44 sm:pb-20 overflow-hidden bg-[#F8FAFC] bg-blueprint bg-blueprint-animate"
+      className="relative pt-36 pb-16 sm:pt-44 sm:pb-20 overflow-hidden bg-[#F8FAFC] bg-blueprint bg-blueprint-animate"
     >
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
