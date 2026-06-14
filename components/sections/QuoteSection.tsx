@@ -1,5 +1,4 @@
 'use client';
-import { useState } from 'react';
 import dynamic from 'next/dynamic';
 
 const QuoteForm = dynamic(() => import('./QuoteForm'), { ssr: false });
@@ -10,11 +9,12 @@ interface Props {
 }
 
 export default function QuoteSection({ defaultCategory, defaultCustomerType }: Props) {
-  const [category] = useState(defaultCategory);
-  const [customerType] = useState(defaultCustomerType);
-
   return (
-    <section id="quote" className="py-20 bg-[#0B1220] bg-blueprint-dark">
+    <section
+      id="quote"
+      className="py-20 bg-[#0B1220] bg-photo bg-photo-dark"
+      style={{ ['--bg-photo-url' as string]: "url('/images/switchgear.jpg')" }}
+    >
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div data-reveal className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3">
@@ -32,7 +32,7 @@ export default function QuoteSection({ defaultCategory, defaultCustomerType }: P
         </div>
 
         <div className="bg-white rounded-lg p-6 sm:p-8 shadow-2xl">
-          <QuoteForm defaultCategory={category} defaultCustomerType={customerType} />
+          <QuoteForm defaultCategory={defaultCategory} defaultCustomerType={defaultCustomerType} />
         </div>
       </div>
     </section>

@@ -2,11 +2,21 @@
 
 > **프로덕션 URL**: https://wnj-website.vercel.app  
 > **GitHub**: https://github.com/sinequanon2002/wnjpower  
-> **최종 업데이트**: 2026-06-14 (2차)
+> **최종 업데이트**: 2026-06-14 (3차 — 공장·산업 전기공사 중심 전면 개편)
 
 ---
 
 ## ✅ 완료된 작업
+
+### 공장·산업 전기공사 중심 전면 개편 (2026-06-14 3차)
+- [x] **사이트 전체 포지셔닝 전환** — 공장 신축·증축·증설 전기공사를 최우선 주력으로, 인테리어 전기는 부수 서비스로 재편
+- [x] **서비스 4종 재편** — ①공장·산업 전기공사 ②수전설비·계약전력 증설 ③배전반·분전반 자체제작 ④인테리어·일반 전기 (앞 3종 `주력` 배지)
+- [x] **고객군 2분할** — 공장·산업(메인, 사진배경 대형 카드) + 인테리어·일반(서브). 기존 주택/상가/상업건물 3분할 폐기
+- [x] **견적 폼 전면 개편** — 고객유형(industrial/interior) + 공장 우선 카테고리(factory_new·power_receiving·power_increase·factory_power·switchboard 등), validators/QuoteForm/API 다층 일관성 유지
+- [x] **사진 배경 시스템** — `public/images/`에 스톡사진(factory-electrical.jpg·switchgear.jpg) + `.bg-photo` 오버레이 유틸. Hero·공장 메인카드·견적폼에 적용 (실고객 사진으로 파일만 교체 가능)
+- [x] **디자인 전문성 격상** — 산업 아이콘(Factory/Gauge/CircuitBoard), eyebrow 라벨, Hero/About/WhyUs/Pricing/Portfolio/FAQ 공장 중심 카피, Credentials를 Services 직후로 상향(B2B 신뢰 조기 노출)
+- [x] **메타데이터·SchemaOrg·Footer·Header** 공장 전기공사 키워드로 갱신
+- [x] **🐛 견적 폼 치명적 버그 수정** — `Input`/`Textarea` UI 컴포넌트가 `forwardRef` 미사용 → RHF가 이름·연락처 값을 수집하지 못해 **폼이 완전히 작동 불능**이던 문제를 `React.forwardRef`로 수정. (빌드·E2E 검증 완료: 검증 통과 + POST /api/quote 전송 확인)
 
 ### 기반 구축
 - [x] Next.js 14 App Router + TypeScript + Tailwind CSS v4 + shadcn/ui 프로젝트 세팅
@@ -88,7 +98,12 @@
   NOTIFY_FROM_EMAIL              = (발신 이메일)
   NEXT_PUBLIC_SITE_URL           = (커스텀 도메인 연결 후 실제 도메인 주소)
   ```
-- [ ] **Supabase 테이블 생성** — `supabase/schema.sql` 을 Supabase SQL 에디터에서 실행
+- [ ] **🔴 Supabase 마이그레이션 (필수·최우선)** — 카테고리 체계가 바뀌었고, 기존 `quotes` 테이블의 `category CHECK` 제약이 신규 값과 불일치해 **현재 견적 제출이 DB 단계에서 실패**합니다. Supabase SQL 에디터에서 아래 실행:
+  ```sql
+  alter table public.quotes drop constraint if exists quotes_category_check;
+  alter table public.quotes add column if not exists customer_type text;
+  ```
+  (신규 설치는 `supabase/schema.sql` 전체 실행)
 - [ ] **견적 폼 실제 제출 테스트** — 환경변수 설정 후 폼 제출 → DB 저장 + 이메일 수신 확인
 - [ ] **커스텀 도메인 연결** — Vercel 대시보드 → Domains → 도메인 입력 → DNS 설정 후 `NEXT_PUBLIC_SITE_URL` 업데이트
 

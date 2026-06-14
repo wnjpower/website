@@ -4,6 +4,8 @@ export default function SchemaOrg() {
     '@type': 'ElectricalContractor',
     name: '주식회사 우앤주전력',
     alternateName: 'WNJ Electric',
+    description:
+      '대구·경북 공장·산업 전기공사 전문 법인. 공장 신축·증축·증설, 수전설비·계약전력 증설, 동력설비, 배전반·분전반 자체 제작, 인테리어 전기공사.',
     image: '/og-image.png',
     url: process.env.NEXT_PUBLIC_SITE_URL,
     telephone: '+82-53-525-0424',

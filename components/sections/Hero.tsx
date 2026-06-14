@@ -4,25 +4,23 @@ import {
   Phone,
   ShieldCheck,
   CalendarDays,
-  Truck,
-  HandCoins,
-  Home,
-  Store,
-  Building2,
+  CircuitBoard,
+  Gauge,
+  Factory,
+  Lamp,
   ChevronRight,
 } from 'lucide-react';
 
 const segments = [
-  { icon: Home,      label: '아파트·주택 인테리어', sub: '개인 고객',     href: '#segments' },
-  { icon: Store,     label: '카페·식당 창업',       sub: '자영업 고객',   href: '#segments' },
-  { icon: Building2, label: '상업건물·병원 시공',   sub: '법인·사업자',   href: '#segments' },
+  { icon: Factory, label: '공장·산업 전기공사', sub: '신축·증축·수전·동력', href: '#segments', primary: true },
+  { icon: Lamp,    label: '인테리어·일반 전기', sub: '주택·상가·병원',     href: '#segments', primary: false },
 ];
 
 const trustStats = [
-  { icon: ShieldCheck,  label: '전기공사업 면허', sub: '등록업체' },
-  { icon: CalendarDays, label: '전기공사 업력',   sub: '20년 이상' },
-  { icon: Truck,        label: '당일 출동',       sub: 'A/S 원칙' },
-  { icon: HandCoins,    label: '현장 견적',        sub: '출장비 무료' },
+  { icon: ShieldCheck,  label: '전기공사업 면허', sub: '등록법인' },
+  { icon: CalendarDays, label: '업력 20년+',      sub: '대구·경북' },
+  { icon: CircuitBoard, label: '배전반 자체제작', sub: '중간 마진 0' },
+  { icon: Gauge,        label: '수전·동력설비',   sub: '증설 전문' },
 ];
 
 export default function Hero() {
@@ -33,27 +31,37 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative pt-36 pb-16 sm:pt-44 sm:pb-20 overflow-hidden bg-[#F8FAFC] bg-blueprint bg-blueprint-animate"
+      className="relative pt-36 pb-16 sm:pt-44 sm:pb-20 overflow-hidden bg-[#F8FAFC] bg-photo bg-photo-hero"
+      style={{ ['--bg-photo-url' as string]: "url('/images/factory-electrical.jpg')" }}
     >
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
+          {/* eyebrow */}
+          <p
+            className="animate-fade-up text-sm font-bold tracking-widest text-[#0A3D91] mb-4"
+            style={{ animationDelay: '0.02s' }}
+          >
+            대구·경북 공장·산업 전기공사 전문
+          </p>
+
           {/* 헤드라인 */}
           <h1
             className="animate-fade-up text-3xl sm:text-5xl lg:text-6xl font-bold text-[#0F172A] leading-tight tracking-tight mb-5"
             style={{ animationDelay: '0.05s' }}
           >
-            대구·경북 전기공사,
+            대구·경북 <span className="text-[#0A3D91]">공장 전기공사</span>,
             <br />
-            <span className="text-[#0A3D91]">우앤주전력</span>이 책임집니다
+            우앤주전력이 책임집니다
           </h1>
 
           {/* 서브헤드 */}
           <p
-            className="animate-fade-up text-base sm:text-xl md:text-2xl text-gray-500 mb-10 leading-relaxed"
+            className="animate-fade-up text-base sm:text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed"
             style={{ animationDelay: '0.18s' }}
           >
-            아파트 인테리어 전기부터 상가 창업, 상업건물 시공까지{' '}
-            <span className="text-[#0F172A] font-semibold">현장 방문 견적은 출장비 없이 무료</span>로 상담해 드립니다.
+            공장 신축·증축·증설부터 수전설비·계약전력 증설·배전반 자체제작까지 —{' '}
+            <span className="text-[#0F172A] font-semibold">전기공사업 면허 보유 법인이 직접 시공</span>합니다.
+            현장 방문 견적은 출장비 없이 무료입니다.
           </p>
 
           {/* CTA 버튼 */}
@@ -77,13 +85,31 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* 고객 유형 카드 */}
+        {/* 고객 유형 카드 — 공장(주력) 우선 */}
         <div
-          className="animate-fade-up grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10"
+          className="animate-fade-up grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10 max-w-3xl"
           style={{ animationDelay: '0.42s' }}
         >
           {segments.map((seg) => {
             const Icon = seg.icon;
+            if (seg.primary) {
+              return (
+                <button
+                  key={seg.label}
+                  onClick={() => handleSegmentClick(seg.href)}
+                  className="group flex items-center gap-4 bg-[#0A3D91] hover:bg-[#0A3D91]/90 border border-[#0A3D91] rounded-lg px-5 py-4 transition-all text-left shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                >
+                  <div className="w-11 h-11 rounded-md bg-white/15 flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-bold text-white">{seg.label}</p>
+                    <p className="text-sm text-blue-100">{seg.sub}</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-white flex-shrink-0" />
+                </button>
+              );
+            }
             return (
               <button
                 key={seg.label}

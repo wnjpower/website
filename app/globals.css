@@ -135,6 +135,35 @@ section[id] {
 }
 
 /* =========================================================
+   사진 배경 시스템 — 전기공사 현장 사진 + 가독성 오버레이
+   섹션에서 style={{ '--bg-photo-url': "url('/images/xxx.jpg')" }} 로 주입.
+   실제 시공 사진을 확보하면 public/images 의 파일만 교체하면 됨.
+   ========================================================= */
+.bg-photo {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* 어두운 섹션용 (흰색 텍스트) */
+.bg-photo-dark {
+  background-image:
+    linear-gradient(rgba(11, 18, 32, 0.82), rgba(11, 18, 32, 0.9)),
+    var(--bg-photo-url);
+}
+/* 밝은 히어로용 (좌측 텍스트 가독성 + 우측 사진 노출) */
+.bg-photo-hero {
+  background-image:
+    linear-gradient(100deg, rgba(248, 250, 252, 0.97) 0%, rgba(248, 250, 252, 0.88) 42%, rgba(248, 250, 252, 0.5) 100%),
+    var(--bg-photo-url);
+}
+/* 강조 카드용 (네이비 오버레이 + 흰 텍스트) */
+.bg-photo-accent {
+  background-image:
+    linear-gradient(155deg, rgba(10, 61, 145, 0.93), rgba(11, 18, 32, 0.88)),
+    var(--bg-photo-url);
+}
+
+/* =========================================================
    동적 효과 (모션) — 모두 prefers-reduced-motion 가드
    reduced-motion 사용자는 모션 없이 콘텐츠가 즉시 보임
    ========================================================= */

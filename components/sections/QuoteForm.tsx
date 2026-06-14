@@ -15,25 +15,26 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Loader2, Home, Store, Building2, HelpCircle } from 'lucide-react';
+import { Loader2, Factory, Lamp, HelpCircle } from 'lucide-react';
 
 interface Props {
   defaultCategory?: string;
   defaultCustomerType?: string;
 }
 
-const customerTypeConfig: Record<string, { icon: typeof Home; label: string; sub: string; color: string; activeColor: string }> = {
-  residential:    { icon: Home,       label: '주택·아파트', sub: '개인 고객',      color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
-  small_business: { icon: Store,      label: '카페·상가',   sub: '자영업 고객',    color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
-  commercial:     { icon: Building2,  label: '상업건물·법인', sub: '사업자·법인',  color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
-  unknown:        { icon: HelpCircle, label: '잘 모르겠어요', sub: '기타',         color: 'border-gray-200 hover:border-gray-400',    activeColor: 'border-gray-500 bg-gray-50 ring-2 ring-gray-300' },
+const customerTypeConfig: Record<string, { icon: typeof Factory; label: string; sub: string; color: string; activeColor: string }> = {
+  industrial: { icon: Factory,    label: '공장·산업 전기', sub: '신축·증축·수전·동력', color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
+  interior:   { icon: Lamp,       label: '인테리어·일반 전기', sub: '주택·상가·병원',  color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
+  unknown:    { icon: HelpCircle, label: '잘 모르겠어요', sub: '기타',              color: 'border-gray-200 hover:border-gray-400',    activeColor: 'border-gray-500 bg-gray-50 ring-2 ring-gray-300' },
 };
 
-// 서비스 카드에서 넘어오는 구 카테고리 ID → 새 카테고리 매핑
+// 서비스 카드에서 넘어오는 서비스 ID → 견적 카테고리 매핑
 const legacyCategoryMap: Record<string, string> = {
-  electric: 'etc',
-  interior: 'apt_interior',
-  panel:    'panel_home',
+  factory:  'factory_new',
+  power:    'power_receiving',
+  panel:    'switchboard',
+  interior: 'interior_store',
+  electric: 'factory_new', // 구 ID 하위호환
 };
 
 const visibleCustomerTypes = CUSTOMER_TYPES.filter((t) => t !== 'unknown');
@@ -45,7 +46,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
   // 서비스 카드 구 ID를 새 카테고리로 변환
   const resolvedCategory = defaultCategory
     ? (legacyCategoryMap[defaultCategory] ?? defaultCategory)
-    : 'apt_interior';
+    : 'factory_new';
 
   const {
     register,
@@ -141,7 +142,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
       <div>
         <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 1</p>
         <p className="text-base font-semibold text-[#0F172A] mb-3">어떤 상황이신가요?</p>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {visibleCustomerTypes.map((type) => {
             const cfg = customerTypeConfig[type];
             const isActive = selectedCustomerType === type;

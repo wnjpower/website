@@ -3,10 +3,10 @@ import KakaoIcon from '@/components/KakaoIcon';
 import { portfolioItems } from '@/content/portfolio';
 
 const categoryColors: Record<string, string> = {
-  electric: 'bg-blue-100 text-blue-700',
+  factory:  'bg-blue-100 text-blue-700',
+  power:    'bg-emerald-100 text-emerald-700',
   panel:    'bg-amber-100 text-amber-700',
   interior: 'bg-purple-100 text-purple-700',
-
 };
 
 export default function Portfolio() {

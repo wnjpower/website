@@ -37,8 +37,8 @@ export default function Home() {
       <Hero />
       <CustomerSegments onSelectSegment={handleSelectSegment} />
       <Services onSelectCategory={handleSelectCategory} />
-      <About />
       <Credentials />
+      <About />
       <WhyUs />
       <Process />
       <Pricing />

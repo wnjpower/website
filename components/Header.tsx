@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Phone, Zap, Menu, X, Clock, Mail, CheckCircle2 } from 'lucide-react';
 
 const navItems = [
-  { label: '서비스',       href: '#services' },
+  { label: '공장전기',     href: '#services' },
   { label: '비용안내',     href: '#pricing' },
   { label: '시공사례',     href: '#portfolio' },
   { label: '자주묻는질문', href: '#faq' },
@@ -113,7 +113,7 @@ export default function Header() {
                   우앤주전력
                 </span>
                 <span className="block text-sm font-semibold text-[#0A3D91] tracking-wide">
-                  전기공사업 등록법인
+                  공장·산업 전기공사 전문
                 </span>
               </span>
             </Link>

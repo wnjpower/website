@@ -9,9 +9,9 @@ const stats = [
     note: '법인 설립 2023년',
   },
   {
-    value: <CountUp end={6} prefix="월 평균 " suffix="개 현장" className="text-3xl font-bold text-[#0A3D91]" />,
-    label: '꾸준한 시공 실적',
-    note: '대구·경북 지역',
+    value: <span className="text-3xl font-bold text-[#0A3D91]">공장·산업</span>,
+    label: '전기공사 전문',
+    note: '수전·동력·배전반 자체제작',
   },
   {
     value: <span className="text-3xl font-bold text-[#0A3D91]">1년 보증</span>,
@@ -26,7 +26,7 @@ export default function About() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div data-reveal className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A]">
-            전기공사 전문 법인, 우앤주전력입니다
+            공장·산업 전기공사 전문 법인, 우앤주전력입니다
           </h2>
         </div>
 
@@ -47,10 +47,10 @@ export default function About() {
                 한 건 한 건, 제 집 공사라는 마음으로 시공하겠습니다.&rdquo;
               </p>
               <p className="text-base text-gray-500 leading-relaxed mb-5">
-                우앤주전력은 전기공사·분전함 자체 제작·인테리어 전기를 한 곳에서
-                해결하는 대구·경북 지역 전문 전기공사 법인입니다.{' '}
+                우앤주전력은 공장·산업시설 전기공사를 주력으로, 수전설비·계약전력 증설·배전반
+                자체 제작까지 직접 시공하는 대구·경북 지역 전기공사 법인입니다.{' '}
                 <span className="font-semibold text-[#0F172A]">20년 이상의 현장 경험</span>을 바탕으로
-                직접 시공하기에 합리적인 가격과 책임 있는 사후관리를 약속드립니다.
+                주택·상가·병원 인테리어 전기까지 합리적인 가격과 책임 있는 사후관리로 시공합니다.
               </p>
               <div className="text-base text-gray-400">
                 <span className="font-semibold text-[#0F172A]">주식회사 우앤주전력 대표 임태훈</span>

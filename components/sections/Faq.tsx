@@ -9,10 +9,9 @@ import {
 import { faqs, type FaqSegment } from '@/content/faq';
 
 const tabs: { value: FaqSegment; label: string }[] = [
-  { value: 'all',            label: '전체' },
-  { value: 'residential',    label: '주택·아파트' },
-  { value: 'small_business', label: '카페·상가' },
-  { value: 'commercial',     label: '상업건물' },
+  { value: 'all',        label: '전체' },
+  { value: 'industrial', label: '공장·산업' },
+  { value: 'interior',   label: '인테리어·일반' },
 ];
 
 export default function Faq() {

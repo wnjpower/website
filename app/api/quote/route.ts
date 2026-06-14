@@ -61,14 +61,15 @@ export async function POST(req: NextRequest) {
 
   // 1) Supabase 저장
   const { error: dbError } = await supabase.from('quotes').insert({
-    name:       data.name,
-    phone:      data.phone,
-    region:     data.region || null,
-    category:   data.category,
-    message:    data.message || null,
-    source:     data.source || null,
-    user_agent: userAgent.slice(0, 200),
-    ip_hash:    hashIp(ip),
+    name:          data.name,
+    phone:         data.phone,
+    region:        data.region || null,
+    category:      data.category,
+    customer_type: data.customerType || null,
+    message:       data.message || null,
+    source:        data.source || null,
+    user_agent:    userAgent.slice(0, 200),
+    ip_hash:       hashIp(ip),
   });
 
   if (dbError) {
