@@ -25,7 +25,7 @@ export default function Faq() {
   return (
     <section id="faq" className="py-20 bg-white">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
+        <div data-reveal className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] mb-3">
             자주 묻는 질문
           </h2>

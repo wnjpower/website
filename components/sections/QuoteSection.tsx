@@ -16,7 +16,7 @@ export default function QuoteSection({ defaultCategory, defaultCustomerType }: P
   return (
     <section id="quote" className="py-20 bg-[#0B1220] bg-blueprint-dark">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
+        <div data-reveal className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3">
             무료 견적문의
           </h2>

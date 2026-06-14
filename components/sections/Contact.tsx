@@ -14,7 +14,7 @@ export default function Contact() {
   return (
     <section id="contact" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div data-reveal className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] mb-3">오시는 길·연락처</h2>
           <p className="text-lg text-gray-500">언제든지 편하게 연락 주세요</p>
         </div>

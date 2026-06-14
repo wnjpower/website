@@ -133,3 +133,116 @@ section[id] {
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 32px 32px;
 }
+
+/* =========================================================
+   동적 효과 (모션) — 모두 prefers-reduced-motion 가드
+   reduced-motion 사용자는 모션 없이 콘텐츠가 즉시 보임
+   ========================================================= */
+
+/* 스크롤 등장: 기본은 보이게 두고, 모션 허용 시에만 숨겼다 등장 */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Hero 진입 모션 (마운트 시 단계적 등장) */
+  @keyframes wnj-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-fade-up {
+    opacity: 0;
+    animation: wnj-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* 블루프린트 배경 은은한 흐름 (전기 도면이 살아있는 느낌) */
+  @keyframes wnj-grid-drift {
+    from {
+      background-position: 0 0, 0 0;
+    }
+    to {
+      background-position: 32px 32px, 32px 32px;
+    }
+  }
+  .bg-blueprint-animate {
+    animation: wnj-grid-drift 40s linear infinite;
+  }
+
+  /* Floating 전화 버튼 맥박 — 시선 유도 */
+  @keyframes wnj-cta-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(10, 61, 145, 0.5);
+    }
+    70% {
+      box-shadow: 0 0 0 16px rgba(10, 61, 145, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(10, 61, 145, 0);
+    }
+  }
+  .animate-cta-pulse {
+    animation: wnj-cta-pulse 2.4s ease-out infinite;
+  }
+
+  /* 폼 제출 성공 체크 팝업 */
+  @keyframes wnj-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    60% {
+      transform: scale(1.08);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .animate-pop {
+    animation: wnj-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes wnj-check-draw {
+    from {
+      stroke-dashoffset: 30;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .animate-check-draw {
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    animation: wnj-check-draw 0.45s ease-out 0.25s forwards;
+  }
+}
+
+/* Floating CTA 등장/퇴장 (모션 무관하게 부드러운 표시 전환) */
+.cta-dock {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+.cta-dock-hidden {
+  opacity: 0;
+  transform: translateY(16px) scale(0.9);
+  pointer-events: none;
+}
+.cta-dock-visible {
+  opacity: 1;
+  transform: none;
+}

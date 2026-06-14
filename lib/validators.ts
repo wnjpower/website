@@ -2,14 +2,14 @@ import { z } from 'zod';
 
 export const QUOTE_CATEGORIES = [
   'electric',
-  'solar',
+  'panel',
   'interior',
   'etc',
 ] as const;
 
 export const CategoryLabels: Record<typeof QUOTE_CATEGORIES[number], string> = {
   electric: '전기공사',
-  solar:    '태양광 발전설비',
+  panel:    '분전함 자체 제작',
   interior: '실내 인테리어 전기',
   etc:      '기타',
 };

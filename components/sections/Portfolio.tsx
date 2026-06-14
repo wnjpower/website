@@ -2,9 +2,10 @@ import { Camera, MessageCircle } from 'lucide-react';
 import { portfolioItems } from '@/content/portfolio';
 
 const categoryColors: Record<string, string> = {
-  electric:  'bg-blue-100 text-blue-700',
-  solar:     'bg-yellow-100 text-yellow-700',
-  interior:  'bg-purple-100 text-purple-700',
+  electric: 'bg-blue-100 text-blue-700',
+  panel:    'bg-amber-100 text-amber-700',
+  interior: 'bg-purple-100 text-purple-700',
+
 };
 
 export default function Portfolio() {
@@ -14,7 +15,7 @@ export default function Portfolio() {
   return (
     <section id="portfolio" className="py-20 bg-[#F8FAFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div data-reveal className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] mb-3">
             시공 사례
           </h2>
@@ -22,7 +23,7 @@ export default function Portfolio() {
         </div>
 
         {hasPhotos ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {itemsWithPhoto.map((item) => (
               <div key={item.id} className="rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white">
                 <div className="aspect-[4/3] bg-gray-100">
@@ -45,7 +46,7 @@ export default function Portfolio() {
             ))}
           </div>
         ) : (
-          <div className="max-w-2xl mx-auto">
+          <div data-reveal className="max-w-2xl mx-auto">
             {/* 사진 확보 전: 실적 텍스트 리스트로 신뢰 유지 */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
               <div className="flex items-center gap-3 mb-6">

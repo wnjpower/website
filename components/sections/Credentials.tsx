@@ -25,7 +25,7 @@ const credentials = [
     icon: Landmark,
     title: '법인 등록',
     number: '주식회사 우앤주전력',
-    description: '2023년 3월 설립. 개인사업자가 아닌 법인으로 책임 있게 운영합니다.',
+    description: '대표 업력 20년 이상의 베테랑이 2023년 법인으로 출범. 오랜 현장 경험을 법인의 체계로 운영합니다.',
     verify: null,
   },
 ];
@@ -34,14 +34,14 @@ export default function Credentials() {
   return (
     <section id="credentials" className="py-20 bg-[#0B1220] bg-blueprint-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div data-reveal className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3">
             믿고 맡길 수 있는 이유
           </h2>
           <p className="text-lg text-slate-400">모든 자격은 공공기관에서 직접 확인하실 수 있습니다</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <div data-reveal className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {credentials.map((cred) => {
             const Icon = cred.icon;
             return (

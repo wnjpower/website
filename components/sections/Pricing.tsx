@@ -3,19 +3,20 @@ import { Calculator } from 'lucide-react';
 
 // 가격 금액은 사장님 확정 후 priceLabel에 기입 (예: '5만원~'). 확정 전에는 '무료 견적' 표기.
 const priceItems = [
-  { work: '콘센트 추가·이동 (1개소)',          audience: '주택',       priceLabel: '무료 견적으로 확인' },
-  { work: '조명 교체·설치 (1개소)',            audience: '주택',       priceLabel: '무료 견적으로 확인' },
-  { work: '주택 분전함(두꺼비집) 교체',         audience: '주택',       priceLabel: '무료 견적으로 확인' },
-  { work: '상가 전기 용량 증설',               audience: '상가',       priceLabel: '현장 견적' },
-  { work: '상가 인테리어 전기 (33㎡ 기준)',     audience: '상가',       priceLabel: '무료 견적으로 확인' },
-  { work: '태양광 발전설비 (3kW~)',            audience: '주택·건물',  priceLabel: '보조금 포함 상담' },
+  { work: '콘센트 추가·이동 (1개소)',              audience: '주택',         priceLabel: '무료 견적으로 확인' },
+  { work: '조명 교체·설치 (1개소)',               audience: '주택',         priceLabel: '무료 견적으로 확인' },
+  { work: '주택 분전함(두꺼비집) 자체 제작·교체', audience: '주택',         priceLabel: '무료 견적으로 확인' },
+  { work: '상가 전기 용량 증설',                  audience: '상가',         priceLabel: '현장 견적' },
+  { work: '상가 인테리어 전기 (33㎡ 기준)',        audience: '상가',         priceLabel: '무료 견적으로 확인' },
+  { work: '산업용·상업용 배전반 자체 제작',        audience: '상업건물·공장', priceLabel: '규격 협의 후 견적' },
+
 ];
 
 export default function Pricing() {
   return (
     <section id="pricing" className="py-20 bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div data-reveal className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] tracking-tight mb-3">
             비용이 궁금하신가요?
           </h2>
@@ -27,7 +28,7 @@ export default function Pricing() {
         </div>
 
         {/* 견적서 양식 스타일 표 */}
-        <div className="rounded-lg border border-gray-200 shadow-sm overflow-hidden bg-white overflow-x-auto">
+        <div data-reveal className="rounded-lg border border-gray-200 shadow-sm overflow-hidden bg-white overflow-x-auto">
           <div className="bg-[#0A3D91] px-6 py-3.5 flex items-center justify-between">
             <span className="text-white font-bold text-base tracking-tight">표준 작업 항목표</span>
             <span className="text-blue-200 text-sm font-mono">주식회사 우앤주전력</span>

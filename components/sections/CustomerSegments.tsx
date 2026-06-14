@@ -61,12 +61,12 @@ const segments: Segment[] = [
     pains: [
       '전기 면허·법적 요건을 완벽히 갖춘 업체가 필요해요',
       '건물 규모에 맞는 전기 설비 설계가 필요해요',
-      '태양광 발전설비 연계 및 보조금 활용도 하고 싶어요',
+      '분전반·배전반 제작부터 설치까지 일괄 처리가 필요해요',
     ],
     solutions: [
       '전기공사업 면허 보유·법적 요건 완비',
       '대규모 전기 설비 설계·시공 일괄 수행',
-      '태양광 설비 설계·시공·보조금 신청 일괄 처리',
+      '맞춤형 분전반·배전반 자체 제작 및 설치',
     ],
     cta: '상업건물 공사 문의',
     barColor: 'bg-[#0A3D91]',
@@ -87,7 +87,7 @@ export default function CustomerSegments({ onSelectSegment }: Props) {
   return (
     <section id="segments" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div data-reveal className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] tracking-tight mb-3">
             어떤 공사를 계획하고 계신가요?
           </h2>
@@ -96,7 +96,7 @@ export default function CustomerSegments({ onSelectSegment }: Props) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div data-reveal className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {segments.map((seg) => {
             const Icon = seg.icon;
             return (

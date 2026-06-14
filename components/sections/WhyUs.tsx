@@ -1,17 +1,17 @@
-import { Wrench, SunMedium, PhoneCall } from 'lucide-react';
+import { Wrench, CircuitBoard, PhoneCall } from 'lucide-react';
 
 const items = [
   {
     icon: Wrench,
     title: '원스톱 시공',
-    description: '전기·태양광·인테리어 전기를 한 업체에서. 아파트 인테리어부터 상가 창업, 상업건물 신축까지 협력업체 조율 스트레스 없이 한 번에 마무리합니다.',
+    description: '전기공사·분전함 제작·인테리어 전기를 한 업체에서. 아파트 인테리어부터 상가 창업, 상업건물 신축까지 협력업체 조율 스트레스 없이 한 번에 마무리합니다.',
     tags: ['주택', '상가', '상업건물'],
   },
   {
-    icon: SunMedium,
-    title: '신재생에너지 전문성',
-    description: '주택 태양광부터 건물 옥상 발전설비까지. 설계·시공 실적 보유, 정부 보조금 신청부터 계통 연계까지 전 과정을 함께 안내합니다.',
-    tags: ['주택', '상업건물'],
+    icon: CircuitBoard,
+    title: '분전함 자체 제작',
+    description: '외주 없이 직접 제작하므로 중간 마진이 없습니다. 현장 규격·회로 수에 맞는 분전반·배전반을 합리적인 가격에 공급하고, 납기도 빠릅니다.',
+    tags: ['주택', '상가', '상업건물', '공장'],
   },
   {
     icon: PhoneCall,
@@ -25,14 +25,14 @@ export default function WhyUs() {
   return (
     <section id="why-us" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div data-reveal className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] mb-3">
             왜 우앤주전력인가요?
           </h2>
           <p className="text-lg text-gray-500">어떤 고객이든 한 업체로 해결되는 이유</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div data-reveal className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {items.map((item, i) => {
             const Icon = item.icon;
             return (

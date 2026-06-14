@@ -15,6 +15,7 @@ import QuoteSection from '@/components/sections/QuoteSection';
 import Contact from '@/components/sections/Contact';
 import Footer from '@/components/sections/Footer';
 import FloatingCta from '@/components/FloatingCta';
+import ScrollReveal from '@/components/ScrollReveal';
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
@@ -31,6 +32,7 @@ export default function Home() {
 
   return (
     <main>
+      <ScrollReveal />
       <Header />
       <Hero />
       <CustomerSegments onSelectSegment={handleSelectSegment} />

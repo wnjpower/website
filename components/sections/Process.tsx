@@ -29,14 +29,14 @@ export default function Process() {
   return (
     <section id="process" className="py-20 bg-[#F8FAFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div data-reveal className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] mb-3">
             진행 프로세스
           </h2>
           <p className="text-base sm:text-lg text-gray-500">문의부터 사후관리까지, 각 단계 소요 기간을 미리 알려드립니다</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {steps.map((s, i) => (
             <div key={i} className="relative">
               <div className="group bg-white rounded-lg p-6 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200 border border-gray-200 hover:border-[#0A3D91]/40 border-t-4 border-t-[#0A3D91] h-full flex flex-col">

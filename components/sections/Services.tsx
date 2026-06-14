@@ -1,8 +1,8 @@
 'use client';
-import { HardHat, Sun, Lamp } from 'lucide-react';
+import { HardHat, CircuitBoard, Lamp, CheckCircle2 } from 'lucide-react';
 import { services } from '@/content/services';
 
-const iconMap = { HardHat, Sun, Lamp } as const;
+const iconMap = { HardHat, CircuitBoard, Lamp } as const;
 type IconKey = keyof typeof iconMap;
 
 interface Props {
@@ -13,14 +13,14 @@ export default function Services({ onSelectCategory }: Props) {
   return (
     <section id="services" className="py-20 bg-[#F8FAFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div data-reveal className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] tracking-tight mb-3">
             3대 전문 서비스
           </h2>
-          <p className="text-lg text-gray-500">전기·태양광·인테리어 전기, 한 곳에서 해결</p>
+          <p className="text-lg text-gray-500">전기공사·분전함 자체 제작·인테리어 전기, 한 곳에서 해결</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((svc, idx) => {
             const Icon = iconMap[svc.icon as IconKey];
             return (
@@ -38,14 +38,24 @@ export default function Services({ onSelectCategory }: Props) {
                   </span>
                 </div>
 
-                <h3 className="text-xl font-bold text-[#0F172A] tracking-tight mb-2">{svc.title}</h3>
+                <h3 className="text-xl font-bold text-[#0F172A] tracking-tight mb-1">{svc.title}</h3>
                 <p className="text-base text-gray-600 mb-1 font-medium">{svc.description}</p>
-                <p className="text-base text-gray-500 flex-1 leading-relaxed">{svc.detail}</p>
+                <p className="text-sm text-gray-500 leading-relaxed mb-4">{svc.detail}</p>
+
+                {/* 상세 포인트 */}
+                <ul className="space-y-1.5 flex-1 mb-5">
+                  {svc.points.map((point) => (
+                    <li key={point} className="flex items-start gap-2 text-sm text-gray-600">
+                      <CheckCircle2 className="w-4 h-4 text-[#0A3D91] mt-0.5 flex-shrink-0" />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
 
                 {/* 적합 대상 */}
-                <div className="flex flex-wrap gap-1.5 mt-5">
+                <div className="flex flex-wrap gap-1.5 mb-4">
                   {svc.audiences.map((a) => (
-                    <span key={a} className="text-sm font-semibold px-2.5 py-0.5 rounded-md bg-[#0A3D91]/8 text-[#0A3D91]">
+                    <span key={a} className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#0A3D91]/8 text-[#0A3D91]">
                       {a}
                     </span>
                   ))}
@@ -53,7 +63,7 @@ export default function Services({ onSelectCategory }: Props) {
 
                 <button
                   onClick={() => onSelectCategory?.(svc.id)}
-                  className="mt-5 text-base text-[#0A3D91] font-bold hover:underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A3D91] rounded"
+                  className="mt-auto text-sm text-[#0A3D91] font-bold hover:underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A3D91] rounded"
                 >
                   이 항목으로 문의하기 →
                 </button>

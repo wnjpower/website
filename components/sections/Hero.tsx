@@ -20,7 +20,7 @@ const segments = [
 
 const trustStats = [
   { icon: ShieldCheck,  label: '전기공사업 면허', sub: '등록업체' },
-  { icon: CalendarDays, label: '전문 법인',        sub: '전기공사업 면허' },
+  { icon: CalendarDays, label: '전기공사 업력',   sub: '20년 이상' },
   { icon: Truck,        label: '당일 출동',       sub: 'A/S 원칙' },
   { icon: HandCoins,    label: '견적·출장',       sub: '완전 무료' },
 ];
@@ -33,25 +33,34 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative pt-32 pb-16 sm:pt-44 sm:pb-20 overflow-hidden bg-[#F8FAFC] bg-blueprint"
+      className="relative pt-32 pb-16 sm:pt-44 sm:pb-20 overflow-hidden bg-[#F8FAFC] bg-blueprint bg-blueprint-animate"
     >
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
           {/* 헤드라인 */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-[#0F172A] leading-tight tracking-tight mb-5">
+          <h1
+            className="animate-fade-up text-3xl sm:text-5xl lg:text-6xl font-bold text-[#0F172A] leading-tight tracking-tight mb-5"
+            style={{ animationDelay: '0.05s' }}
+          >
             대구·경북 전기공사,
             <br />
             <span className="text-[#0A3D91]">우앤주전력</span>이 책임집니다
           </h1>
 
           {/* 서브헤드 */}
-          <p className="text-base sm:text-xl md:text-2xl text-gray-500 mb-10 leading-relaxed">
+          <p
+            className="animate-fade-up text-base sm:text-xl md:text-2xl text-gray-500 mb-10 leading-relaxed"
+            style={{ animationDelay: '0.18s' }}
+          >
             아파트 인테리어 전기부터 상가 창업, 상업건물 시공까지{' '}
             <span className="text-[#0F172A] font-semibold">견적·출장 완전 무료</span>로 상담해 드립니다.
           </p>
 
           {/* CTA 버튼 */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-12">
+          <div
+            className="animate-fade-up flex flex-col sm:flex-row gap-4 mb-12"
+            style={{ animationDelay: '0.3s' }}
+          >
             <Link
               href="#quote"
               className="inline-flex items-center justify-center gap-2 bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold text-xl px-10 py-5 rounded-lg transition-all shadow-lg shadow-[#0A3D91]/20 hover:-translate-y-0.5 w-full sm:w-auto"
@@ -69,7 +78,10 @@ export default function Hero() {
         </div>
 
         {/* 고객 유형 카드 */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10">
+        <div
+          className="animate-fade-up grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10"
+          style={{ animationDelay: '0.42s' }}
+        >
           {segments.map((seg) => {
             const Icon = seg.icon;
             return (
@@ -92,7 +104,10 @@ export default function Hero() {
         </div>
 
         {/* 신뢰 스탯 배너 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div
+          className="animate-fade-up grid grid-cols-2 md:grid-cols-4 gap-3"
+          style={{ animationDelay: '0.54s' }}
+        >
           {trustStats.map((stat) => {
             const Icon = stat.icon;
             return (

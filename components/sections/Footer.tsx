@@ -32,7 +32,7 @@ export default function Footer() {
             <p className="text-white font-bold mb-3">서비스</p>
             <ul className="space-y-1 text-sm">
               <li><Link href="#services" className="hover:text-white transition-colors">전기공사</Link></li>
-              <li><Link href="#services" className="hover:text-white transition-colors">태양광 발전설비</Link></li>
+              <li><Link href="#services" className="hover:text-white transition-colors">분전함 자체 제작</Link></li>
               <li><Link href="#services" className="hover:text-white transition-colors">실내 인테리어 전기</Link></li>
             </ul>
           </div>

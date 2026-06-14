@@ -87,14 +87,14 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
   if (submitted) {
     return (
       <div className="text-center py-12">
-        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+        <div className="animate-pop w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <path className="animate-check-draw" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="text-xl font-bold text-[#0F172A] mb-2">접수 완료!</h3>
-        <p className="text-gray-500">1영업일 내에 연락드리겠습니다.</p>
-        <p className="text-sm text-gray-400 mt-1">빠른 상담: 053-525-0424</p>
+        <h3 className="animate-fade-up text-xl font-bold text-[#0F172A] mb-2" style={{ animationDelay: '0.2s' }}>접수 완료!</h3>
+        <p className="animate-fade-up text-gray-500" style={{ animationDelay: '0.3s' }}>1영업일 내에 연락드리겠습니다.</p>
+        <p className="animate-fade-up text-sm text-gray-400 mt-1" style={{ animationDelay: '0.4s' }}>빠른 상담: 053-525-0424</p>
       </div>
     );
   }
@@ -139,8 +139,8 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* 이름 */}
-        <div>
-          <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">
+        <div className="group">
+          <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
             이름 <span className="text-red-500">*</span>
           </label>
           <Input
@@ -152,8 +152,8 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
         </div>
 
         {/* 연락처 */}
-        <div>
-          <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">
+        <div className="group">
+          <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
             연락처 <span className="text-red-500">*</span>
           </label>
           <Input
@@ -223,7 +223,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold py-4 text-lg rounded-xl"
+        className="w-full bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold py-4 text-lg rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0A3D91]/25 disabled:hover:translate-y-0 disabled:hover:shadow-none"
       >
         {isSubmitting ? (
           <>
