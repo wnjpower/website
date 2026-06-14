@@ -230,20 +230,6 @@ section[id] {
     animation: wnj-check-draw 0.45s ease-out 0.25s forwards;
   }
 
-  /* 상단 공지 띠 슬라이드 인 */
-  @keyframes wnj-topbar-in {
-    from {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .animate-topbar-in {
-    animation: wnj-topbar-in 0.35s ease forwards;
-  }
 }
 
 /* Floating CTA 등장/퇴장 (모션 무관하게 부드러운 표시 전환) */

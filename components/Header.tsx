@@ -10,12 +10,6 @@ const navItems = [
   { label: '자주묻는질문', href: '#faq' },
 ];
 
-const topBarItems = [
-  { icon: Clock,        text: '평일 09:00–18:00 · 토 09:00–13:00' },
-  { icon: Mail,         text: 'wnj-2023@naver.com' },
-  { icon: CheckCircle2, text: '현장 견적 출장비 무료' },
-];
-
 // 상단 띠 높이: 3.5rem(56px) / 메인 헤더: 5rem(80px)
 const TOP_BAR_H   = 'h-14';         // 56px
 const HEADER_H    = 'h-20';         // 80px
@@ -26,7 +20,6 @@ const MENU_TOP_DEFAULT  = 'top-[8.5rem]';         // 56+80=136px
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeIdx, setActiveIdx] = useState(0);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -39,14 +32,6 @@ export default function Header() {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
-
-  // 상단 띠 자동 슬라이드 (3.5초 간격)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveIdx((i) => (i + 1) % topBarItems.length);
-    }, 3500);
-    return () => clearInterval(timer);
-  }, []);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
@@ -65,34 +50,39 @@ export default function Header() {
           scrolled || menuOpen ? 'h-0 opacity-0' : `${TOP_BAR_H} opacity-100`
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center relative">
-          {/* 슬라이드 아이템: key로 재마운트 → CSS 애니메이션 재실행 */}
-          {(() => {
-            const { icon: Icon, text } = topBarItems[activeIdx];
-            return (
-              <div
-                key={activeIdx}
-                className="animate-topbar-in flex items-center gap-2.5 text-sm sm:text-base font-semibold text-white"
-              >
-                <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFB800] flex-shrink-0" />
-                <span>{text}</span>
-              </div>
-            );
-          })()}
-        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
 
-        {/* 슬라이드 인디케이터 도트 */}
-        <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {topBarItems.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setActiveIdx(i)}
-              aria-label={`${i + 1}번 항목`}
-              className={`w-1.5 h-1.5 rounded-full transition-all ${
-                i === activeIdx ? 'bg-white' : 'bg-white/40'
-              }`}
-            />
-          ))}
+          {/* 모바일: 핵심 2항목 */}
+          <div className="flex sm:hidden items-center gap-4 text-sm font-semibold text-white">
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              평일 09:00–18:00
+            </span>
+            <span className="w-px h-3.5 bg-white/30 flex-shrink-0" />
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              현장 견적 출장비 무료
+            </span>
+          </div>
+
+          {/* 데스크톱: 3항목 균등 배치 */}
+          <div className="hidden sm:flex items-center gap-5 lg:gap-8 text-sm font-semibold text-white">
+            <span className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              평일 09:00–18:00 · 토 09:00–13:00
+            </span>
+            <span className="w-px h-4 bg-white/30 flex-shrink-0" />
+            <span className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              wnj-2023@naver.com
+            </span>
+            <span className="w-px h-4 bg-white/30 flex-shrink-0" />
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              현장 견적 출장비 무료
+            </span>
+          </div>
+
         </div>
       </div>
 
