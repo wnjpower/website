@@ -1,4 +1,4 @@
-export type ServiceCategory = 'electric' | 'panel' | 'interior';
+export type ServiceCategory = 'electric' | 'interior' | 'panel';
 
 export interface Service {
   id: ServiceCategory;
@@ -26,20 +26,6 @@ export const services: Service[] = [
     audiences: ['주택', '상가', '상업건물', '공장'],
   },
   {
-    id: 'panel',
-    icon: 'CircuitBoard',
-    title: '분전함 자체 제작',
-    description: '맞춤형 분전반·배전반 직접 제작',
-    detail: '외주 없이 자체 제작하므로 중간 마진이 없습니다. 현장 규격과 회로 수에 딱 맞는 분전함을 합리적인 비용으로 공급합니다.',
-    points: [
-      '주문형 분전반·배전반 직접 제작',
-      '노후 분전함 교체 및 용량 업그레이드',
-      '차단기·누전차단기 교체·추가',
-      '산업용·상업용 대형 배전반도 제작 가능',
-    ],
-    audiences: ['주택', '상가', '상업건물', '공장'],
-  },
-  {
     id: 'interior',
     icon: 'Lamp',
     title: '실내 인테리어 전기',
@@ -52,5 +38,19 @@ export const services: Service[] = [
       '인테리어 업체와 일정 직접 조율',
     ],
     audiences: ['주택', '상가'],
+  },
+  {
+    id: 'panel',
+    icon: 'CircuitBoard',
+    title: '분전함 자체 제작',
+    description: '맞춤형 분전반·배전반 직접 제작',
+    detail: '외주 없이 자체 제작하므로 중간 마진이 없습니다. 현장 규격과 회로 수에 딱 맞는 분전함을 합리적인 비용으로 공급합니다.',
+    points: [
+      '주문형 분전반·배전반 직접 제작',
+      '노후 분전함 교체 및 용량 업그레이드',
+      '차단기·누전차단기 교체·추가',
+      '산업용·상업용 대형 배전반도 제작 가능',
+    ],
+    audiences: ['주택', '상가', '상업건물', '공장'],
   },
 ];

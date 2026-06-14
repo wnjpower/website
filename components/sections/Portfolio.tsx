@@ -1,4 +1,5 @@
-import { Camera, MessageCircle } from 'lucide-react';
+import { Camera } from 'lucide-react';
+import KakaoIcon from '@/components/KakaoIcon';
 import { portfolioItems } from '@/content/portfolio';
 
 const categoryColors: Record<string, string> = {
@@ -74,9 +75,10 @@ export default function Portfolio() {
                   href="https://pf.kakao.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#FFB800] hover:bg-[#FFB800]/90 text-[#0F172A] text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+                  className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors text-[#3C1E1E] hover:brightness-95"
+                  style={{ backgroundColor: '#FEE500' }}
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <KakaoIcon className="w-4 h-4" />
                   카카오톡으로 사례 문의
                 </a>
               </div>

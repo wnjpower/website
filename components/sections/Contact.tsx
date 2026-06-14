@@ -1,4 +1,5 @@
-import { Phone, Smartphone, Mail, MapPin, Clock, MessageCircle } from 'lucide-react';
+import { Phone, Smartphone, Mail, MapPin, Clock } from 'lucide-react';
+import KakaoIcon from '@/components/KakaoIcon';
 
 const contactItems = [
   { icon: Phone,         label: '대표 전화', value: '053-525-0424',         href: 'tel:053-525-0424' },
@@ -56,9 +57,10 @@ export default function Contact() {
                 href="https://pf.kakao.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-[#FFB800] hover:bg-[#FFB800]/90 text-[#0F172A] font-semibold px-6 py-3 rounded-xl transition-colors"
+                className="inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-xl transition-colors text-[#3C1E1E] hover:brightness-95"
+                style={{ backgroundColor: '#FEE500' }}
               >
-                <MessageCircle className="w-4 h-4" />
+                <KakaoIcon className="w-4 h-4" />
                 카카오톡 상담
               </a>
             </div>

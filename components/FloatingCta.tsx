@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Phone, MessageCircle } from 'lucide-react';
+import { Phone } from 'lucide-react';
+import KakaoIcon from '@/components/KakaoIcon';
 
 export default function FloatingCta() {
-  // Hero를 지나 스크롤하면 등장 → 초기 화면을 가리지 않음
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -19,18 +19,19 @@ export default function FloatingCta() {
         visible ? 'cta-dock-visible' : 'cta-dock-hidden'
       }`}
     >
-      {/* 카카오톡 */}
+      {/* 카카오톡 — 공식 브랜드 #FEE500 배경, #3C1E1E 아이콘 */}
       <a
         href="https://pf.kakao.com/"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="카카오톡 상담"
-        className="w-14 h-14 rounded-full bg-[#FFB800] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center"
+        className="w-14 h-14 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center text-[#3C1E1E]"
+        style={{ backgroundColor: '#FEE500' }}
       >
-        <MessageCircle className="w-6 h-6 text-[#0F172A]" />
+        <KakaoIcon className="w-7 h-7" />
       </a>
 
-      {/* 전화 — 맥박 모션으로 시선 유도 */}
+      {/* 전화 */}
       <a
         href="tel:010-8552-9994"
         aria-label="전화 상담 010-8552-9994"

@@ -3,7 +3,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { QuoteSchema, type QuoteInput, CategoryLabels, QUOTE_CATEGORIES, CUSTOMER_TYPES, CustomerTypeLabels } from '@/lib/validators';
+import {
+  QuoteSchema,
+  type QuoteInput,
+  CategoryLabels,
+  CATEGORIES_BY_CUSTOMER_TYPE,
+  CUSTOMER_TYPES,
+  CustomerTypeLabels,
+} from '@/lib/validators';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -15,11 +22,18 @@ interface Props {
   defaultCustomerType?: string;
 }
 
-const customerTypeConfig: Record<string, { icon: typeof Home; color: string; activeColor: string }> = {
-  residential:    { icon: Home,      color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
-  small_business: { icon: Store,     color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
-  commercial:     { icon: Building2, color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
-  unknown:        { icon: HelpCircle, color: 'border-gray-200 hover:border-gray-400',    activeColor: 'border-gray-500 bg-gray-50 ring-2 ring-gray-300' },
+const customerTypeConfig: Record<string, { icon: typeof Home; label: string; sub: string; color: string; activeColor: string }> = {
+  residential:    { icon: Home,       label: '주택·아파트', sub: '개인 고객',      color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
+  small_business: { icon: Store,      label: '카페·상가',   sub: '자영업 고객',    color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
+  commercial:     { icon: Building2,  label: '상업건물·법인', sub: '사업자·법인',  color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
+  unknown:        { icon: HelpCircle, label: '잘 모르겠어요', sub: '기타',         color: 'border-gray-200 hover:border-gray-400',    activeColor: 'border-gray-500 bg-gray-50 ring-2 ring-gray-300' },
+};
+
+// 서비스 카드에서 넘어오는 구 카테고리 ID → 새 카테고리 매핑
+const legacyCategoryMap: Record<string, string> = {
+  electric: 'etc',
+  interior: 'apt_interior',
+  panel:    'panel_home',
 };
 
 const visibleCustomerTypes = CUSTOMER_TYPES.filter((t) => t !== 'unknown');
@@ -27,6 +41,11 @@ const visibleCustomerTypes = CUSTOMER_TYPES.filter((t) => t !== 'unknown');
 export default function QuoteForm({ defaultCategory, defaultCustomerType }: Props) {
   const loadedAtRef = useRef(Date.now());
   const [submitted, setSubmitted] = useState(false);
+
+  // 서비스 카드 구 ID를 새 카테고리로 변환
+  const resolvedCategory = defaultCategory
+    ? (legacyCategoryMap[defaultCategory] ?? defaultCategory)
+    : 'apt_interior';
 
   const {
     register,
@@ -37,7 +56,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
   } = useForm<QuoteInput>({
     resolver: zodResolver(QuoteSchema),
     defaultValues: {
-      category:     (defaultCategory as QuoteInput['category']) ?? 'electric',
+      category:     resolvedCategory as QuoteInput['category'],
       customerType: (defaultCustomerType as QuoteInput['customerType']) ?? undefined,
       source:       'main_form',
       loadedAt:     loadedAtRef.current,
@@ -46,7 +65,8 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
 
   useEffect(() => {
     if (defaultCategory) {
-      setValue('category', defaultCategory as QuoteInput['category']);
+      const mapped = legacyCategoryMap[defaultCategory] ?? defaultCategory;
+      setValue('category', mapped as QuoteInput['category']);
     }
   }, [defaultCategory, setValue]);
 
@@ -58,6 +78,17 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
 
   const agree = watch('agree');
   const selectedCustomerType = watch('customerType');
+  const selectedCategory = watch('category');
+
+  // 고객 유형에 맞는 카테고리 목록
+  const availableCategories = CATEGORIES_BY_CUSTOMER_TYPE[selectedCustomerType ?? 'unknown'];
+
+  // 고객 유형 변경 시 현재 카테고리가 목록에 없으면 첫 번째로 리셋
+  useEffect(() => {
+    if (selectedCustomerType && !availableCategories.includes(selectedCategory as never)) {
+      setValue('category', availableCategories[0]);
+    }
+  }, [selectedCustomerType, availableCategories, selectedCategory, setValue]);
 
   const onSubmit = async (data: QuoteInput) => {
     try {
@@ -106,11 +137,10 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
       <input type="hidden" {...register('loadedAt', { valueAsNumber: true })} />
       <input type="hidden" {...register('source')} />
 
-      {/* 고객 유형 선택 */}
+      {/* STEP 1: 고객 유형 선택 */}
       <div>
-        <p className="text-sm font-semibold text-[#0F172A] mb-3">
-          고객 유형 <span className="text-gray-400 font-normal">(선택)</span>
-        </p>
+        <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 1</p>
+        <p className="text-base font-semibold text-[#0F172A] mb-3">어떤 상황이신가요?</p>
         <div className="grid grid-cols-3 gap-2">
           {visibleCustomerTypes.map((type) => {
             const cfg = customerTypeConfig[type];
@@ -125,11 +155,11 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
                 }`}
               >
                 <cfg.icon className={`w-6 h-6 ${isActive ? 'text-[#0A3D91]' : 'text-gray-400'}`} />
-                <span className={`text-sm font-semibold leading-tight ${isActive ? 'text-[#0F172A]' : 'text-gray-600'}`}>
-                  {CustomerTypeLabels[type].replace(' (', '\n(').split('\n')[0]}
+                <span className={`text-sm font-bold leading-tight ${isActive ? 'text-[#0F172A]' : 'text-gray-600'}`}>
+                  {cfg.label}
                 </span>
                 <span className={`text-xs leading-tight ${isActive ? 'text-gray-500' : 'text-gray-400'}`}>
-                  {CustomerTypeLabels[type].match(/\(([^)]+)\)/)?.[1] ?? ''}
+                  {cfg.sub}
                 </span>
               </button>
             );
@@ -137,64 +167,82 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {/* 이름 */}
-        <div className="group">
-          <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
-            이름 <span className="text-red-500">*</span>
-          </label>
-          <Input
-            {...register('name')}
-            placeholder="홍길동"
-            className={errors.name ? 'border-red-400 focus-visible:ring-red-400' : ''}
-          />
-          {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
-        </div>
-
-        {/* 연락처 */}
-        <div className="group">
-          <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
-            연락처 <span className="text-red-500">*</span>
-          </label>
-          <Input
-            {...register('phone')}
-            type="tel"
-            placeholder="010-0000-0000"
-            className={errors.phone ? 'border-red-400 focus-visible:ring-red-400' : ''}
-          />
-          {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
-        </div>
-      </div>
-
-      {/* 지역 */}
+      {/* STEP 2: 문의 유형 — 고객 유형에 따라 동적으로 표시 */}
       <div>
-        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">지역</label>
-        <Input {...register('region')} placeholder="예) 대구 서구, 경북 경산" />
-      </div>
-
-      {/* 문의 유형 */}
-      <div>
-        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">
-          문의 유형 <span className="text-red-500">*</span>
+        <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 2</p>
+        <label className="block text-base font-semibold text-[#0F172A] mb-3">
+          어떤 공사를 계획 중이신가요? <span className="text-red-500">*</span>
         </label>
-        <select
-          {...register('category')}
-          className={`w-full rounded-xl border px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0A3D91] ${
-            errors.category ? 'border-red-400' : 'border-input'
-          }`}
-        >
-          {QUOTE_CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>
-              {CategoryLabels[cat]}
-            </option>
-          ))}
-        </select>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {availableCategories.map((cat) => {
+            const isActive = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setValue('category', cat)}
+                className={`text-left px-4 py-3 rounded-lg border-2 text-sm font-semibold transition-all ${
+                  isActive
+                    ? 'border-[#0A3D91] bg-[#0A3D91]/5 text-[#0A3D91] ring-2 ring-[#0A3D91]/20'
+                    : 'border-gray-200 text-gray-600 hover:border-[#0A3D91]/40 bg-white'
+                }`}
+              >
+                {CategoryLabels[cat]}
+              </button>
+            );
+          })}
+        </div>
+        <input type="hidden" {...register('category')} />
         {errors.category && <p className="text-xs text-red-500 mt-1">{errors.category.message}</p>}
       </div>
 
-      {/* 상세 내용 */}
+      {/* STEP 3: 연락처 */}
       <div>
-        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">상세 내용</label>
+        <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 3</p>
+        <p className="text-base font-semibold text-[#0F172A] mb-3">연락처를 남겨주세요</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {/* 이름 */}
+          <div className="group">
+            <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
+              이름 <span className="text-red-500">*</span>
+            </label>
+            <Input
+              {...register('name')}
+              placeholder="홍길동"
+              className={errors.name ? 'border-red-400 focus-visible:ring-red-400' : ''}
+            />
+            {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
+          </div>
+
+          {/* 연락처 */}
+          <div className="group">
+            <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
+              연락처 <span className="text-red-500">*</span>
+            </label>
+            <Input
+              {...register('phone')}
+              type="tel"
+              placeholder="010-0000-0000"
+              className={errors.phone ? 'border-red-400 focus-visible:ring-red-400' : ''}
+            />
+            {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
+          </div>
+        </div>
+
+        {/* 지역 */}
+        <div className="mt-4">
+          <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">
+            시공 지역 <span className="text-gray-400 font-normal">(선택)</span>
+          </label>
+          <Input {...register('region')} placeholder="예) 대구 서구, 경북 경산" />
+        </div>
+      </div>
+
+      {/* STEP 4: 상세 내용 */}
+      <div>
+        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">
+          상세 내용 <span className="text-gray-400 font-normal">(선택)</span>
+        </label>
         <Textarea
           {...register('message')}
           rows={4}
@@ -231,7 +279,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
             접수 중…
           </>
         ) : (
-          '무료 견적 신청하기'
+          '무료 현장 견적 신청하기'
         )}
       </Button>
     </form>

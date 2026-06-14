@@ -1,17 +1,44 @@
 import { z } from 'zod';
 
+// 고객 유형별로 표시할 문의 유형 목록
 export const QUOTE_CATEGORIES = [
-  'electric',
-  'panel',
-  'interior',
+  // 주택·아파트
+  'apt_interior',      // 아파트·빌라 인테리어 전기
+  'house_new',         // 단독주택 신축·증축 전기
+  'panel_home',        // 분전함(두꺼비집) 교체·업그레이드
+  'wiring_check',      // 노후 배선 교체·점검
+  // 카페·상가
+  'store_open',        // 카페·식당·상가 창업 전기
+  'power_increase',    // 계약 전력 증설
+  'store_remodel',     // 기존 매장 리모델링 전기
+  // 상업건물·법인
+  'building_new',      // 신축 건물 전기공사
+  'building_remodel',  // 기존 건물 리모델링 전기
+  'panel_pro',         // 배전반·분전반 제작·설치
+  // 공통
   'etc',
 ] as const;
 
 export const CategoryLabels: Record<typeof QUOTE_CATEGORIES[number], string> = {
-  electric: '전기공사',
-  panel:    '분전함 자체 제작',
-  interior: '실내 인테리어 전기',
-  etc:      '기타',
+  apt_interior:     '아파트·빌라 인테리어 전기',
+  house_new:        '단독주택 신축·증축 전기공사',
+  panel_home:       '분전함(두꺼비집) 교체·업그레이드',
+  wiring_check:     '노후 배선 교체·점검',
+  store_open:       '카페·식당·상가 창업 전기',
+  power_increase:   '계약 전력 증설',
+  store_remodel:    '기존 매장 리모델링 전기',
+  building_new:     '신축 건물 전기공사',
+  building_remodel: '기존 건물 리모델링 전기',
+  panel_pro:        '배전반·분전반 제작·설치',
+  etc:              '기타 문의',
+};
+
+// 고객 유형별 표시할 카테고리 목록
+export const CATEGORIES_BY_CUSTOMER_TYPE: Record<string, Array<typeof QUOTE_CATEGORIES[number]>> = {
+  residential:    ['apt_interior', 'house_new', 'panel_home', 'wiring_check', 'etc'],
+  small_business: ['store_open', 'power_increase', 'store_remodel', 'panel_home', 'etc'],
+  commercial:     ['building_new', 'building_remodel', 'panel_pro', 'power_increase', 'etc'],
+  unknown:        ['apt_interior', 'house_new', 'store_open', 'building_new', 'panel_home', 'panel_pro', 'etc'],
 };
 
 export const CUSTOMER_TYPES = ['residential', 'small_business', 'commercial', 'unknown'] as const;
