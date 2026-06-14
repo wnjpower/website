@@ -11,6 +11,7 @@ export default function Footer() {
             <div className="space-y-1 text-sm">
               <p>대표자: 임태훈</p>
               <p>사업자등록번호: <span className="font-mono tabular-nums">637-81-02833</span></p>
+              <p>전기공사업 면허: <span className="font-mono tabular-nums">대구-01425</span></p>
               <p>주소: 대구광역시 서구 문화로63길 19, 1층 (평리동)</p>
               <p>
                 전화:{' '}
