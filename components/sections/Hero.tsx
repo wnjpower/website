@@ -22,7 +22,7 @@ const trustStats = [
   { icon: ShieldCheck,  label: '전기공사업 면허', sub: '등록업체' },
   { icon: CalendarDays, label: '전기공사 업력',   sub: '20년 이상' },
   { icon: Truck,        label: '당일 출동',       sub: 'A/S 원칙' },
-  { icon: HandCoins,    label: '견적·출장',       sub: '완전 무료' },
+  { icon: HandCoins,    label: '현장 견적',        sub: '출장비 무료' },
 ];
 
 export default function Hero() {
@@ -53,7 +53,7 @@ export default function Hero() {
             style={{ animationDelay: '0.18s' }}
           >
             아파트 인테리어 전기부터 상가 창업, 상업건물 시공까지{' '}
-            <span className="text-[#0F172A] font-semibold">견적·출장 완전 무료</span>로 상담해 드립니다.
+            <span className="text-[#0F172A] font-semibold">현장 방문 견적은 출장비 없이 무료</span>로 상담해 드립니다.
           </p>
 
           {/* CTA 버튼 */}

@@ -58,7 +58,7 @@ export default function Pricing() {
         </div>
 
         <p className="text-sm text-gray-400 text-center mt-4">
-          * 자재 사양·현장 여건·공사 범위에 따라 비용이 달라질 수 있습니다. 견적·출장은 무료입니다.
+          * 자재 사양·현장 여건·공사 범위에 따라 비용이 달라질 수 있습니다. 견적을 위한 현장 방문은 출장비 없이 무료입니다.
         </p>
 
         <div className="text-center mt-8">

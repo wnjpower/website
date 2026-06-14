@@ -66,14 +66,14 @@ export default function Header() {
           {/* 모바일: 핵심 한 줄 */}
           <div className="sm:hidden flex items-center gap-2 text-sm font-medium text-blue-100">
             <Clock className="w-4 h-4 text-[#FFB800]" />
-            평일 09:00–18:00 &nbsp;·&nbsp; 견적·출장 무료
+            평일 09:00–18:00 &nbsp;·&nbsp; 현장 견적 출장비 무료
           </div>
 
           {/* 오른쪽: 서비스 강점 */}
           <div className="flex items-center gap-2 text-sm font-medium text-blue-100 sm:ml-auto">
             <span className="w-2 h-2 rounded-full bg-[#FFB800] flex-shrink-0" />
-            <span className="hidden sm:inline">견적·출장 완전 무료 &nbsp;·&nbsp; 대구·경북 당일 출동 A/S</span>
-            <span className="sm:hidden">견적·출장 무료 · 당일 출동</span>
+            <span className="hidden sm:inline">현장 견적 출장비 무료 &nbsp;·&nbsp; 대구·경북 당일 출동 A/S</span>
+            <span className="sm:hidden">견적 출장비 무료 · 당일 출동</span>
           </div>
         </div>
       </div>
