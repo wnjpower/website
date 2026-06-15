@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Phone, Zap, Menu, X, Clock, Mail, CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
+import { Phone, Menu, X, Clock, Mail, CheckCircle2 } from 'lucide-react';
 
 const navItems = [
   { label: '사업영역',     href: '#services' },
@@ -105,9 +106,14 @@ export default function Header() {
               onClick={closeMenu}
               className="flex items-center gap-3 group"
             >
-              <span className="w-12 h-12 rounded-xl bg-[#0A3D91] flex items-center justify-center shadow-md flex-shrink-0">
-                <Zap className="w-6 h-6 text-white" fill="currentColor" />
-              </span>
+              <Image
+                src="/images/logo.png"
+                alt="우앤주전력 로고"
+                width={80}
+                height={33}
+                className="object-contain flex-shrink-0"
+                priority
+              />
               <span className="leading-snug">
                 <span className="block font-extrabold text-[#0F172A] text-xl tracking-tight">
                   우앤주전력
