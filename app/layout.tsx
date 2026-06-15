@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "대구·경북 공장 전기공사 | 수전설비·배전반 제작 | 우앤주전력",
     description:
       "공장 신축·증축·증설 / 수전설비·계약전력 증설 / 배전반 자체 제작 — 전기공사업 면허 법인, 무료 견적 053-525-0424",
-    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://wnj-electric.vercel.app",
+    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.wnjpower.com",
     siteName: "우앤주전력",
     locale: "ko_KR",
     type: "website",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     },
   },
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://wnj-electric.vercel.app"
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.wnjpower.com"
   ),
 };
 
