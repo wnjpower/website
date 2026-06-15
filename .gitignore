@@ -50,6 +50,13 @@ next-env.d.ts
 *.xlsx
 *.pdf
 
+# 원본 소스 자료 (public/images/ 로 복사 후 원본 제외)
+/content/*.png
+/content/*.jpg
+/content/*.jpeg
+/content/*.gif
+/content/*.webp
+
 # Claude Code 로컬 설정
 .claude/
 
