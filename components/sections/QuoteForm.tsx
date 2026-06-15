@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Loader2, Factory, Lamp, HelpCircle } from 'lucide-react';
+import { gtagEvent } from '@/components/GoogleAnalytics';
 
 interface Props {
   defaultCategory?: string;
@@ -150,6 +151,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
       setSubmittedPhone(data.phone);
       setAlimtalkSent(Boolean(json?.alimtalkSent));
       setSubmitted(true);
+      gtagEvent('generate_lead', { category: data.category });
       toast.success('견적 문의가 접수됐습니다! 1영업일 내 연락드립니다.');
     } catch {
       toast.error('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');

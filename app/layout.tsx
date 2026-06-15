@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import SchemaOrg from "@/components/SchemaOrg";
 import { Toaster } from "@/components/ui/sonner";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
   title: "대구·경북 공장 전기공사 | 수전설비·배전반 제작 | 우앤주전력",
@@ -49,6 +50,7 @@ export default function RootLayout({
         </noscript>
       </head>
       <body className="min-h-full flex flex-col antialiased">
+        <GoogleAnalytics />
         <SchemaOrg />
         {children}
         <Toaster position="top-center" richColors />
