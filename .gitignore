@@ -59,5 +59,10 @@ next-env.d.ts
 
 # Claude Code 로컬 설정
 .claude/
+.playwright-mcp/
+
+# 로컬 임시 이미지
+*.png
+!public/**/*.png
 
 .vercel
