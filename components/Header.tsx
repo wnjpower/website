@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Phone, Zap, Menu, X, Clock, Mail, CheckCircle2 } from 'lucide-react';
 
 const navItems = [
-  { label: '공장전기',     href: '#services' },
+  { label: '전기공사',     href: '#services' },
   { label: '비용안내',     href: '#pricing' },
   { label: '시공사례',     href: '#portfolio' },
   { label: '자주묻는질문', href: '#faq' },

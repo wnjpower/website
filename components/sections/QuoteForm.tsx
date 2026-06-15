@@ -22,13 +22,37 @@ interface Props {
   defaultCustomerType?: string;
 }
 
+// 국내 주요 이메일 도메인 (첫 글자 입력 시 자동완성)
+const EMAIL_DOMAINS = [
+  'naver.com',
+  'gmail.com',
+  'kakao.com',
+  'daum.net',
+  'hanmail.net',
+  'nate.com',
+  'outlook.com',
+  'yahoo.co.kr',
+];
+
+// 전화번호 자동 하이픈 포맷 (숫자만 입력 → 010-XXXX-XXXX)
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 11);
+  if (digits.startsWith('02')) {
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}-${digits.slice(2, 6)}-${digits.slice(6, 10)}`;
+  }
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+}
+
 const customerTypeConfig: Record<string, { icon: typeof Factory; label: string; sub: string; color: string; activeColor: string }> = {
   industrial: { icon: Factory,    label: '공장·산업 전기', sub: '신축·증축·수전·배전반',  color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
   interior:   { icon: Lamp,       label: '인테리어·일반 전기', sub: '상업공간·병원·주택', color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
   unknown:    { icon: HelpCircle, label: '잘 모르겠어요', sub: '기타',                   color: 'border-gray-200 hover:border-gray-400',    activeColor: 'border-gray-500 bg-gray-50 ring-2 ring-gray-300' },
 };
 
-// 서비스 카드에서 넘어오는 서비스 ID → 견적 카테고리 매핑
 const legacyCategoryMap: Record<string, string> = {
   factory:  'factory_new',
   power:    'power_receiving',
@@ -42,6 +66,7 @@ const visibleCustomerTypes = CUSTOMER_TYPES.filter((t) => t !== 'unknown');
 export default function QuoteForm({ defaultCategory, defaultCustomerType }: Props) {
   const loadedAtRef = useRef(Date.now());
   const [submitted, setSubmitted] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
 
   const resolvedCategory = defaultCategory
     ? (legacyCategoryMap[defaultCategory] ?? defaultCategory)
@@ -79,15 +104,27 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
   const agree = watch('agree');
   const selectedCustomerType = watch('customerType');
   const selectedCategory = watch('category');
+  const emailValue = watch('email') ?? '';
 
   const availableCategories = CATEGORIES_BY_CUSTOMER_TYPE[selectedCustomerType ?? 'unknown'];
 
-  // 고객 유형 변경 시 현재 카테고리가 목록에 없으면 첫 번째로 리셋
   useEffect(() => {
     if (selectedCustomerType && !availableCategories.includes(selectedCategory as never)) {
       setValue('category', availableCategories[0]);
     }
   }, [selectedCustomerType, availableCategories, selectedCategory, setValue]);
+
+  // 이메일 도메인 자동완성 계산
+  const atIdx = emailValue.indexOf('@');
+  const domainPart = atIdx >= 0 ? emailValue.slice(atIdx + 1).toLowerCase() : '';
+  const emailSuggestions =
+    atIdx >= 0 && !EMAIL_DOMAINS.includes(domainPart)
+      ? EMAIL_DOMAINS.filter((d) => !domainPart || d.startsWith(domainPart))
+      : [];
+  const showEmailDropdown = emailFocused && emailSuggestions.length > 0;
+
+  // register에서 phone onChange를 꺼내 포맷 로직 삽입
+  const { onChange: phoneOnChange, ...phoneRest } = register('phone');
 
   const onSubmit = async (data: QuoteInput) => {
     try {
@@ -131,12 +168,11 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
-      {/* honeypot */}
       <input type="text" {...register('website')} className="hidden" tabIndex={-1} aria-hidden />
       <input type="hidden" {...register('loadedAt', { valueAsNumber: true })} />
       <input type="hidden" {...register('source')} />
 
-      {/* STEP 1: 고객 유형 선택 — 공장·산업 전기 디폴트 */}
+      {/* STEP 1: 고객 유형 선택 */}
       <div>
         <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 1</p>
         <p className="text-base font-semibold text-[#0F172A] mb-3">어떤 상황이신가요?</p>
@@ -166,7 +202,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
         </div>
       </div>
 
-      {/* STEP 2: 공사 종류 — STEP 1 선택에 따라 동적으로 표시 */}
+      {/* STEP 2: 공사 종류 */}
       <div>
         <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 2</p>
         <label className="block text-base font-semibold text-[#0F172A] mb-3">
@@ -228,26 +264,60 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
                 연락처 <span className="text-red-500">*</span>
               </label>
               <Input
-                {...register('phone')}
+                {...phoneRest}
                 type="tel"
+                inputMode="numeric"
                 placeholder="010-0000-0000"
                 className={errors.phone ? 'border-red-400 focus-visible:ring-red-400' : ''}
+                onChange={(e) => {
+                  const formatted = formatPhone(e.target.value);
+                  e.target.value = formatted;
+                  phoneOnChange(e);
+                }}
               />
               {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
             </div>
           </div>
 
-          {/* 이메일 */}
+          {/* 이메일 — 도메인 자동완성 */}
           <div className="group">
             <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
               이메일 <span className="text-gray-400 font-normal">(선택)</span>
             </label>
-            <Input
-              {...register('email')}
-              type="email"
-              placeholder="example@email.com"
-              className={errors.email ? 'border-red-400 focus-visible:ring-red-400' : ''}
-            />
+            <div className="relative">
+              <Input
+                {...register('email')}
+                type="email"
+                autoComplete="off"
+                placeholder="example@email.com"
+                className={errors.email ? 'border-red-400 focus-visible:ring-red-400' : ''}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setTimeout(() => setEmailFocused(false), 150)}
+              />
+              {showEmailDropdown && (
+                <ul className="absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 overflow-hidden">
+                  {emailSuggestions.map((domain) => {
+                    const prefix = atIdx >= 0 ? emailValue.slice(0, atIdx + 1) : '';
+                    return (
+                      <li key={domain}>
+                        <button
+                          type="button"
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#0A3D91]/5 transition-colors border-b border-gray-50 last:border-0"
+                          onMouseDown={(e) => {
+                            e.preventDefault(); // blur 방지
+                            setValue('email', prefix + domain, { shouldValidate: true });
+                            setEmailFocused(false);
+                          }}
+                        >
+                          <span className="text-gray-500">{prefix}</span>
+                          <span className="font-semibold text-[#0A3D91]">{domain}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
             {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
           </div>
 
