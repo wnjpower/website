@@ -66,6 +66,8 @@ const visibleCustomerTypes = CUSTOMER_TYPES.filter((t) => t !== 'unknown');
 export default function QuoteForm({ defaultCategory, defaultCustomerType }: Props) {
   const loadedAtRef = useRef(Date.now());
   const [submitted, setSubmitted] = useState(false);
+  const [submittedPhone, setSubmittedPhone] = useState('');
+  const [alimtalkSent, setAlimtalkSent] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
 
   const resolvedCategory = defaultCategory
@@ -144,6 +146,9 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
         return;
       }
 
+      const json = await res.json().catch(() => ({}));
+      setSubmittedPhone(data.phone);
+      setAlimtalkSent(Boolean(json?.alimtalkSent));
       setSubmitted(true);
       toast.success('견적 문의가 접수됐습니다! 1영업일 내 연락드립니다.');
     } catch {
@@ -153,15 +158,51 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
 
   if (submitted) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-pop w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path className="animate-check-draw" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+      <div className="py-10">
+        {/* 체크 아이콘 */}
+        <div className="text-center mb-6">
+          <div className="animate-pop w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path className="animate-check-draw" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="animate-fade-up text-xl font-bold text-[#0F172A] mb-2" style={{ animationDelay: '0.2s' }}>
+            접수 완료!
+          </h3>
+          <p className="animate-fade-up text-gray-500" style={{ animationDelay: '0.3s' }}>
+            1영업일 내에 담당자가 직접 연락드리겠습니다.
+          </p>
         </div>
-        <h3 className="animate-fade-up text-xl font-bold text-[#0F172A] mb-2" style={{ animationDelay: '0.2s' }}>접수 완료!</h3>
-        <p className="animate-fade-up text-gray-500" style={{ animationDelay: '0.3s' }}>1영업일 내에 연락드리겠습니다.</p>
-        <p className="animate-fade-up text-sm text-gray-400 mt-1" style={{ animationDelay: '0.4s' }}>빠른 상담: 010-8552-9994</p>
+
+        {/* 카카오 알림톡 안내 (실제 발송된 경우에만 표시) */}
+        {alimtalkSent && (
+          <div className="animate-fade-up rounded-xl border border-[#FEE500] bg-[#FFFDE7] px-5 py-4 mb-4" style={{ animationDelay: '0.4s' }}>
+            <div className="flex items-center gap-2 mb-1.5">
+              {/* 카카오 로고 컬러 아이콘 */}
+              <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" fill="#3C1E1E">
+                <path d="M12 3C7.037 3 3 6.373 3 10.5c0 2.666 1.614 5.01 4.065 6.41L6.1 20.4a.3.3 0 0 0 .432.326l4.605-3.058A10.7 10.7 0 0 0 12 18c4.963 0 9-3.373 9-7.5S16.963 3 12 3z"/>
+              </svg>
+              <span className="text-sm font-bold text-[#3C1E1E]">카카오 알림톡이 발송되었습니다</span>
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              <span className="font-semibold">{submittedPhone}</span>로 접수 확인 메시지를 보내드렸습니다.
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              카카오 계정이 연동되지 않은 번호는 문자(SMS)로 대신 전송됩니다.
+            </p>
+          </div>
+        )}
+
+        {/* 빠른 연락 안내 */}
+        <div className="animate-fade-up rounded-xl bg-[#F8FAFC] border border-gray-100 px-5 py-4 text-center" style={{ animationDelay: alimtalkSent ? '0.5s' : '0.4s' }}>
+          <p className="text-sm text-gray-500 mb-2">급하신 경우 직접 연락 주세요</p>
+          <a
+            href="tel:010-8552-9994"
+            className="inline-flex items-center gap-2 bg-[#FF5500] text-white font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-[#E04A00] transition-colors"
+          >
+            📞 010-8552-9994 바로 전화
+          </a>
+        </div>
       </div>
     );
   }

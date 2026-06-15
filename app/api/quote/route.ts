@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import { Resend } from 'resend';
 import { QuoteSchema, CategoryLabels, CustomerTypeLabels } from '@/lib/validators';
 import { supabase } from '@/lib/supabase';
+import { sendAlimtalk } from '@/lib/kakao-alimtalk';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -214,17 +215,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'db' }, { status: 500 });
   }
 
-  // 2) 알림 메일 발송
+  // 2) 알림 메일 + 알림톡 공용 메타
+  const categoryLabel    = CategoryLabels[data.category];
+  const customerTypeLabel = data.customerType ? CustomerTypeLabels[data.customerType] : '';
+  const timestamp = new Date().toLocaleString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  });
+
   try {
     const resend = getResend();
-    const categoryLabel    = CategoryLabels[data.category];
-    const customerTypeLabel = data.customerType ? CustomerTypeLabels[data.customerType] : '';
-    const timestamp = new Date().toLocaleString('ko-KR', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', hour12: false,
-    });
-
     await resend.emails.send({
       from:    process.env.NOTIFY_FROM_EMAIL ?? 'onboarding@resend.dev',
       to:      process.env.NOTIFY_TO_EMAIL   ?? 'wnj-2023@naver.com',
@@ -247,5 +248,15 @@ export async function POST(req: NextRequest) {
     console.error('[quote] resend failed', e);
   }
 
-  return NextResponse.json({ ok: true }, { status: 200 });
+  // 3) 카카오 알림톡 (SOLAPI_* 환경변수 세팅 후 자동 활성화)
+  const alimtalkSent = await sendAlimtalk({
+    requesterPhone: data.phone,
+    requesterName:  data.name,
+    companyName:    data.companyName || undefined,
+    categoryLabel,
+    region:         data.region     || undefined,
+    timestamp,
+  }).catch(() => false);
+
+  return NextResponse.json({ ok: true, alimtalkSent }, { status: 200 });
 }
