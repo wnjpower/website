@@ -1,0 +1,26 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 흰색 배경 -->
+  <rect width="200" height="200" fill="white"/>
+
+  <!-- 외곽 다이아몬드 (금색 굵은 선) -->
+  <polygon points="7,100 100,57 193,100 100,143"
+    fill="none" stroke="#B8911E" stroke-width="8" stroke-linejoin="miter"/>
+
+  <!-- 내부 다이아몬드 (금색 얇은 선 — 이중 테두리 효과) -->
+  <polygon points="21,100 100,67 179,100 100,133"
+    fill="none" stroke="#B8911E" stroke-width="3.5" stroke-linejoin="miter"/>
+
+  <!-- W (왼쪽, 금색) -->
+  <text x="57" y="110"
+    font-size="32" font-family="Georgia,'Times New Roman',serif"
+    fill="#B8911E" font-weight="bold" text-anchor="middle">W</text>
+
+  <!-- J (오른쪽, 금색) -->
+  <text x="143" y="110"
+    font-size="32" font-family="Georgia,'Times New Roman',serif"
+    fill="#B8911E" font-weight="bold" text-anchor="middle">J</text>
+
+  <!-- 빨간 번개볼트 (우상→좌하 방향 Z자 모양, W·J 위에 렌더) -->
+  <path d="M 116,53 L 126,60 L 105,100 L 119,100 L 87,147 L 77,140 L 98,100 L 84,100 Z"
+    fill="#C82020"/>
+</svg>
