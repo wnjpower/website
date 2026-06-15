@@ -23,9 +23,9 @@ interface Props {
 }
 
 const customerTypeConfig: Record<string, { icon: typeof Factory; label: string; sub: string; color: string; activeColor: string }> = {
-  industrial: { icon: Factory,    label: '공장·산업 전기', sub: '신축·증축·수전·동력', color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
-  interior:   { icon: Lamp,       label: '인테리어·일반 전기', sub: '주택·상가·병원',  color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
-  unknown:    { icon: HelpCircle, label: '잘 모르겠어요', sub: '기타',              color: 'border-gray-200 hover:border-gray-400',    activeColor: 'border-gray-500 bg-gray-50 ring-2 ring-gray-300' },
+  industrial: { icon: Factory,    label: '공장·산업 전기', sub: '신축·증축·수전·배전반',  color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
+  interior:   { icon: Lamp,       label: '인테리어·일반 전기', sub: '상업공간·병원·주택', color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
+  unknown:    { icon: HelpCircle, label: '잘 모르겠어요', sub: '기타',                   color: 'border-gray-200 hover:border-gray-400',    activeColor: 'border-gray-500 bg-gray-50 ring-2 ring-gray-300' },
 };
 
 // 서비스 카드에서 넘어오는 서비스 ID → 견적 카테고리 매핑
@@ -34,7 +34,7 @@ const legacyCategoryMap: Record<string, string> = {
   power:    'power_receiving',
   panel:    'switchboard',
   interior: 'interior_store',
-  electric: 'factory_new', // 구 ID 하위호환
+  electric: 'factory_new',
 };
 
 const visibleCustomerTypes = CUSTOMER_TYPES.filter((t) => t !== 'unknown');
@@ -43,7 +43,6 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
   const loadedAtRef = useRef(Date.now());
   const [submitted, setSubmitted] = useState(false);
 
-  // 서비스 카드 구 ID를 새 카테고리로 변환
   const resolvedCategory = defaultCategory
     ? (legacyCategoryMap[defaultCategory] ?? defaultCategory)
     : 'factory_new';
@@ -58,7 +57,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
     resolver: zodResolver(QuoteSchema),
     defaultValues: {
       category:     resolvedCategory as QuoteInput['category'],
-      customerType: (defaultCustomerType as QuoteInput['customerType']) ?? undefined,
+      customerType: (defaultCustomerType as QuoteInput['customerType']) ?? 'industrial',
       source:       'main_form',
       loadedAt:     loadedAtRef.current,
     },
@@ -81,7 +80,6 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
   const selectedCustomerType = watch('customerType');
   const selectedCategory = watch('category');
 
-  // 고객 유형에 맞는 카테고리 목록
   const availableCategories = CATEGORIES_BY_CUSTOMER_TYPE[selectedCustomerType ?? 'unknown'];
 
   // 고객 유형 변경 시 현재 카테고리가 목록에 없으면 첫 번째로 리셋
@@ -126,7 +124,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
         </div>
         <h3 className="animate-fade-up text-xl font-bold text-[#0F172A] mb-2" style={{ animationDelay: '0.2s' }}>접수 완료!</h3>
         <p className="animate-fade-up text-gray-500" style={{ animationDelay: '0.3s' }}>1영업일 내에 연락드리겠습니다.</p>
-        <p className="animate-fade-up text-sm text-gray-400 mt-1" style={{ animationDelay: '0.4s' }}>빠른 상담: 053-525-0424</p>
+        <p className="animate-fade-up text-sm text-gray-400 mt-1" style={{ animationDelay: '0.4s' }}>빠른 상담: 010-8552-9994</p>
       </div>
     );
   }
@@ -138,7 +136,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
       <input type="hidden" {...register('loadedAt', { valueAsNumber: true })} />
       <input type="hidden" {...register('source')} />
 
-      {/* STEP 1: 고객 유형 선택 */}
+      {/* STEP 1: 고객 유형 선택 — 공장·산업 전기 디폴트 */}
       <div>
         <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 1</p>
         <p className="text-base font-semibold text-[#0F172A] mb-3">어떤 상황이신가요?</p>
@@ -150,7 +148,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
               <button
                 key={type}
                 type="button"
-                onClick={() => setValue('customerType', isActive ? undefined : type)}
+                onClick={() => setValue('customerType', type)}
                 className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-all text-center ${
                   isActive ? cfg.activeColor : cfg.color + ' bg-white'
                 }`}
@@ -168,11 +166,11 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
         </div>
       </div>
 
-      {/* STEP 2: 문의 유형 — 고객 유형에 따라 동적으로 표시 */}
+      {/* STEP 2: 공사 종류 — STEP 1 선택에 따라 동적으로 표시 */}
       <div>
         <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 2</p>
         <label className="block text-base font-semibold text-[#0F172A] mb-3">
-          어떤 공사를 계획 중이신가요? <span className="text-red-500">*</span>
+          공사 종류를 선택해 주세요 <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {availableCategories.map((cat) => {
@@ -201,41 +199,65 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
       <div>
         <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 3</p>
         <p className="text-base font-semibold text-[#0F172A] mb-3">연락처를 남겨주세요</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {/* 이름 */}
-          <div className="group">
-            <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
-              이름 <span className="text-red-500">*</span>
+        <div className="space-y-4">
+
+          {/* 업체명 */}
+          <div>
+            <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">
+              업체명 <span className="text-gray-400 font-normal">(선택)</span>
             </label>
-            <Input
-              {...register('name')}
-              placeholder="홍길동"
-              className={errors.name ? 'border-red-400 focus-visible:ring-red-400' : ''}
-            />
-            {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
+            <Input {...register('companyName')} placeholder="예) (주)우앤주전력, 대구건설" />
           </div>
 
-          {/* 연락처 */}
+          {/* 성함 + 연락처 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="group">
+              <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
+                성함 <span className="text-red-500">*</span>
+              </label>
+              <Input
+                {...register('name')}
+                placeholder="홍길동"
+                className={errors.name ? 'border-red-400 focus-visible:ring-red-400' : ''}
+              />
+              {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
+            </div>
+
+            <div className="group">
+              <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
+                연락처 <span className="text-red-500">*</span>
+              </label>
+              <Input
+                {...register('phone')}
+                type="tel"
+                placeholder="010-0000-0000"
+                className={errors.phone ? 'border-red-400 focus-visible:ring-red-400' : ''}
+              />
+              {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
+            </div>
+          </div>
+
+          {/* 이메일 */}
           <div className="group">
             <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
-              연락처 <span className="text-red-500">*</span>
+              이메일 <span className="text-gray-400 font-normal">(선택)</span>
             </label>
             <Input
-              {...register('phone')}
-              type="tel"
-              placeholder="010-0000-0000"
-              className={errors.phone ? 'border-red-400 focus-visible:ring-red-400' : ''}
+              {...register('email')}
+              type="email"
+              placeholder="example@email.com"
+              className={errors.email ? 'border-red-400 focus-visible:ring-red-400' : ''}
             />
-            {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
           </div>
-        </div>
 
-        {/* 지역 */}
-        <div className="mt-4">
-          <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">
-            시공 지역 <span className="text-gray-400 font-normal">(선택)</span>
-          </label>
-          <Input {...register('region')} placeholder="예) 대구 서구, 경북 경산" />
+          {/* 시공 지역 */}
+          <div>
+            <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">
+              시공 지역 <span className="text-gray-400 font-normal">(선택)</span>
+            </label>
+            <Input {...register('region')} placeholder="예) 대구 서구, 경북 경산" />
+          </div>
         </div>
       </div>
 

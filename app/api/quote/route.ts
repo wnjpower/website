@@ -61,8 +61,10 @@ export async function POST(req: NextRequest) {
 
   // 1) Supabase 저장
   const { error: dbError } = await supabase.from('quotes').insert({
+    company_name:  data.companyName || null,
     name:          data.name,
     phone:         data.phone,
+    email:         data.email || null,
     region:        data.region || null,
     category:      data.category,
     customer_type: data.customerType || null,
@@ -88,11 +90,13 @@ export async function POST(req: NextRequest) {
         <div style="font-family:Pretendard,Arial,sans-serif;font-size:14px;color:#0F172A;line-height:1.6;">
           <h2 style="margin:0 0 12px;">새 견적문의가 도착했습니다.</h2>
           <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
-            <tr><td><b>이름</b></td><td>${escape(data.name)}</td></tr>
+            <tr><td><b>업체명</b></td><td>${escape(data.companyName || '-')}</td></tr>
+            <tr><td><b>성함</b></td><td>${escape(data.name)}</td></tr>
             <tr><td><b>연락처</b></td><td>${escape(data.phone)}</td></tr>
-            <tr><td><b>지역</b></td><td>${escape(data.region || '-')}</td></tr>
+            <tr><td><b>이메일</b></td><td>${escape(data.email || '-')}</td></tr>
+            <tr><td><b>시공 지역</b></td><td>${escape(data.region || '-')}</td></tr>
             <tr><td><b>고객 유형</b></td><td>${data.customerType ? CustomerTypeLabels[data.customerType] : '-'}</td></tr>
-            <tr><td><b>문의 유형</b></td><td>${CategoryLabels[data.category]}</td></tr>
+            <tr><td><b>공사 종류</b></td><td>${CategoryLabels[data.category]}</td></tr>
             <tr><td valign="top"><b>상세</b></td>
                 <td style="white-space:pre-wrap;">${escape(data.message || '-')}</td></tr>
             <tr><td><b>유입</b></td><td>${escape(data.source || '-')}</td></tr>

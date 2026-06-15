@@ -10,8 +10,10 @@
 create table if not exists public.quotes (
   id            bigserial primary key,
   created_at    timestamptz not null default now(),
+  company_name  text,                  -- 업체명 (선택)
   name          text        not null,
   phone         text        not null,
+  email         text,                  -- 이메일 (선택)
   region        text,
   category      text        not null,  -- factory_new | power_receiving | ... | etc (앱에서 검증)
   customer_type text,                  -- industrial | interior | unknown | null
@@ -46,3 +48,5 @@ create policy "anon can insert quotes"
 -- ─────────────────────────────────────────────
 -- alter table public.quotes drop constraint if exists quotes_category_check;
 -- alter table public.quotes add column if not exists customer_type text;
+-- alter table public.quotes add column if not exists company_name text;
+-- alter table public.quotes add column if not exists email text;
