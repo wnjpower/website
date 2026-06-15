@@ -18,6 +18,11 @@ export const metadata: Metadata = {
     type: "website",
   },
   robots: { index: true, follow: true },
+  verification: {
+    other: {
+      'naver-site-verification': ['f7b584dc796aff64d9a1fe441b6d9df228316a23'],
+    },
+  },
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://wnj-electric.vercel.app"
   ),
