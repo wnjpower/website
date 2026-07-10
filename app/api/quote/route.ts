@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 import { Resend } from 'resend';
 import { QuoteSchema, CategoryLabels, CustomerTypeLabels } from '@/lib/validators';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { sendAlimtalk } from '@/lib/kakao-alimtalk';
 
 export const runtime = 'nodejs';
@@ -195,24 +195,28 @@ export async function POST(req: NextRequest) {
     req.headers.get('x-real-ip') ??
     null;
 
-  // 1) Supabase 저장
-  const { error: dbError } = await supabase.from('quotes').insert({
-    company_name:  data.companyName || null,
-    name:          data.name,
-    phone:         data.phone,
-    email:         data.email || null,
-    region:        data.region || null,
-    category:      data.category,
-    customer_type: data.customerType || null,
-    message:       data.message || null,
-    source:        data.source || null,
-    user_agent:    userAgent.slice(0, 200),
-    ip_hash:       hashIp(ip),
-  });
-
-  if (dbError) {
-    console.error('[quote] supabase insert failed', dbError);
-    return NextResponse.json({ error: 'db' }, { status: 500 });
+  // 1) Supabase 저장 (신규 계정 재설정 전까지는 미설정 상태 — 있으면 시도, 없거나 실패해도 이메일/알림톡은 계속 진행)
+  if (isSupabaseConfigured) {
+    try {
+      const { error: dbError } = await supabase.from('quotes').insert({
+        company_name:  data.companyName || null,
+        name:          data.name,
+        phone:         data.phone,
+        email:         data.email || null,
+        region:        data.region || null,
+        category:      data.category,
+        customer_type: data.customerType || null,
+        message:       data.message || null,
+        source:        data.source || null,
+        user_agent:    userAgent.slice(0, 200),
+        ip_hash:       hashIp(ip),
+      });
+      if (dbError) console.error('[quote] supabase insert failed', dbError);
+    } catch (e) {
+      console.error('[quote] supabase insert threw', e);
+    }
+  } else {
+    console.warn('[quote] Supabase 미설정 — DB 저장 생략, 이메일/알림톡만 발송');
   }
 
   // 2) 알림 메일 + 알림톡 공용 메타
