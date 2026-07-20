@@ -174,23 +174,22 @@
 > 폼을 제출해도 DB 저장·메일 발송 없이 성공 응답만 반환된다(graceful degradation).
 > 아래 3단계가 Phase 0에서 가장 시급하다.
 
-- [ ] **① Supabase 신규 프로젝트 생성 + 스키마 적용**
-  - 이관된 계정에서 새 프로젝트 생성(리전: 도쿄 권장)
-  - SQL Editor에 [`supabase/schema.sql`](supabase/schema.sql)의 **1~3번 섹션**을 붙여넣고 실행
-  - 같은 파일 **4번 섹션의 검증 쿼리 3개**를 실행해 RLS·정책·GRANT가 걸렸는지 확인
-  - Settings → API Keys에서 **URL과 anon(publishable) 키만** 확보
-    (service_role 키는 이 앱이 쓰지 않으므로 불필요)
-
-  > 🔴 **3번 섹션 GRANT를 빠뜨리면 안 된다.** 2026-04-28부터 신규 프로젝트는 public 스키마
-  > 테이블이 Data API에 자동 노출되지 않는다. RLS와는 별개 문제이고, 이게 빠지면 테이블은
-  > 만들어지지만 anon 키 INSERT가 권한 오류로 거부된다.
+- [x] **① Supabase 신규 프로젝트 생성 + 스키마 적용 — 완료 (2026-07-20)**
+  - 프로젝트 **`wnj-website`** · 리전 `ap-northeast-2`(서울) · 무료 tier
+    → `https://wtlvbilsakoktcrrqlfi.supabase.co`
+  - 기존 `ERP` 프로젝트와 분리했다. 웹사이트의 공개 키가 ERP 데이터베이스에
+    닿지 않게 하기 위함
+  - 마이그레이션 3건 적용: `create_quotes_table` / `restrict_quotes_grants_to_insert_only` /
+    `add_quotes_length_constraints` (합친 최종본은 [`supabase/schema.sql`](supabase/schema.sql))
+  - 검증 완료: anon INSERT 201 · SELECT/DELETE 401 차단 · 앱 API `savedToDb: true` ·
+    5000자 스팸 페이로드 차단 · 테스트 행 정리 완료
 - [ ] **② Resend 신규 계정 설정** — API Key 발급 + `wnjpower.com` 도메인 인증(DNS 레코드 추가).
   도메인 인증 전에는 발신 주소를 `onboarding@resend.dev`로 두면 테스트 발송 가능
 - [ ] **③ Vercel 환경변수 입력 후 재배포** (Production · Preview · Development 모두)
   ```
-  NEXT_PUBLIC_SUPABASE_URL       = (신규 프로젝트 URL)          ← 이관으로 기존값 무효
-  NEXT_PUBLIC_SUPABASE_ANON_KEY  = (신규 anon/publishable key)  ← 이관으로 기존값 무효
-  RESEND_API_KEY                 = (Resend 대시보드에서 발급)
+  NEXT_PUBLIC_SUPABASE_URL       = https://wtlvbilsakoktcrrqlfi.supabase.co   ✅ 확보
+  NEXT_PUBLIC_SUPABASE_ANON_KEY  = sb_publishable_... (대시보드 Settings → API Keys)  ✅ 확보
+  RESEND_API_KEY                 = (Resend 대시보드에서 발급)   ← 남은 항목
   NOTIFY_TO_EMAIL                = wnj-2023@naver.com
   NOTIFY_FROM_EMAIL              = quote@wnjpower.com
   NEXT_PUBLIC_SITE_URL           = https://www.wnjpower.com

@@ -1,17 +1,24 @@
 -- ─────────────────────────────────────────────
 --  우앤주전력 웹사이트 — Supabase 스키마
---  사용법: Supabase 대시보드 → SQL Editor에 전체 복사·실행
 --
---  이 앱은 anon(=publishable) 키로만 INSERT 한다. service_role 키는 쓰지 않는다.
---  따라서 Vercel에 넣어야 할 값은 아래 두 개뿐이다.
+--  ✅ 이 스키마는 이미 적용·검증되었다.
+--     프로젝트: wnj-website (ap-northeast-2 / 서울)
+--     적용 방식: Supabase 마이그레이션 3건
+--       1) create_quotes_table
+--       2) restrict_quotes_grants_to_insert_only
+--       3) add_quotes_length_constraints
+--
+--  이 파일은 위 마이그레이션을 합친 최종 상태이며,
+--  프로젝트를 처음부터 다시 만들 때 SQL Editor에 통째로 붙여넣으면 된다.
+--
+--  이 앱은 anon(publishable) 키로 INSERT만 한다. service_role 키는 쓰지 않는다.
+--  Vercel에 넣을 값은 두 개뿐:
 --    NEXT_PUBLIC_SUPABASE_URL
---    NEXT_PUBLIC_SUPABASE_ANON_KEY
+--    NEXT_PUBLIC_SUPABASE_ANON_KEY   (sb_publishable_... 형식)
 -- ─────────────────────────────────────────────
 
+
 -- 1) 견적문의 테이블
---    category 값은 애플리케이션(lib/validators.ts)의 Zod 스키마에서 검증하므로
---    DB CHECK 제약은 두지 않는다. (카테고리 개편 시 제약-코드 불일치로
---    insert가 깨지는 사고를 막기 위함)
 create table if not exists public.quotes (
   id            bigint generated always as identity primary key,
   created_at    timestamptz not null default now(),
@@ -32,10 +39,9 @@ create index if not exists quotes_created_at_idx
   on public.quotes (created_at desc);
 
 
--- 2) Row Level Security
+-- 2) Row Level Security — 익명은 INSERT만, 조회 불가
 alter table public.quotes enable row level security;
 
--- 익명 사용자는 INSERT만 가능
 drop policy if exists "anon can insert quotes" on public.quotes;
 create policy "anon can insert quotes"
   on public.quotes
@@ -48,45 +54,78 @@ create policy "anon can insert quotes"
 -- 접수 내역 확인은 Supabase 대시보드(Table Editor)에서 한다.
 
 
--- 3) ⚠️ Data API 노출 — 이 GRANT를 빠뜨리면 폼이 조용히 실패한다
+-- 3) 테이블 권한 — 실제로 필요한 INSERT만 남긴다
 --
---    2026-04-28부터 신규 프로젝트는 public 스키마에 만든 테이블이
---    Data API(PostgREST)에 자동으로 노출되지 않는다. RLS 정책과는 별개 문제로,
---    RLS는 "어떤 행을 볼 수 있는가"이고 이 GRANT는 "테이블에 접근이 되는가"다.
+--    Supabase 기본 설정은 public 스키마 테이블에 anon/authenticated 전체 권한을 준다.
+--    RLS가 막고 있긴 하지만, RLS가 실수로 꺼지는 순간 익명 사용자가 견적문의를
+--    전부 읽거나 지울 수 있게 되므로 방어를 한 겹 더 둔다.
 --
---    GRANT가 없으면 anon 키 INSERT가 권한 오류로 거부되고,
---    app/api/quote/route.ts 는 오류를 콘솔에만 남기고 200을 반환하기 때문에
---    화면상으로는 접수된 것처럼 보이지만 데이터는 저장되지 않는다.
+--    ⚠️ 반대로 GRANT가 아예 없으면 테이블은 만들어지지만 anon INSERT가
+--       권한 오류로 거부된다. (2026-04-28부터 신규 프로젝트는 public 스키마
+--       테이블이 Data API에 자동 노출되지 않는다. RLS와는 별개 문제로,
+--       RLS는 "어떤 행을 볼 수 있는가", GRANT는 "테이블에 접근이 되는가"다)
+revoke all on table public.quotes from anon;
+revoke all on table public.quotes from authenticated;
+
 grant insert on table public.quotes to anon;
 
 -- id는 identity 컬럼이라 시퀀스 권한을 따로 줄 필요가 없다.
--- (bigserial을 쓸 경우에는 `grant usage on sequence public.quotes_id_seq to anon;`이 추가로 필요하다)
+-- (bigserial을 쓸 경우에는 `grant usage on sequence public.quotes_id_seq to anon;`이 추가로 필요)
 
 
--- ─────────────────────────────────────────────
---  4) 검증 — 위 SQL 실행 후 아래를 실행해 결과를 확인한다
--- ─────────────────────────────────────────────
--- 4-1) 테이블·RLS 활성화 확인 (rowsecurity 가 true 여야 한다)
---   select relname, relrowsecurity as rowsecurity
---   from pg_class where relname = 'quotes';
+-- 4) 길이 제약 — 공개 키를 통한 직접 호출 악용 방어
 --
--- 4-2) 정책 확인 (anon / INSERT 한 건이 나와야 한다)
---   select policyname, roles, cmd from pg_policies
---   where schemaname = 'public' and tablename = 'quotes';
+--    anon INSERT 정책은 WITH CHECK (true)일 수밖에 없다. 공개 견적문의 폼이라
+--    누구나 로그인 없이 접수할 수 있어야 하기 때문이다.
+--    다만 publishable 키는 공개되어 있어 앱을 거치지 않고 PostgREST를 직접
+--    호출하는 것이 가능하다. 앱 레벨 방어(허니팟·3초 게이트)를 우회당해도
+--    피해가 커지지 않도록 DB에서 길이 상한을 둔다.
 --
--- 4-3) anon 권한 확인 (INSERT 가 나와야 한다)
---   select grantee, privilege_type from information_schema.role_table_grants
---   where table_schema = 'public' and table_name = 'quotes' and grantee = 'anon';
+--    값을 열거하는 CHECK(예: category IN (...))는 두지 않는다. 카테고리를
+--    개편할 때 제약과 코드가 어긋나 정상 문의까지 막히는 사고가 더 위험하다.
+--    길이 상한은 업무 로직과 무관해서 그런 위험이 없다.
+alter table public.quotes
+  add constraint quotes_name_len          check (char_length(name)  between 1 and 40),
+  add constraint quotes_phone_len         check (char_length(phone) between 1 and 20),
+  add constraint quotes_company_name_len  check (company_name  is null or char_length(company_name)  <= 100),
+  add constraint quotes_email_len         check (email         is null or char_length(email)         <= 100),
+  add constraint quotes_region_len        check (region        is null or char_length(region)        <= 60),
+  add constraint quotes_category_len      check (char_length(category) between 1 and 40),
+  add constraint quotes_customer_type_len check (customer_type is null or char_length(customer_type) <= 20),
+  add constraint quotes_message_len       check (message       is null or char_length(message)       <= 2000),
+  add constraint quotes_source_len        check (source        is null or char_length(source)        <= 40),
+  add constraint quotes_user_agent_len    check (user_agent    is null or char_length(user_agent)    <= 300),
+  add constraint quotes_ip_hash_len       check (ip_hash       is null or char_length(ip_hash)       <= 128);
 
 
 -- ─────────────────────────────────────────────
---  5) 마이그레이션 (이미 quotes 테이블이 존재하는 운영 DB용)
---     신규 프로젝트라면 이 섹션은 실행할 필요 없다.
+--  5) 검증 쿼리 — 적용 후 아래를 실행해 결과를 확인한다
+-- ─────────────────────────────────────────────
+-- 5-1) RLS 활성화 · 정책 · anon 권한을 한 번에 확인
+--      기대값: rls_enabled=true / policies="anon can insert quotes [anon/INSERT]" / anon_grants="INSERT"
+--
+--   select
+--     (select relrowsecurity from pg_class where oid = 'public.quotes'::regclass) as rls_enabled,
+--     (select string_agg(policyname || ' [' || array_to_string(roles,',') || '/' || cmd || ']', ' | ')
+--        from pg_policies where schemaname='public' and tablename='quotes') as policies,
+--     (select string_agg(privilege_type, ',' order by privilege_type)
+--        from information_schema.role_table_grants
+--        where table_schema='public' and table_name='quotes' and grantee='anon') as anon_grants;
+--
+-- 5-2) 실제 INSERT가 되는지는 사이트 견적폼으로 제출해 보고
+--      Table Editor → quotes 에 행이 들어오는지 확인하는 것이 가장 확실하다.
+--      API 라우트 응답의 "savedToDb": true 로도 판별할 수 있다.
+
+
+-- ─────────────────────────────────────────────
+--  6) 마이그레이션 (이미 quotes 테이블이 있는 예전 DB용)
+--     위 1~4번으로 새로 만든 프로젝트라면 실행할 필요 없다.
 -- ─────────────────────────────────────────────
 -- alter table public.quotes drop constraint if exists quotes_category_check;
 -- alter table public.quotes add column if not exists customer_type text;
 -- alter table public.quotes add column if not exists company_name  text;
 -- alter table public.quotes add column if not exists email         text;
+-- revoke all on table public.quotes from anon, authenticated;
 -- grant insert on table public.quotes to anon;
 -- -- 기존 테이블이 bigserial 로 만들어졌다면 시퀀스 권한도 필요하다
 -- grant usage on sequence public.quotes_id_seq to anon;
