@@ -28,6 +28,8 @@ export const metadata: Metadata = {
     description:
       "공장 신축·증축·증설 / 수전설비·계약전력 증설 / 배전반 자체 제작 — 전기공사업 면허 법인, 무료 견적 053-525-0424",
   },
+  // 홈에도 canonical을 명시한다. 없으면 apex·www가 별도 URL로 색인될 수 있다.
+  alternates: { canonical: "/" },
   robots: { index: true, follow: true },
   verification: {
     other: {
