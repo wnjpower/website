@@ -245,9 +245,18 @@
 - [x] **OG 이미지 구현** — `app/opengraph-image.tsx` (한글 렌더 확인 완료)
 - [ ] **OG·카카오 공유 미리보기 확인** — 배포 후 [카카오 공유 디버거](https://developers.kakao.com/tool/debugger/sharing)에서
   캐시 초기화 + 미리보기 정상 여부 확인
-- [x] **Vercel Analytics 코드 연동** — `@vercel/analytics` 설치 + `<Analytics />` 삽입
-- [ ] **Vercel Analytics 활성화** — Vercel 대시보드 → Analytics 탭 Enable (코드는 완료, 대시보드 토글만 남음)
-- [ ] **GA4 이벤트 수신 확인** — 배포 후 GA4 실시간 보고서에서 `phone_click` · `generate_lead` 발생 확인
+- [x] **Vercel Analytics 코드 연동** — `@vercel/analytics@2.0.1` 설치 + `<Analytics />` 삽입
+- [x] **Vercel Analytics 활성화 — 완료 (2026-07-20)** — 프로젝트에서 Web Analytics 활성화 후
+  라이브에서 동작 확인 (`window.va`가 큐 스텁이 아닌 실제 구현으로 교체됨 = 스크립트 실행 완료)
+
+  > 💡 **디버깅 시 주의**: Vercel은 광고차단기 우회를 위해 수집 스크립트를 난독화된 경로
+  > (`/{16자리hex}/script.js`)로 서빙한다. `_vercel/insights` 문자열로 찾으면 없는 것처럼 보인다.
+  > 실제 동작 여부는 `typeof window.va`가 함수이고 그 구현이 `vaq.push` 스텁이 **아닌지**로 판정할 것.
+
+- [x] **GA4 발화 확인 — 완료** — 라이브에서 `google-analytics.com/g/collect?...tid=G-7XRHSS9V0F`
+  page_view 요청 확인. Phase 0에서 고친 `G-` 접두어가 정상 적용됨
+- [ ] **GA4 전환 이벤트 확인** — 실제 사용자 유입 후 실시간 보고서에서
+  `phone_click` · `generate_lead` · `callback_request` 수신 확인
 
 ### ⚪ 추후 개선 (선택)
 
