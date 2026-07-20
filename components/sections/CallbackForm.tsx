@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { PhoneCall, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { gtagEvent } from '@/components/GoogleAnalytics';
+import { COMPANY } from '@/lib/site';
 
 const TIME_SLOTS = ['아무 때나', '오전 (09–12시)', '오후 (13–18시)', '퇴근 후 (18시 이후)'];
 
@@ -70,7 +71,7 @@ export default function CallbackForm() {
       } else if (res.status === 429) {
         toast.error('제출이 너무 빠릅니다. 잠시 후 다시 시도해 주세요.');
       } else {
-        toast.error('접수 중 문제가 발생했습니다. 전화로 연락 주세요.');
+        toast.error(`접수에 실패했습니다. ${COMPANY.mobile}로 전화 주세요.`, { duration: 10000 });
       }
     } catch {
       toast.error('네트워크 오류가 발생했습니다. 전화로 연락 주세요.');

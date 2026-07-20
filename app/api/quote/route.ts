@@ -195,7 +195,11 @@ export async function POST(req: NextRequest) {
     req.headers.get('x-real-ip') ??
     null;
 
-  // 1) Supabase 저장 (신규 계정 재설정 전까지는 미설정 상태 — 있으면 시도, 없거나 실패해도 이메일/알림톡은 계속 진행)
+  // 접수 경로별 성공 여부. 하나라도 성공하면 리드는 사장님께 전달된다.
+  let savedToDb = false;
+  let emailSent = false;
+
+  // 1) Supabase 저장 (미설정이거나 실패해도 이메일·알림톡은 계속 진행)
   if (isSupabaseConfigured) {
     try {
       const { error: dbError } = await supabase.from('quotes').insert({
@@ -211,7 +215,12 @@ export async function POST(req: NextRequest) {
         user_agent:    userAgent.slice(0, 200),
         ip_hash:       hashIp(ip),
       });
-      if (dbError) console.error('[quote] supabase insert failed', dbError);
+      if (dbError) {
+        // 권한 오류(42501)는 대개 Data API GRANT 누락이다. supabase/schema.sql 3번 섹션 참고.
+        console.error('[quote] supabase insert failed', dbError);
+      } else {
+        savedToDb = true;
+      }
     } catch (e) {
       console.error('[quote] supabase insert threw', e);
     }
@@ -248,6 +257,7 @@ export async function POST(req: NextRequest) {
         timestamp,
       }),
     });
+    emailSent = true;
   } catch (e) {
     console.error('[quote] resend failed', e);
   }
@@ -262,5 +272,20 @@ export async function POST(req: NextRequest) {
     timestamp,
   }).catch(() => false);
 
-  return NextResponse.json({ ok: true, alimtalkSent }, { status: 200 });
+  // DB 저장·메일·알림톡이 전부 실패하면 리드가 완전히 유실된다.
+  // 이때까지 성공(200)으로 응답하면 고객은 접수된 줄 알고 기다리고,
+  // 사장님은 문의가 온 사실조차 모른다. 그래서 이 경우에만 실패로 응답해
+  // 고객이 전화라도 걸 수 있게 한다.
+  if (!savedToDb && !emailSent && !alimtalkSent) {
+    console.error('[quote] 모든 접수 경로 실패 — 리드 유실', {
+      supabaseConfigured: isSupabaseConfigured,
+      phone: data.phone,
+    });
+    return NextResponse.json(
+      { ok: false, error: 'delivery_failed' },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json({ ok: true, alimtalkSent, savedToDb }, { status: 200 });
 }

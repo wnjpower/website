@@ -176,22 +176,28 @@
 
 - [ ] **① Supabase 신규 프로젝트 생성 + 스키마 적용**
   - 이관된 계정에서 새 프로젝트 생성(리전: 도쿄 권장)
-  - SQL Editor에 [`supabase/schema.sql`](supabase/schema.sql)의 **1) · 2) 섹션 전체**를 붙여넣고 실행
-    (`quotes` 테이블 + RLS. `company_name` · `email` · `customer_type` 컬럼이 이미 포함돼 있어 별도 마이그레이션 불필요)
-  - Settings → API에서 URL · anon key · service_role key 확보
+  - SQL Editor에 [`supabase/schema.sql`](supabase/schema.sql)의 **1~3번 섹션**을 붙여넣고 실행
+  - 같은 파일 **4번 섹션의 검증 쿼리 3개**를 실행해 RLS·정책·GRANT가 걸렸는지 확인
+  - Settings → API Keys에서 **URL과 anon(publishable) 키만** 확보
+    (service_role 키는 이 앱이 쓰지 않으므로 불필요)
+
+  > 🔴 **3번 섹션 GRANT를 빠뜨리면 안 된다.** 2026-04-28부터 신규 프로젝트는 public 스키마
+  > 테이블이 Data API에 자동 노출되지 않는다. RLS와는 별개 문제이고, 이게 빠지면 테이블은
+  > 만들어지지만 anon 키 INSERT가 권한 오류로 거부된다.
 - [ ] **② Resend 신규 계정 설정** — API Key 발급 + `wnjpower.com` 도메인 인증(DNS 레코드 추가).
   도메인 인증 전에는 발신 주소를 `onboarding@resend.dev`로 두면 테스트 발송 가능
 - [ ] **③ Vercel 환경변수 입력 후 재배포** (Production · Preview · Development 모두)
   ```
   NEXT_PUBLIC_SUPABASE_URL       = (신규 프로젝트 URL)          ← 이관으로 기존값 무효
-  NEXT_PUBLIC_SUPABASE_ANON_KEY  = (신규 anon key)              ← 이관으로 기존값 무효
-  SUPABASE_SERVICE_ROLE_KEY      = (신규 service_role key)
+  NEXT_PUBLIC_SUPABASE_ANON_KEY  = (신규 anon/publishable key)  ← 이관으로 기존값 무효
   RESEND_API_KEY                 = (Resend 대시보드에서 발급)
   NOTIFY_TO_EMAIL                = wnj-2023@naver.com
   NOTIFY_FROM_EMAIL              = quote@wnjpower.com
   NEXT_PUBLIC_SITE_URL           = https://www.wnjpower.com
   NEXT_PUBLIC_GA_ID              = G-7XRHSS9V0F
   ```
+  > `SUPABASE_SERVICE_ROLE_KEY`는 더 이상 필요 없다. 이 앱은 anon INSERT만 하고,
+  > 쓰이지 않던 service_role 클라이언트는 제거했다(`lib/supabase.ts`).
 - [ ] **견적 폼 실제 제출 테스트** — 환경변수 설정 후 폼 제출 → DB 저장 + 이메일 수신 확인
 - [ ] **정규 도메인 확정** — Vercel에 `www.wnjpower.com` · `wnjpower.com` 둘 다 연결돼 있음.
   코드는 www 기준으로 통일했으므로, Vercel에서 non-www → www 리다이렉트가 걸려 있는지 확인할 것

@@ -17,6 +17,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Loader2, Factory, Lamp, HelpCircle } from 'lucide-react';
 import { gtagEvent } from '@/components/GoogleAnalytics';
+import { COMPANY } from '@/lib/site';
 
 interface Props {
   defaultCategory?: string;
@@ -143,6 +144,11 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
         const json = await res.json().catch(() => ({}));
         if (res.status === 429) {
           toast.error('제출이 너무 빠릅니다. 잠시 후 다시 시도해 주세요.');
+        } else if (json?.error === 'delivery_failed') {
+          // 접수 경로가 전부 실패한 경우 — 재시도보다 전화가 확실하다
+          toast.error(`접수에 실패했습니다. ${COMPANY.mobile}로 전화 주시면 바로 상담해 드립니다.`, {
+            duration: 10000,
+          });
         } else {
           toast.error(json?.message ?? '오류가 발생했습니다. 다시 시도해 주세요.');
         }
