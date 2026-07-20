@@ -7,7 +7,15 @@ export interface PortfolioItem {
   category: ServiceCategory;
   categoryLabel: string;
   image: string | null;
+  /**
+   * 실제 시공 사진이 아닌 자리표시 이미지인지 여부.
+   * true이면 화면에 '샘플' 배지가 함께 노출되어 실제 시공 사진으로 오인되지 않는다.
+   * 사장님 현장 사진을 받으면 image를 교체하고 이 플래그를 지울 것.
+   */
+  isPlaceholder?: boolean;
 }
+
+const P = '/images/portfolio';
 
 export const portfolioItems: PortfolioItem[] = [
   {
@@ -16,7 +24,8 @@ export const portfolioItems: PortfolioItem[] = [
     location: '경북 칠곡',
     category: 'factory',
     categoryLabel: '공장 전기',
-    image: null,
+    image: `${P}/chilgok-factory-new-build.png`,
+    isPlaceholder: true,
   },
   {
     id: 2,
@@ -24,7 +33,8 @@ export const portfolioItems: PortfolioItem[] = [
     location: '대구 달성',
     category: 'factory',
     categoryLabel: '공장 전기',
-    image: null,
+    image: `${P}/dalseong-production-power.png`,
+    isPlaceholder: true,
   },
   {
     id: 3,
@@ -32,7 +42,8 @@ export const portfolioItems: PortfolioItem[] = [
     location: '경북 칠곡',
     category: 'panel',
     categoryLabel: '배전반 제작',
-    image: null,
+    image: `${P}/chilgok-switchboard.png`,
+    isPlaceholder: true,
   },
   {
     id: 4,
@@ -40,7 +51,8 @@ export const portfolioItems: PortfolioItem[] = [
     location: '경북 경산',
     category: 'power',
     categoryLabel: '수전·증설',
-    image: null,
+    image: `${P}/gyeongsan-power-receiving.png`,
+    isPlaceholder: true,
   },
   {
     id: 5,
@@ -48,7 +60,8 @@ export const portfolioItems: PortfolioItem[] = [
     location: '대구 달서구',
     category: 'panel',
     categoryLabel: '배전반 제작',
-    image: null,
+    image: `${P}/dalseo-panel-replacement.png`,
+    isPlaceholder: true,
   },
   {
     id: 6,
@@ -56,7 +69,8 @@ export const portfolioItems: PortfolioItem[] = [
     location: '대구 중구',
     category: 'interior',
     categoryLabel: '인테리어 전기',
-    image: null,
+    image: `${P}/junggu-cafe-interior.png`,
+    isPlaceholder: true,
   },
   {
     id: 7,
@@ -64,7 +78,8 @@ export const portfolioItems: PortfolioItem[] = [
     location: '대구 수성구',
     category: 'interior',
     categoryLabel: '인테리어 전기',
-    image: null,
+    image: `${P}/suseong-restaurant-lighting.png`,
+    isPlaceholder: true,
   },
   {
     id: 8,
@@ -72,6 +87,7 @@ export const portfolioItems: PortfolioItem[] = [
     location: '대구 달서구',
     category: 'interior',
     categoryLabel: '인테리어 전기',
-    image: null,
+    image: `${P}/dalseo-office-led.png`,
+    isPlaceholder: true,
   },
 ];

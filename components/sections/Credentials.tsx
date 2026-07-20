@@ -50,16 +50,16 @@ export default function Credentials() {
             return (
               <div
                 key={cred.title}
-                className="group bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FFB800]/40 rounded-lg p-7 flex flex-col backdrop-blur-sm hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/20 transition-all duration-200"
+                className="group bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FF5500]/40 rounded-lg p-7 flex flex-col backdrop-blur-sm hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/20 transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-5">
-                  <div className="w-14 h-14 rounded-md bg-[#FFB800]/10 border border-[#FFB800]/20 flex items-center justify-center">
-                    <Icon className="w-7 h-7 text-[#FFB800]" />
+                  <div className="w-14 h-14 rounded-md bg-[#FF5500]/10 border border-[#FF5500]/20 flex items-center justify-center">
+                    <Icon className="w-7 h-7 text-[#FF5500]" />
                   </div>
                 </div>
                 <h3 className="text-lg font-bold text-white tracking-tight mb-1">{cred.title}</h3>
                 {cred.number && (
-                  <p className="font-mono text-base text-[#FFB800] tracking-wide mb-2 tabular-nums">
+                  <p className="font-mono text-base text-[#FF5500] tracking-wide mb-2 tabular-nums">
                     {cred.number}
                   </p>
                 )}
@@ -69,7 +69,7 @@ export default function Credentials() {
                     href={cred.verify.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-5 inline-flex items-center gap-1.5 text-base font-semibold text-white hover:text-[#FFB800] transition-colors"
+                    className="mt-5 inline-flex items-center gap-1.5 text-base font-semibold text-white hover:text-[#FF5500] transition-colors"
                   >
                     {cred.verify.label}
                     <ExternalLink className="w-4 h-4" />

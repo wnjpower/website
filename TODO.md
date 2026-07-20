@@ -11,6 +11,46 @@
 
 ## ✅ 완료된 작업
 
+### 전면 개편 Phase 1 — 톤 정리·전환 경로 재편 (2026-07-20 8차)
+
+**디자인 톤 — "전문적으로 안 보이던" 원인 제거**
+- [x] **강조색 단일화** — 옐로(`#FFB800`)·테라코타(`#C8581F`)를 안전 오렌지(`#FF5500`) 1종으로 통합.
+  스크롤할 때마다 강조색이 바뀌어 브랜드가 통제돼 보이지 않던 문제 해소
+- [x] **디자인 토큰 교정** — `--primary`가 주석(#0A3D91)과 달리 훨씬 밝고 채도 높은 값(색역 초과)이라
+  shadcn 기본 컴포넌트와 하드코딩된 색이 미묘하게 어긋났음. 실측값 `oklch(0.386 0.148 260)`으로 수정
+- [x] **다크 히어로 전환** — 유일한 현장 사진 위에 흰색 워시(좌측 alpha 0.97)를 덮어 사진이 사실상
+  보이지 않고 "연회색 배경 + 파란 글씨"의 SaaS 랜딩이 돼 있던 것을, 어두운 현장 사진이 화면을
+  지배하는 구조로 전환
+- [x] **라운드 통일** — `rounded-3xl/2xl/xl` 혼용 → `rounded-lg` 단일 반경. 각진 형태가 산업 장비 조형과 맞음
+- [x] **블루프린트 드리프트 애니메이션 제거** (미사용 dead CSS였음)
+- [x] **오렌지 버튼 대비 개선** — 흰 글씨(대비 3.1:1, AA 미달) → 네이비 글씨(5.9:1). 접근성과
+  안전 표지판 문법을 동시에 충족
+
+**전환 경로 — 전화 1순위로 재편**
+- [x] **히어로 CTA 순서 반전** — 전화(오렌지, 번호 노출)를 1차, 견적폼을 2차로.
+  공사 사양이 복잡한 B2B일수록 폼보다 통화 전환율이 높다
+- [x] **모바일 하단 고정 CTA 바 신설** — 우하단 원형 버튼(600px 스크롤 후 등장) → 전화·견적 2분할
+  하단 바를 상시 노출. 탭 면적이 훨씬 넓고 시공업체 모바일 표준 패턴
+- [x] **콜백 퀵폼 신설** (`CallbackForm.tsx`) — "번호만 남기면 저희가 겁니다". 본 견적폼은 입력 요소가
+  9개라 B2B 기준 상한선이라, 작성 부담으로 이탈하는 층을 회수한다.
+  기존 `/api/quote` 파이프라인을 타되 `source='callback'`으로 구분되며 `callback_request` 이벤트 발화
+- [x] **컨텍스트 CTA 밴드** — 시공사례 하단에 "비슷한 공사를 계획 중이신가요?" 전화·견적 CTA 추가
+- [x] **응답 SLA 구체화** — "1영업일 내" → "영업시간 내 접수는 당일, 그 외 다음 영업일 오전"
+
+**신뢰·SEO**
+- [x] **히어로에 등록번호 노출** — 형용사형 신뢰 스탯("전기공사업 면허")을 조회 가능한 번호
+  (`대구-01425` · `637-81-02833`)로 교체
+- [x] **FAQPage 구조화 데이터** (`components/FaqSchema.tsx`) — 기존 FAQ 14건을 그대로 활용,
+  콘텐츠 추가 작성 없이 구글 리치 결과 후보 확보
+- [x] **시공사례 갤러리 활성화** — 샘플 플레이스홀더 8장 생성해 레이아웃 확인 가능 상태로 전환.
+  각 카드에 `샘플` 배지 + 상단 안내 배너가 붙어 실제 시공사진으로 오인될 수 없음
+- [x] **대표 사진 자리** — 아이콘 placeholder → 샘플 이미지(`public/images/ceo-placeholder.png`)
+
+> ⚠️ **샘플 이미지는 반드시 교체할 것.** `public/images/portfolio/*.png` 8장과
+> `ceo-placeholder.png`는 레이아웃 확인용으로 생성한 도면풍 자리표시 이미지다.
+> 실제 사진을 넣고 `content/portfolio.ts`의 `isPlaceholder` 플래그를 지우면
+> 샘플 배지와 안내 배너가 자동으로 사라진다.
+
 ### 전면 개편 Phase 0 — 측정·공유·신뢰 결함 수정 (2026-07-20 7차)
 
 **측정 (성과를 알 수 없던 문제)**
@@ -119,8 +159,15 @@
 
 ### 🟡 콘텐츠 — 사장님 제공 필요
 
-- [ ] **시공 현장 사진** 6~9장 → `public/images/portfolio/` 저장 후 `content/portfolio.ts` 업데이트
-- [ ] **대표 사진** → `components/sections/About.tsx` placeholder 교체
+- [ ] **🔴 시공 현장 사진** 6~9장 → `public/images/portfolio/` 의 샘플 파일을 실사진으로 교체 후
+  `content/portfolio.ts`의 `isPlaceholder` 플래그 삭제 (교체 즉시 샘플 배지·안내 배너가 사라짐)
+  - 촬영 우선순위: **배전반 제작 3단계(외함→결선→완성품)** ← "자체 제작" 주장의 유일한 증거 /
+    배전반 앞 작업 장면(안전장구 착용) / 수전설비 / **노후 분전반 교체 전·후 같은 앵글** /
+    공장 내부 전경. 상세 가이드는 개편 보고서 §7.2 참조
+- [ ] **대표 사진** → `public/images/ceo-placeholder.png` 를 실사진으로 교체
+  (`components/sections/About.tsx`의 `샘플` 배지도 함께 제거)
+- [ ] **히어로 수치 확정** — 누적 시공 건수 · 배전반 제작 면수를 받으면
+  `components/sections/Hero.tsx`의 `trustStats` 2·3번을 수치로 교체 (TODO 주석 표시됨)
 - [ ] **카카오톡 채널 URL** → [`lib/site.ts`](lib/site.ts)의 `KAKAO_CHANNEL_URL` **한 곳만** 입력하면
   FloatingCta · Contact · Portfolio에 자동 반영됨 (현재는 null이라 버튼이 숨겨진 상태)
 - [ ] **네이버 플레이스 · 블로그 URL** → [`lib/site.ts`](lib/site.ts)의 `NAVER_PLACE_URL` · `NAVER_BLOG_URL`.
@@ -167,6 +214,9 @@
 | GA4 컴포넌트 | [`components/GoogleAnalytics.tsx`](components/GoogleAnalytics.tsx) |
 | 전화·카톡 클릭 추적 | [`components/ClickTracking.tsx`](components/ClickTracking.tsx) |
 | OG 이미지 | [`app/opengraph-image.tsx`](app/opengraph-image.tsx) |
+| FAQ 구조화 데이터 | [`components/FaqSchema.tsx`](components/FaqSchema.tsx) |
+| 콜백 퀵폼 | [`components/sections/CallbackForm.tsx`](components/sections/CallbackForm.tsx) |
+| 색·라운드·오버레이 토큰 | [`app/globals.css`](app/globals.css) |
 | 카카오 알림톡 | [`lib/kakao-alimtalk.ts`](lib/kakao-alimtalk.ts) |
 | Zod 검증 스키마 | [`lib/validators.ts`](lib/validators.ts) |
 | 서비스 콘텐츠 | [`content/services.ts`](content/services.ts) |

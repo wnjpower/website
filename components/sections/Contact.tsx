@@ -31,7 +31,7 @@ export default function Contact() {
               const Icon = item.icon;
               return (
                 <div key={i} className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#0A3D91]/10 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-[#0A3D91]/10 flex items-center justify-center flex-shrink-0">
                     <Icon className="w-5 h-5 text-[#0A3D91]" />
                   </div>
                   <div>
@@ -52,7 +52,7 @@ export default function Contact() {
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <a
                 href={`tel:${COMPANY.phone}`}
-                className="inline-flex items-center justify-center gap-2 bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
               >
                 <Phone className="w-4 h-4" />
                 전화 상담
@@ -61,7 +61,7 @@ export default function Contact() {
                 href={routeHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 border border-[#0A3D91]/20 text-[#0A3D91] font-semibold px-6 py-3 rounded-xl hover:bg-[#0A3D91]/5 transition-colors"
+                className="inline-flex items-center justify-center gap-2 border border-[#0A3D91]/20 text-[#0A3D91] font-semibold px-6 py-3 rounded-lg hover:bg-[#0A3D91]/5 transition-colors"
               >
                 <Navigation className="w-4 h-4" />
                 길찾기
@@ -72,7 +72,7 @@ export default function Contact() {
                   href={KAKAO_CHANNEL_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-xl transition-colors text-[#3C1E1E] hover:brightness-95"
+                  className="inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-lg transition-colors text-[#3C1E1E] hover:brightness-95"
                   style={{ backgroundColor: '#FEE500' }}
                 >
                   <KakaoIcon className="w-4 h-4" />
@@ -83,7 +83,7 @@ export default function Contact() {
           </div>
 
           {/* 지도 */}
-          <div className="rounded-2xl overflow-hidden shadow-md border border-gray-100">
+          <div className="rounded-lg overflow-hidden shadow-md border border-gray-100">
             <a
               href={mapHref}
               target="_blank"

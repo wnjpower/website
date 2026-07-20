@@ -56,12 +56,12 @@ export default function Header() {
           {/* 모바일: 핵심 2항목 */}
           <div className="flex sm:hidden items-center gap-4 text-sm font-semibold text-white">
             <span className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              <Clock className="w-4 h-4 text-[#FF5500] flex-shrink-0" />
               평일 09:00–18:00
             </span>
             <span className="w-px h-3.5 bg-white/30 flex-shrink-0" />
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#FF5500] flex-shrink-0" />
               현장 견적 출장비 무료
             </span>
           </div>
@@ -69,17 +69,17 @@ export default function Header() {
           {/* 데스크톱: 3항목 균등 배치 */}
           <div className="hidden sm:flex items-center gap-5 lg:gap-8 text-sm font-semibold text-white">
             <span className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              <Clock className="w-4 h-4 text-[#FF5500] flex-shrink-0" />
               평일 09:00–18:00 · 토 09:00–13:00
             </span>
             <span className="w-px h-4 bg-white/30 flex-shrink-0" />
             <span className="flex items-center gap-2">
-              <Mail className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              <Mail className="w-4 h-4 text-[#FF5500] flex-shrink-0" />
               wnj-2023@naver.com
             </span>
             <span className="w-px h-4 bg-white/30 flex-shrink-0" />
             <span className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-[#FFB800] flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#FF5500] flex-shrink-0" />
               현장 견적 출장비 무료
             </span>
           </div>
@@ -142,7 +142,7 @@ export default function Header() {
               {/* 데스크톱 전화 버튼 */}
               <a
                 href="tel:010-8552-9994"
-                className="hidden sm:inline-flex items-center gap-2.5 bg-[#FF5500] hover:bg-[#E04A00] text-white font-bold px-5 py-3 rounded-lg transition-colors shadow-sm text-[1.0625rem]"
+                className="hidden sm:inline-flex items-center gap-2.5 bg-[#FF5500] hover:bg-[#E04A00] text-[#0F172A] font-extrabold px-5 py-3 rounded-lg transition-colors shadow-sm text-[1.0625rem]"
               >
                 <Phone className="w-5 h-5 flex-shrink-0" />
                 010-8552-9994
@@ -154,7 +154,7 @@ export default function Header() {
                 aria-label="전화상담"
                 className="sm:hidden w-11 h-11 flex items-center justify-center rounded-lg bg-[#FF5500] hover:bg-[#E04A00] transition-colors"
               >
-                <Phone className="w-5 h-5 text-white" />
+                <Phone className="w-5 h-5 text-[#0F172A]" />
               </a>
 
               {/* 햄버거 버튼 */}
@@ -194,7 +194,7 @@ export default function Header() {
             <button
               key={item.href}
               onClick={() => handleNavClick(item.href)}
-              className="flex items-center text-left text-xl font-semibold text-[#0F172A] hover:text-[#0A3D91] hover:bg-[#0A3D91]/5 px-4 py-5 rounded-xl transition-colors border-b border-gray-100 last:border-0"
+              className="flex items-center text-left text-xl font-semibold text-[#0F172A] hover:text-[#0A3D91] hover:bg-[#0A3D91]/5 px-4 py-5 rounded-lg transition-colors border-b border-gray-100 last:border-0"
             >
               {item.label}
             </button>
@@ -204,7 +204,7 @@ export default function Header() {
             <a
               href="tel:010-8552-9994"
               onClick={closeMenu}
-              className="flex items-center justify-center gap-3 bg-[#FF5500] hover:bg-[#E04A00] text-white font-bold text-lg px-4 py-4 rounded-xl transition-colors"
+              className="flex items-center justify-center gap-3 bg-[#FF5500] hover:bg-[#E04A00] text-[#0F172A] font-extrabold text-lg px-4 py-4 rounded-lg transition-colors"
             >
               <Phone className="w-5 h-5" />
               010-8552-9994 전화상담
@@ -212,7 +212,7 @@ export default function Header() {
             <a
               href="#quote"
               onClick={closeMenu}
-              className="flex items-center justify-center gap-2 bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold text-lg px-4 py-4 rounded-xl transition-colors"
+              className="flex items-center justify-center gap-2 bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold text-lg px-4 py-4 rounded-lg transition-colors"
             >
               무료 견적문의
             </a>

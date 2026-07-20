@@ -178,7 +178,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
 
         {/* 카카오 알림톡 안내 (실제 발송된 경우에만 표시) */}
         {alimtalkSent && (
-          <div className="animate-fade-up rounded-xl border border-[#FEE500] bg-[#FFFDE7] px-5 py-4 mb-4" style={{ animationDelay: '0.4s' }}>
+          <div className="animate-fade-up rounded-lg border border-[#FEE500] bg-[#FFFDE7] px-5 py-4 mb-4" style={{ animationDelay: '0.4s' }}>
             <div className="flex items-center gap-2 mb-1.5">
               {/* 카카오 로고 컬러 아이콘 */}
               <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" fill="#3C1E1E">
@@ -196,7 +196,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
         )}
 
         {/* 빠른 연락 안내 */}
-        <div className="animate-fade-up rounded-xl bg-[#F8FAFC] border border-gray-100 px-5 py-4 text-center" style={{ animationDelay: alimtalkSent ? '0.5s' : '0.4s' }}>
+        <div className="animate-fade-up rounded-lg bg-[#F8FAFC] border border-gray-100 px-5 py-4 text-center" style={{ animationDelay: alimtalkSent ? '0.5s' : '0.4s' }}>
           <p className="text-sm text-gray-500 mb-2">급하신 경우 직접 연락 주세요</p>
           <a
             href="tel:010-8552-9994"
@@ -407,7 +407,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold py-4 text-lg rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0A3D91]/25 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+        className="w-full bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold py-4 text-lg rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0A3D91]/25 disabled:hover:translate-y-0 disabled:hover:shadow-none"
       >
         {isSubmitting ? (
           <>

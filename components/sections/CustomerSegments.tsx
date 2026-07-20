@@ -80,12 +80,12 @@ export default function CustomerSegments({ onSelectSegment }: Props) {
         <div data-reveal className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* 메인: 공장·산업 (사진 배경 + 흰 텍스트) */}
           <div
-            className="relative lg:col-span-3 rounded-xl overflow-hidden bg-photo bg-photo-accent text-white flex flex-col shadow-xl transition-all duration-200 hover:-translate-y-1.5"
+            className="relative lg:col-span-3 rounded-lg overflow-hidden bg-photo bg-photo-accent text-white flex flex-col shadow-xl transition-all duration-200 hover:-translate-y-1.5"
             style={{ ['--bg-photo-url' as string]: "url('/images/factory-electrical.jpg')" }}
           >
             <div className="p-8 sm:p-10 flex flex-col flex-1">
               <div className="flex items-center justify-between mb-6">
-                <span className="text-sm font-bold px-3 py-1 rounded-md bg-[#FFB800] text-[#0F172A]">
+                <span className="text-sm font-bold px-3 py-1 rounded-md bg-[#FF5500] text-[#0F172A]">
                   {industrial.tag}
                 </span>
                 <div className="w-14 h-14 rounded-md bg-white/15 flex items-center justify-center">
@@ -111,11 +111,11 @@ export default function CustomerSegments({ onSelectSegment }: Props) {
                   </ul>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-[#FFB800] mb-2.5">우앤주전력의 해결책</p>
+                  <p className="text-sm font-bold text-[#FF5500] mb-2.5">우앤주전력의 해결책</p>
                   <ul className="space-y-2">
                     {industrial.solutions.map((sol, i) => (
                       <li key={i} className="flex items-start gap-2 text-[15px] text-white">
-                        <CheckCircle2 className="w-4 h-4 text-[#FFB800] mt-1 flex-shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-[#FF5500] mt-1 flex-shrink-0" />
                         {sol}
                       </li>
                     ))}
@@ -125,7 +125,7 @@ export default function CustomerSegments({ onSelectSegment }: Props) {
 
               <button
                 onClick={() => handleCta(industrial.type)}
-                className="mt-auto w-full bg-[#FFB800] hover:bg-[#FFB800]/90 text-[#0F172A] font-bold py-4 rounded-lg transition-all text-base hover:-translate-y-0.5"
+                className="mt-auto w-full bg-[#FF5500] hover:bg-[#FF5500]/90 text-[#0F172A] font-bold py-4 rounded-lg transition-all text-base hover:-translate-y-0.5"
               >
                 {industrial.cta} →
               </button>
@@ -133,15 +133,15 @@ export default function CustomerSegments({ onSelectSegment }: Props) {
           </div>
 
           {/* 서브: 인테리어·일반 (솔리드) */}
-          <div className="lg:col-span-2 relative rounded-xl border border-gray-200 bg-[#F8FAFC] flex flex-col overflow-hidden transition-all duration-200 hover:shadow-xl hover:border-[#C8581F]/40 hover:-translate-y-1.5">
-            <div className="h-1.5 bg-[#C8581F]" />
+          <div className="lg:col-span-2 relative rounded-lg border border-gray-200 bg-[#F8FAFC] flex flex-col overflow-hidden transition-all duration-200 hover:shadow-xl hover:border-[#0A3D91]/40 hover:-translate-y-1.5">
+            <div className="h-1.5 bg-[#0A3D91]" />
             <div className="p-7 flex flex-col flex-1">
               <div className="flex items-center justify-between mb-5">
-                <span className="text-sm font-bold px-3 py-1 rounded-md bg-[#C8581F]/10 text-[#C8581F]">
+                <span className="text-sm font-bold px-3 py-1 rounded-md bg-[#0A3D91]/10 text-[#0A3D91]">
                   {interior.tag}
                 </span>
-                <div className="w-12 h-12 rounded-md bg-[#C8581F]/10 flex items-center justify-center">
-                  <SubIcon className="w-6 h-6 text-[#C8581F]" />
+                <div className="w-12 h-12 rounded-md bg-[#0A3D91]/10 flex items-center justify-center">
+                  <SubIcon className="w-6 h-6 text-[#0A3D91]" />
                 </div>
               </div>
 
@@ -163,11 +163,11 @@ export default function CustomerSegments({ onSelectSegment }: Props) {
               </div>
 
               <div className="mb-7">
-                <p className="text-sm font-bold text-[#C8581F] mb-2.5">우앤주전력의 해결책</p>
+                <p className="text-sm font-bold text-[#0A3D91] mb-2.5">우앤주전력의 해결책</p>
                 <ul className="space-y-2">
                   {interior.solutions.map((sol, i) => (
                     <li key={i} className="flex items-start gap-2 text-[15px] text-[#0F172A]">
-                      <CheckCircle2 className="w-4 h-4 text-[#C8581F] mt-1 flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-[#0A3D91] mt-1 flex-shrink-0" />
                       {sol}
                     </li>
                   ))}
@@ -176,7 +176,7 @@ export default function CustomerSegments({ onSelectSegment }: Props) {
 
               <button
                 onClick={() => handleCta(interior.type)}
-                className="mt-auto w-full bg-white hover:bg-[#C8581F] border-2 border-[#C8581F] text-[#C8581F] hover:text-white font-bold py-3.5 rounded-lg transition-all text-base hover:-translate-y-0.5"
+                className="mt-auto w-full bg-white hover:bg-[#0A3D91] border-2 border-[#0A3D91] text-[#0A3D91] hover:text-white font-bold py-3.5 rounded-lg transition-all text-base hover:-translate-y-0.5"
               >
                 {interior.cta} →
               </button>

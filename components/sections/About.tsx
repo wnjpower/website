@@ -1,5 +1,5 @@
 'use client';
-import { HardHat } from 'lucide-react';
+import Image from 'next/image';
 import CountUp from '@/components/CountUp';
 
 const stats = [
@@ -30,12 +30,21 @@ export default function About() {
           </h2>
         </div>
 
-        <div data-reveal className="bg-[#F8FAFC] rounded-3xl border border-gray-100 p-8 sm:p-12">
+        <div data-reveal className="bg-[#F8FAFC] rounded-lg border border-gray-100 p-8 sm:p-12">
           <div className="flex flex-col sm:flex-row gap-8 items-start">
-            {/* 대표 사진 자리 (placeholder) */}
+            {/* 대표 사진 — 현재는 샘플. public/images/ceo-placeholder.png 를 실사진으로 교체할 것 */}
             <div className="flex-shrink-0 mx-auto sm:mx-0">
-              <div className="w-28 h-28 rounded-2xl bg-[#0A3D91]/10 flex items-center justify-center">
-                <HardHat className="w-12 h-12 text-[#0A3D91]" />
+              <div className="relative w-36 h-36 rounded-lg overflow-hidden border border-gray-200">
+                <Image
+                  src="/images/ceo-placeholder.png"
+                  alt="주식회사 우앤주전력 대표 임태훈 — 사진 준비 중"
+                  width={144}
+                  height={144}
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-1 right-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/70 text-white">
+                  샘플
+                </span>
               </div>
             </div>
 

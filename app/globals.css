@@ -46,9 +46,11 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  /* WNJ 브랜드 색상 커스텀 토큰 */
+  /* WNJ 브랜드 색상 커스텀 토큰
+     강조색은 안전 오렌지 1종으로 통일한다. 이전에는 옐로(#FFB800)·
+     테라코타(#C8581F)가 함께 쓰여 스크롤할 때마다 강조색이 바뀌었다. */
   --color-wnj-blue: #0A3D91;
-  --color-wnj-yellow: #FFB800;
+  --color-wnj-accent: #FF5500;
   --color-wnj-dark: #0F172A;
   --color-wnj-bg: #F8FAFC;
 }
@@ -60,30 +62,33 @@
   --card-foreground: oklch(0.13 0.02 264);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.13 0.02 264);
-  /* primary = WNJ Blue #0A3D91 */
-  --primary: oklch(0.49 0.27 264);
+  /* primary = WNJ Blue #0A3D91
+     이전 값 oklch(0.49 0.27 264)는 주석과 달리 실제 #0A3D91보다 훨씬 밝고
+     채도가 높아(색역 초과), shadcn 기본 컴포넌트와 하드코딩된 #0A3D91의
+     색이 미묘하게 어긋났다. 실측값으로 교정. */
+  --primary: oklch(0.386 0.148 260);
   --primary-foreground: oklch(0.98 0 0);
   /* secondary = light blue tint */
-  --secondary: oklch(0.95 0.03 264);
-  --secondary-foreground: oklch(0.49 0.27 264);
+  --secondary: oklch(0.95 0.03 260);
+  --secondary-foreground: oklch(0.386 0.148 260);
   --muted: oklch(0.96 0 0);
   --muted-foreground: oklch(0.54 0.01 264);
-  /* accent = WNJ Yellow #FFB800 */
-  --accent: oklch(0.82 0.17 84);
+  /* accent = 안전 오렌지 #FF5500 (강조색 단일화) */
+  --accent: oklch(0.676 0.217 39);
   --accent-foreground: oklch(0.13 0.02 264);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.91 0 0);
   --input: oklch(0.91 0 0);
-  --ring: oklch(0.49 0.27 264);
-  --chart-1: oklch(0.49 0.27 264);
-  --chart-2: oklch(0.82 0.17 84);
+  --ring: oklch(0.386 0.148 260);
+  --chart-1: oklch(0.386 0.148 260);
+  --chart-2: oklch(0.676 0.217 39);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.49 0.27 264);
+  --sidebar-primary: oklch(0.386 0.148 260);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
@@ -119,6 +124,13 @@ section[id] {
   scroll-margin-top: 7.5rem;
 }
 
+/* 모바일 하단 고정 CTA 바가 마지막 콘텐츠를 가리지 않도록 여백 확보 */
+@media (max-width: 639px) {
+  body {
+    padding-bottom: 4.5rem;
+  }
+}
+
 /* 블루프린트 도면 격자 패턴 */
 .bg-blueprint {
   background-image:
@@ -150,10 +162,12 @@ section[id] {
     linear-gradient(rgba(11, 18, 32, 0.82), rgba(11, 18, 32, 0.9)),
     var(--bg-photo-url);
 }
-/* 밝은 히어로용 (좌측 텍스트 가독성 + 우측 사진 노출) */
+/* 히어로용 — 어두운 현장 사진이 화면을 지배하고 그 위에 텍스트를 얹는다.
+   이전에는 흰색 워시(좌측 alpha 0.97)를 덮어 사진이 사실상 보이지 않았고
+   결과적으로 "연회색 배경 + 파란 글씨"의 SaaS 랜딩 히어로가 되어 있었다. */
 .bg-photo-hero {
   background-image:
-    linear-gradient(100deg, rgba(248, 250, 252, 0.97) 0%, rgba(248, 250, 252, 0.88) 42%, rgba(248, 250, 252, 0.5) 100%),
+    linear-gradient(100deg, rgba(11, 18, 32, 0.95) 0%, rgba(11, 18, 32, 0.86) 45%, rgba(11, 18, 32, 0.6) 100%),
     var(--bg-photo-url);
 }
 /* 강조 카드용 (네이비 오버레이 + 흰 텍스트) */
@@ -197,19 +211,6 @@ section[id] {
   .animate-fade-up {
     opacity: 0;
     animation: wnj-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  /* 블루프린트 배경 은은한 흐름 (전기 도면이 살아있는 느낌) */
-  @keyframes wnj-grid-drift {
-    from {
-      background-position: 0 0, 0 0;
-    }
-    to {
-      background-position: 32px 32px, 32px 32px;
-    }
-  }
-  .bg-blueprint-animate {
-    animation: wnj-grid-drift 40s linear infinite;
   }
 
   /* Floating 전화 버튼 맥박 — 시선 유도 */
