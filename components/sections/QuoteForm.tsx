@@ -21,6 +21,8 @@ import { gtagEvent } from '@/components/GoogleAnalytics';
 interface Props {
   defaultCategory?: string;
   defaultCustomerType?: string;
+  /** 유입 위치 구분 — DB의 source 컬럼에 저장되어 어느 페이지에서 온 리드인지 추적한다. */
+  source?: string;
 }
 
 // 국내 주요 이메일 도메인 (첫 글자 입력 시 자동완성)
@@ -64,7 +66,7 @@ const legacyCategoryMap: Record<string, string> = {
 
 const visibleCustomerTypes = CUSTOMER_TYPES.filter((t) => t !== 'unknown');
 
-export default function QuoteForm({ defaultCategory, defaultCustomerType }: Props) {
+export default function QuoteForm({ defaultCategory, defaultCustomerType, source }: Props) {
   const loadedAtRef = useRef(Date.now());
   const [submitted, setSubmitted] = useState(false);
   const [submittedPhone, setSubmittedPhone] = useState('');
@@ -86,7 +88,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType }: Prop
     defaultValues: {
       category:     resolvedCategory as QuoteInput['category'],
       customerType: (defaultCustomerType as QuoteInput['customerType']) ?? 'industrial',
-      source:       'main_form',
+      source:       source ?? 'main_form',
       loadedAt:     loadedAtRef.current,
     },
   });

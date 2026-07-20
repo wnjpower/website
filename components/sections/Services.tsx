@@ -1,15 +1,14 @@
 'use client';
-import { Factory, Gauge, CircuitBoard, Lamp, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+import { Factory, Gauge, CircuitBoard, Lamp, CheckCircle2, ArrowRight } from 'lucide-react';
 import { services } from '@/content/services';
+import { useQuotePrefill } from '@/components/QuotePrefill';
 
 const iconMap = { Factory, Gauge, CircuitBoard, Lamp } as const;
 type IconKey = keyof typeof iconMap;
 
-interface Props {
-  onSelectCategory?: (cat: string) => void;
-}
-
-export default function Services({ onSelectCategory }: Props) {
+export default function Services() {
+  const { selectCategory } = useQuotePrefill();
   return (
     <section id="services" className="py-20 bg-[#F8FAFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -70,12 +69,21 @@ export default function Services({ onSelectCategory }: Props) {
                   ))}
                 </div>
 
-                <button
-                  onClick={() => onSelectCategory?.(svc.id)}
-                  className="mt-auto text-sm text-[#0A3D91] font-bold hover:underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A3D91] rounded"
-                >
-                  이 항목으로 문의하기 →
-                </button>
+                <div className="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-2.5">
+                  <Link
+                    href={`/services/${svc.id}`}
+                    className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0A3D91] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A3D91] rounded"
+                  >
+                    시공 범위·절차 자세히 보기
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <button
+                    onClick={() => selectCategory(svc.id)}
+                    className="text-sm text-gray-500 font-semibold hover:text-[#0A3D91] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A3D91] rounded"
+                  >
+                    이 항목으로 문의하기 →
+                  </button>
+                </div>
               </div>
             );
           })}

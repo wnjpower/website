@@ -11,6 +11,45 @@
 
 ## ✅ 완료된 작업
 
+### 전면 개편 Phase 2 — 멀티페이지 IA 전환 (2026-07-20 9차)
+
+> 유입 문제의 본체. 원페이지라 색인 가능한 URL이 2개(`/`, `/privacy`)뿐이었고
+> 키워드 10여 개가 홈 한 장에 몰려 어느 키워드에서도 관련성이 분산됐다.
+> **색인 대상 URL 2개 → 17개**, 정적 페이지 11개 → 26개로 확장.
+
+**구조 전환**
+- [x] **`app/page.tsx` 서버 컴포넌트화** — 견적폼 프리필 상태를 `components/QuotePrefill.tsx`
+  컨텍스트로 내렸다. 기존에는 페이지가 이 상태를 들고 있느라 전체가 `'use client'`였고,
+  그래서 페이지별 `generateMetadata`를 붙일 수 없었다(멀티페이지 SEO의 걸림돌)
+- [x] **서비스 상세 4페이지** — `/services/{factory,power,panel,interior}`.
+  각 페이지가 키워드 클러스터를 하나씩 담당한다
+- [x] **시공사례 목록·상세** — `/portfolio`, `/portfolio/[slug]` 8건. 지역+공종 롱테일 담당
+- [x] **회사소개·FAQ 페이지** — `/about`, `/faq`
+- [x] **`components/SubPageShell.tsx`** — 서브페이지 공통 골격. 견적폼을 모든 서비스·사례
+  페이지 하단에 임베드한다(B2B 리드는 콘텐츠 소비 직후 전환율이 가장 높음)
+
+**콘텐츠**
+- [x] **서비스 페이지 본문 작성** (`content/service-pages.ts`) — 각 페이지에 시공 범위,
+  진행 절차, 비용·기간 변수, 전용 FAQ 4건. 제도·법령 수치는 한전 전기공급약관·
+  전기공사업법·전기안전관리법 공식 출처를 확인해 작성
+- [x] **시공사례 상세 콘텐츠** (`content/portfolio.ts`) — 8건에 공사 개요·범위·시공 단계 추가.
+  계약전력·공기 등 개별 현장 수치는 **추측하지 않고 '확인 중'으로 비워 뒀다**
+
+**SEO**
+- [x] **사이트맵 자동 생성** — 콘텐츠 파일에서 생성하므로 서비스·사례를 추가하면 자동 반영
+- [x] **페이지별 메타데이터·canonical** — title·description·keywords 개별 지정
+- [x] **BreadcrumbList 구조화 데이터** (`components/Breadcrumbs.tsx`) — 전 서브페이지
+- [x] **Service 구조화 데이터** — 서비스 페이지별
+- [x] **FAQPage 중복 정리** — 같은 FAQ가 여러 URL에 중복 노출되지 않도록 정본을 `/faq`로 지정.
+  서비스 페이지는 각자 고유한 FAQ를 별도로 출력
+- [x] **내부 링크 구성** — 홈 → 서비스, 서비스 ↔ 사례, 사례 → 서비스, 헤더 네비 실제 라우트화
+- [x] **리드 유입 위치 추적** — 견적폼 `source`에 `service_factory`·`portfolio_{slug}` 등 기록
+
+> ⚠️ **사장님 검수 필요**: 서비스 페이지 본문에 제도 관련 수치(계약전력 100kW 저압 기준,
+> 일반용/자가용 전기설비 구분 75kW·100kW, 시설부담금 기본거리 공중 200m·지중 50m,
+> 계약전력 감소 후 3년 내 재증설 시 면제 등)가 들어가 있다. 공식 출처로 확인했으나
+> 제도는 개정될 수 있고 현장 실무와 다를 수 있으니 한 번 훑어봐 주시면 좋겠다.
+
 ### 전면 개편 Phase 1 — 톤 정리·전환 경로 재편 (2026-07-20 8차)
 
 **디자인 톤 — "전문적으로 안 보이던" 원인 제거**
@@ -217,6 +256,11 @@
 | FAQ 구조화 데이터 | [`components/FaqSchema.tsx`](components/FaqSchema.tsx) |
 | 콜백 퀵폼 | [`components/sections/CallbackForm.tsx`](components/sections/CallbackForm.tsx) |
 | 색·라운드·오버레이 토큰 | [`app/globals.css`](app/globals.css) |
+| **서비스 페이지 본문** | [`content/service-pages.ts`](content/service-pages.ts) |
+| **시공사례 본문·수치** | [`content/portfolio.ts`](content/portfolio.ts) |
+| 서브페이지 공통 골격 | [`components/SubPageShell.tsx`](components/SubPageShell.tsx) · [`components/PageHero.tsx`](components/PageHero.tsx) |
+| 견적폼 프리필 컨텍스트 | [`components/QuotePrefill.tsx`](components/QuotePrefill.tsx) |
+| 사이트맵(자동 생성) | [`app/sitemap.ts`](app/sitemap.ts) |
 | 카카오 알림톡 | [`lib/kakao-alimtalk.ts`](lib/kakao-alimtalk.ts) |
 | Zod 검증 스키마 | [`lib/validators.ts`](lib/validators.ts) |
 | 서비스 콘텐츠 | [`content/services.ts`](content/services.ts) |

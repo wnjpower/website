@@ -1,5 +1,6 @@
 'use client';
 import { CheckCircle2, Factory, Lamp, type LucideIcon } from 'lucide-react';
+import { useQuotePrefill } from '@/components/QuotePrefill';
 
 interface Segment {
   type: string;
@@ -50,16 +51,9 @@ const interior: Segment = {
   cta: '인테리어·일반 전기 문의',
 };
 
-interface Props {
-  onSelectSegment?: (type: string) => void;
-}
-
-export default function CustomerSegments({ onSelectSegment }: Props) {
-  const handleCta = (type: string) => {
-    onSelectSegment?.(type);
-    const el = document.getElementById('quote');
-    el?.scrollIntoView({ behavior: 'smooth' });
-  };
+export default function CustomerSegments() {
+  const { selectCustomerType } = useQuotePrefill();
+  const handleCta = (type: string) => selectCustomerType(type);
 
   const MainIcon = industrial.icon;
   const SubIcon = interior.icon;

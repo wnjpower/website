@@ -2,15 +2,17 @@
 import dynamic from 'next/dynamic';
 import CallbackForm from './CallbackForm';
 import { COMPANY } from '@/lib/site';
+import { useQuotePrefill } from '@/components/QuotePrefill';
 
 const QuoteForm = dynamic(() => import('./QuoteForm'), { ssr: false });
 
 interface Props {
-  defaultCategory?: string;
-  defaultCustomerType?: string;
+  /** 유입 위치 구분 — 'main_form' | 'service_factory' 등. DB의 source 컬럼에 저장된다. */
+  source?: string;
 }
 
-export default function QuoteSection({ defaultCategory, defaultCustomerType }: Props) {
+export default function QuoteSection({ source }: Props) {
+  const { category: defaultCategory, customerType: defaultCustomerType } = useQuotePrefill();
   return (
     <section
       id="quote"
@@ -43,7 +45,11 @@ export default function QuoteSection({ defaultCategory, defaultCustomerType }: P
         </div>
 
         <div className="bg-white rounded-lg p-6 sm:p-8 shadow-2xl">
-          <QuoteForm defaultCategory={defaultCategory} defaultCustomerType={defaultCustomerType} />
+          <QuoteForm
+            defaultCategory={defaultCategory}
+            defaultCustomerType={defaultCustomerType}
+            source={source}
+          />
         </div>
       </div>
     </section>

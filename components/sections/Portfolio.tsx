@@ -1,4 +1,5 @@
-import { Camera, Phone } from 'lucide-react';
+import Link from 'next/link';
+import { Camera, Phone, ArrowRight } from 'lucide-react';
 import KakaoIcon from '@/components/KakaoIcon';
 import { portfolioItems } from '@/content/portfolio';
 import { COMPANY, KAKAO_CHANNEL_URL } from '@/lib/site';
@@ -43,7 +44,11 @@ export default function Portfolio() {
 
             <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {itemsWithPhoto.map((item) => (
-                <div key={item.id} className="rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white">
+                <Link
+                  key={item.id}
+                  href={`/portfolio/${item.slug}`}
+                  className="group rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white block"
+                >
                   <div className="relative aspect-[4/3] bg-gray-100">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -66,11 +71,23 @@ export default function Portfolio() {
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${categoryColors[item.category] ?? 'bg-gray-100 text-gray-600'}`}>
                       {item.categoryLabel}
                     </span>
-                    <h3 className="font-bold text-[#0F172A] mt-2 mb-0.5 text-sm">{item.title}</h3>
+                    <h3 className="font-bold text-[#0F172A] mt-2 mb-0.5 text-sm group-hover:text-[#0A3D91] transition-colors">
+                      {item.title}
+                    </h3>
                     <p className="text-xs text-gray-400">{item.location}</p>
                   </div>
-                </div>
+                </Link>
               ))}
+            </div>
+
+            <div data-reveal className="mt-8 text-center">
+              <Link
+                href="/portfolio"
+                className="inline-flex items-center gap-1.5 text-base font-bold text-[#0A3D91] hover:underline"
+              >
+                전체 시공 사례 보기
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
 
             {/* 섹션 맥락에 맞춘 컨텍스트 CTA */}

@@ -1,5 +1,3 @@
-'use client';
-import { useState } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/sections/Hero';
 import CustomerSegments from '@/components/sections/CustomerSegments';
@@ -16,38 +14,31 @@ import Contact from '@/components/sections/Contact';
 import Footer from '@/components/sections/Footer';
 import FloatingCta from '@/components/FloatingCta';
 import ScrollReveal from '@/components/ScrollReveal';
+import { QuotePrefillProvider } from '@/components/QuotePrefill';
 
+// 견적폼 프리필 상태는 QuotePrefillProvider가 들고 있으므로
+// 이 페이지는 서버 컴포넌트로 남는다. (메타데이터는 app/layout.tsx)
 export default function Home() {
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
-  const [selectedCustomerType, setSelectedCustomerType] = useState<string | undefined>();
-
-  const handleSelectCategory = (cat: string) => {
-    setSelectedCategory(cat);
-    document.getElementById('quote')?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleSelectSegment = (type: string) => {
-    setSelectedCustomerType(type);
-  };
-
   return (
-    <main>
-      <ScrollReveal />
-      <Header />
-      <Hero />
-      <CustomerSegments onSelectSegment={handleSelectSegment} />
-      <Services onSelectCategory={handleSelectCategory} />
-      <Credentials />
-      <About />
-      <WhyUs />
-      <Process />
-      <Pricing />
-      <Portfolio />
-      <Faq />
-      <QuoteSection defaultCategory={selectedCategory} defaultCustomerType={selectedCustomerType} />
-      <Contact />
-      <Footer />
-      <FloatingCta />
-    </main>
+    <QuotePrefillProvider>
+      <main>
+        <ScrollReveal />
+        <Header />
+        <Hero />
+        <CustomerSegments />
+        <Services />
+        <Credentials />
+        <About />
+        <WhyUs />
+        <Process />
+        <Pricing />
+        <Portfolio />
+        <Faq />
+        <QuoteSection source="main_form" />
+        <Contact />
+        <Footer />
+        <FloatingCta />
+      </main>
+    </QuotePrefillProvider>
   );
 }

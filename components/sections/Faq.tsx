@@ -15,7 +15,16 @@ const tabs: { value: FaqSegment; label: string }[] = [
   { value: 'interior',   label: '인테리어·일반' },
 ];
 
-export default function Faq() {
+interface Props {
+  /**
+   * FAQPage 구조화 데이터를 함께 출력할지 여부.
+   * 같은 내용의 FAQPage가 여러 URL에 중복 노출되지 않도록,
+   * 정본인 /faq 페이지에서만 true로 둔다.
+   */
+  withSchema?: boolean;
+}
+
+export default function Faq({ withSchema = false }: Props) {
   const [activeTab, setActiveTab] = useState<FaqSegment>('all');
 
   const filtered = faqs.filter(
@@ -25,7 +34,7 @@ export default function Faq() {
   return (
     <section id="faq" className="py-20 bg-white">
       {/* 탭 필터와 무관하게 전체 FAQ를 구조화 데이터로 노출 */}
-      <FaqSchema />
+      {withSchema && <FaqSchema />}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div data-reveal className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] mb-3">

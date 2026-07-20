@@ -4,11 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Phone, Menu, X, Clock, Mail, CheckCircle2 } from 'lucide-react';
 
+// 서브페이지에서도 동작하도록 홈 앵커는 '/#...' 절대 경로로 둔다.
+// (기존처럼 '#services'만 두면 서브페이지에서 이동이 되지 않는다)
 const navItems = [
-  { label: '사업영역',     href: '#services' },
-  { label: '비용안내',     href: '#pricing' },
-  { label: '시공사례',     href: '#portfolio' },
-  { label: '자주묻는질문', href: '#faq' },
+  { label: '사업영역',     href: '/#services' },
+  { label: '비용안내',     href: '/#pricing' },
+  { label: '시공사례',     href: '/portfolio' },
+  { label: '회사소개',     href: '/about' },
+  { label: '자주묻는질문', href: '/faq' },
 ];
 
 // 상단 띠 높이: 3.5rem(56px) / 메인 헤더: 5rem(80px)
@@ -35,13 +38,6 @@ export default function Header() {
   }, [menuOpen]);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
-
-  const handleNavClick = (href: string) => {
-    closeMenu();
-    setTimeout(() => {
-      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
-    }, 10);
-  };
 
   return (
     <>
@@ -127,13 +123,13 @@ export default function Header() {
             {/* 네비 (데스크톱) */}
             <nav className="hidden md:flex items-center">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.href}
                   href={item.href}
-                  className="relative text-[1.0625rem] font-semibold text-gray-600 hover:text-[#0A3D91] px-5 py-2 rounded-lg transition-colors after:absolute after:bottom-0.5 after:left-5 after:right-5 after:h-0.5 after:bg-[#0A3D91] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+                  className="relative text-[1.0625rem] font-semibold text-gray-600 hover:text-[#0A3D91] px-4 py-2 rounded-lg transition-colors after:absolute after:bottom-0.5 after:left-4 after:right-4 after:h-0.5 after:bg-[#0A3D91] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </nav>
 
@@ -191,13 +187,14 @@ export default function Header() {
       >
         <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-1">
           {navItems.map((item) => (
-            <button
+            <Link
               key={item.href}
-              onClick={() => handleNavClick(item.href)}
+              href={item.href}
+              onClick={closeMenu}
               className="flex items-center text-left text-xl font-semibold text-[#0F172A] hover:text-[#0A3D91] hover:bg-[#0A3D91]/5 px-4 py-5 rounded-lg transition-colors border-b border-gray-100 last:border-0"
             >
               {item.label}
-            </button>
+            </Link>
           ))}
 
           <div className="flex flex-col gap-2.5 mt-4">
