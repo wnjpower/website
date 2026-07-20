@@ -287,5 +287,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({ ok: true, alimtalkSent, savedToDb }, { status: 200 });
+  // 경로별 성공 여부를 응답에 실어 둔다. 셋 중 하나라도 실패하면 화면은 정상으로
+  // 보이지만 리드 전달에 구멍이 생기는데, 로그를 열지 않고도 바로 확인할 수 있다.
+  return NextResponse.json(
+    { ok: true, savedToDb, emailSent, alimtalkSent },
+    { status: 200 },
+  );
 }
