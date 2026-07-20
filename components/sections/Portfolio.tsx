@@ -1,6 +1,7 @@
-import { Camera } from 'lucide-react';
+import { Camera, Phone } from 'lucide-react';
 import KakaoIcon from '@/components/KakaoIcon';
 import { portfolioItems } from '@/content/portfolio';
+import { COMPANY, KAKAO_CHANNEL_URL } from '@/lib/site';
 
 const categoryColors: Record<string, string> = {
   factory:  'bg-blue-100 text-blue-700',
@@ -71,16 +72,27 @@ export default function Portfolio() {
               </ul>
               <div className="mt-7 pt-6 border-t border-gray-100 text-center">
                 <p className="text-sm text-gray-500 mb-3">시공 사례 사진이 궁금하시면 부담 없이 문의해 주세요.</p>
-                <a
-                  href="https://pf.kakao.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors text-[#3C1E1E] hover:brightness-95"
-                  style={{ backgroundColor: '#FEE500' }}
-                >
-                  <KakaoIcon className="w-4 h-4" />
-                  카카오톡으로 사례 문의
-                </a>
+                {/* 카카오톡 채널 개설 전에는 전화로 안내한다 (lib/site.ts) */}
+                {KAKAO_CHANNEL_URL ? (
+                  <a
+                    href={KAKAO_CHANNEL_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors text-[#3C1E1E] hover:brightness-95"
+                    style={{ backgroundColor: '#FEE500' }}
+                  >
+                    <KakaoIcon className="w-4 h-4" />
+                    카카오톡으로 사례 문의
+                  </a>
+                ) : (
+                  <a
+                    href={`tel:${COMPANY.mobile}`}
+                    className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors bg-[#0A3D91] text-white hover:bg-[#0A3D91]/90"
+                  >
+                    <Phone className="w-4 h-4" />
+                    {COMPANY.mobile} 사례 문의
+                  </a>
+                )}
               </div>
             </div>
           </div>

@@ -1,16 +1,20 @@
-import { Phone, Smartphone, Mail, MapPin, Clock } from 'lucide-react';
+import { Phone, Smartphone, Printer, Mail, MapPin, Clock, Navigation } from 'lucide-react';
 import KakaoIcon from '@/components/KakaoIcon';
+import { COMPANY, KAKAO_CHANNEL_URL } from '@/lib/site';
 
 const contactItems = [
-  { icon: Phone,         label: '대표 전화', value: '053-525-0424',         href: 'tel:053-525-0424' },
-  { icon: Smartphone,   label: '모바일',   value: '010-8552-9994',         href: 'tel:010-8552-9994' },
-  { icon: Mail,          label: '이메일',   value: 'wnj-2023@naver.com',    href: 'mailto:wnj-2023@naver.com' },
-  { icon: MapPin,        label: '주소',     value: '대구광역시 서구 문화로63길 19, 1층 (평리동)', href: null },
-  { icon: Clock,         label: '영업시간', value: '평일 09:00–18:00',      href: null },
+  { icon: Phone,       label: '대표 전화', value: COMPANY.phone,        href: `tel:${COMPANY.phone}` },
+  { icon: Smartphone,  label: '모바일',    value: COMPANY.mobile,       href: `tel:${COMPANY.mobile}` },
+  { icon: Printer,     label: '팩스',      value: COMPANY.fax,          href: null },
+  { icon: Mail,        label: '이메일',    value: COMPANY.email,        href: `mailto:${COMPANY.email}` },
+  { icon: MapPin,      label: '주소',      value: COMPANY.address.full, href: null },
+  { icon: Clock,       label: '영업시간',  value: '평일 09:00–18:00',    href: null },
 ];
 
 export default function Contact() {
-  const mapHref = 'https://map.kakao.com/link/search/대구광역시 서구 문화로63길 19';
+  const { lat, lng } = COMPANY.geo;
+  const mapHref = `https://map.kakao.com/link/map/${encodeURIComponent(COMPANY.name)},${lat},${lng}`;
+  const routeHref = `https://map.kakao.com/link/to/${encodeURIComponent(COMPANY.name)},${lat},${lng}`;
 
   return (
     <section id="contact" className="py-20 bg-white">
@@ -47,22 +51,34 @@ export default function Contact() {
             {/* 버튼 */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <a
-                href="tel:053-525-0424"
+                href={`tel:${COMPANY.phone}`}
                 className="inline-flex items-center justify-center gap-2 bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
               >
                 <Phone className="w-4 h-4" />
                 전화 상담
               </a>
               <a
-                href="https://pf.kakao.com/"
+                href={routeHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-xl transition-colors text-[#3C1E1E] hover:brightness-95"
-                style={{ backgroundColor: '#FEE500' }}
+                className="inline-flex items-center justify-center gap-2 border border-[#0A3D91]/20 text-[#0A3D91] font-semibold px-6 py-3 rounded-xl hover:bg-[#0A3D91]/5 transition-colors"
               >
-                <KakaoIcon className="w-4 h-4" />
-                카카오톡 상담
+                <Navigation className="w-4 h-4" />
+                길찾기
               </a>
+              {/* 카카오톡 — 채널 개설 전에는 노출하지 않는다 (lib/site.ts) */}
+              {KAKAO_CHANNEL_URL && (
+                <a
+                  href={KAKAO_CHANNEL_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 font-semibold px-6 py-3 rounded-xl transition-colors text-[#3C1E1E] hover:brightness-95"
+                  style={{ backgroundColor: '#FEE500' }}
+                >
+                  <KakaoIcon className="w-4 h-4" />
+                  카카오톡 상담
+                </a>
+              )}
             </div>
           </div>
 
@@ -77,8 +93,8 @@ export default function Contact() {
             >
               <div className="text-center text-gray-500 p-8">
                 <MapPin className="w-12 h-12 text-[#0A3D91] mx-auto mb-3" />
-                <p className="font-bold text-[#0F172A] mb-1">우앤주전력</p>
-                <p className="text-sm">대구광역시 서구 문화로63길 19, 1층</p>
+                <p className="font-bold text-[#0F172A] mb-1">{COMPANY.name}</p>
+                <p className="text-sm">{COMPANY.address.full}</p>
                 <p className="text-xs text-[#0A3D91] mt-3 font-medium">카카오맵에서 보기 →</p>
               </div>
             </a>

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import SchemaOrg from "@/components/SchemaOrg";
 import { Toaster } from "@/components/ui/sonner";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import ClickTracking from "@/components/ClickTracking";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "대구·경북 공장 전기공사 | 수전설비·배전반 제작 | 우앤주전력",
@@ -13,10 +16,17 @@ export const metadata: Metadata = {
     title: "대구·경북 공장 전기공사 | 수전설비·배전반 제작 | 우앤주전력",
     description:
       "공장 신축·증축·증설 / 수전설비·계약전력 증설 / 배전반 자체 제작 — 전기공사업 면허 법인, 무료 견적 053-525-0424",
-    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.wnjpower.com",
+    url: SITE_URL,
     siteName: "우앤주전력",
     locale: "ko_KR",
     type: "website",
+  },
+  // OG·트위터 이미지는 app/opengraph-image.tsx에서 자동 주입된다
+  twitter: {
+    card: "summary_large_image",
+    title: "대구·경북 공장 전기공사 | 수전설비·배전반 제작 | 우앤주전력",
+    description:
+      "공장 신축·증축·증설 / 수전설비·계약전력 증설 / 배전반 자체 제작 — 전기공사업 면허 법인, 무료 견적 053-525-0424",
   },
   robots: { index: true, follow: true },
   verification: {
@@ -24,9 +34,7 @@ export const metadata: Metadata = {
       'naver-site-verification': ['f7b584dc796aff64d9a1fe441b6d9df228316a23'],
     },
   },
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.wnjpower.com"
-  ),
+  metadataBase: new URL(SITE_URL),
 };
 
 export default function RootLayout({
@@ -51,9 +59,11 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col antialiased">
         <GoogleAnalytics />
+        <ClickTracking />
         <SchemaOrg />
         {children}
         <Toaster position="top-center" richColors />
+        <Analytics />
       </body>
     </html>
   );

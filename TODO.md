@@ -2,11 +2,38 @@
 
 > **프로덕션 URL**: https://www.wnjpower.com  
 > **GitHub**: https://github.com/sinequanon2002/wnjpower  
-> **최종 업데이트**: 2026-06-15 (6차 — 파비콘 · 네이버 서치어드바이저 · GA4 연동)
+> **최종 업데이트**: 2026-07-20 (7차 — 전면 개편 Phase 0: 측정·공유·신뢰 결함 수정)
+
+> 📄 **개편 방향 문서**: [`docs/웹사이트_전면개편_기획보고서.md`](docs/웹사이트_전면개편_기획보고서.md)
+> 리드 미발생 원인 진단(유입·전문성·전환/측정·운영)과 Phase 0~3 로드맵. 아래 작업은 그 Phase 0에 해당한다.
 
 ---
 
 ## ✅ 완료된 작업
+
+### 전면 개편 Phase 0 — 측정·공유·신뢰 결함 수정 (2026-07-20 7차)
+
+**측정 (성과를 알 수 없던 문제)**
+- [x] **GA4 측정 ID 결함 수정** — 코드 폴백이 `7XRHSS9V0F`로 `G-` 접두어가 빠져 있어 환경변수 미주입 빌드에서 조용히 실패하던 문제. 접두어 없이 입력돼도 자동 보정하도록 변경 (`components/GoogleAnalytics.tsx`)
+- [x] **전화·카카오톡 클릭 추적 신설** — 기존에는 폼 제출(`generate_lead`)만 측정됐고 주 전환 경로인 전화는 측정 불가였음. `phone_click` / `kakao_click` 이벤트 추가 (`components/ClickTracking.tsx`). document 클릭 위임 방식이라 앞으로 추가되는 전화 링크도 자동 추적됨
+- [x] **Vercel Analytics 코드 연동** — `@vercel/analytics` 설치 + `<Analytics />` 삽입 (기존엔 패키지 자체가 없었음)
+
+**공유·SEO**
+- [x] **OG 이미지 동적 생성** — `app/opengraph-image.tsx` 신설 (1200×630, Pretendard 주입으로 한글 렌더). 기존엔 OG 이미지가 아예 없어 카카오톡 공유 미리보기가 깨졌음. `twitter` 카드 메타도 추가
+- [x] **SchemaOrg 보강** — 존재하지 않는 `/og-image.png` 참조 제거하고 실제 이미지 절대 URL로 교체. `geo`(위경도) · `taxID` · `foundingDate` · `hasCredential`(전기공사업 등록) · `hasOfferCatalog`(4대 서비스) · `logo` · `faxNumber` 추가. `sameAs`는 `lib/site.ts` 채널 URL에서 자동 생성
+
+**신뢰 (전문성 인상을 깎던 요소)**
+- [x] **카카오톡 더미 URL 제거** — 3곳 모두 `https://pf.kakao.com/`(카카오 홈으로 이동)이었음. 채널 개설 전까지 버튼이 자동으로 숨겨지고, Portfolio는 전화 CTA로 대체
+- [x] **저작권 연도 동적화** — `© 2025` 고정 → 현재 연도 자동 반영
+- [x] **면허번호 본문 노출** — Credentials 섹션에서 `null`로 미표시되던 전기공사업 등록번호 `대구-01425` 표기 (Footer에만 있던 불일치 해소)
+- [x] **자격 조회 링크를 실제 조회 화면으로** — 협회·홈택스 메인 페이지 → 전기공사종합정보시스템(ECIC) · 홈택스 사업자등록상태조회 딥링크
+- [x] **법인등록번호·팩스 표기 추가**, Contact에 **길찾기 링크** 추가
+- [x] **`lib/site.ts` 신설** — 회사 정보·외부 채널 URL의 단일 소스. 채널 URL을 여기 한 곳만 채우면 전역 반영됨
+
+> ⚠️ **로컬 빌드 주의**: Windows에서 `npm run build` 시 `/apple-icon` · `/opengraph-image`가
+> `TypeError: Invalid URL`로 실패한다. `next/og`의 Windows 전용 버그로 **코드 문제가 아니며
+> Vercel(Linux) 빌드는 정상**이다(프로덕션 `/apple-icon`이 200 PNG 응답). 로컬에서 OG 이미지를
+> 확인하려면 배포 후 카카오 공유 디버거를 사용할 것.
 
 ### SEO · 분석 연동 (2026-06-15 6차)
 - [x] **WNJ 로고 파비콘 적용** — `app/icon.svg` (금색 다이아몬드 + W/J + 빨간 번개볼트). `app/apple-icon.tsx` iOS 홈화면 아이콘 (Satori 호환 base64 방식).
@@ -64,24 +91,40 @@
 
 ### 🔴 필수 — 서비스 오픈 전 완료
 
-- [ ] **Resend·Supabase 환경변수 Vercel 입력** (Supabase URL·anon key는 확보됨, Resend API key 미입력)
+> 🚨 **현재 견적문의가 유실되고 있다.** 계정 이관으로 Supabase·Resend가 모두 비활성이라
+> 폼을 제출해도 DB 저장·메일 발송 없이 성공 응답만 반환된다(graceful degradation).
+> 아래 3단계가 Phase 0에서 가장 시급하다.
+
+- [ ] **① Supabase 신규 프로젝트 생성 + 스키마 적용**
+  - 이관된 계정에서 새 프로젝트 생성(리전: 도쿄 권장)
+  - SQL Editor에 [`supabase/schema.sql`](supabase/schema.sql)의 **1) · 2) 섹션 전체**를 붙여넣고 실행
+    (`quotes` 테이블 + RLS. `company_name` · `email` · `customer_type` 컬럼이 이미 포함돼 있어 별도 마이그레이션 불필요)
+  - Settings → API에서 URL · anon key · service_role key 확보
+- [ ] **② Resend 신규 계정 설정** — API Key 발급 + `wnjpower.com` 도메인 인증(DNS 레코드 추가).
+  도메인 인증 전에는 발신 주소를 `onboarding@resend.dev`로 두면 테스트 발송 가능
+- [ ] **③ Vercel 환경변수 입력 후 재배포** (Production · Preview · Development 모두)
   ```
-  NEXT_PUBLIC_SUPABASE_URL       = https://ugxydqyjajozsnbzagbe.supabase.co  ✅
-  NEXT_PUBLIC_SUPABASE_ANON_KEY  = sb_publishable_tS4v-YA5g_...              ✅
-  SUPABASE_SERVICE_ROLE_KEY      = (Supabase Settings → API → service_role)
+  NEXT_PUBLIC_SUPABASE_URL       = (신규 프로젝트 URL)          ← 이관으로 기존값 무효
+  NEXT_PUBLIC_SUPABASE_ANON_KEY  = (신규 anon key)              ← 이관으로 기존값 무효
+  SUPABASE_SERVICE_ROLE_KEY      = (신규 service_role key)
   RESEND_API_KEY                 = (Resend 대시보드에서 발급)
   NOTIFY_TO_EMAIL                = wnj-2023@naver.com
   NOTIFY_FROM_EMAIL              = quote@wnjpower.com
-  NEXT_PUBLIC_SITE_URL           = https://www.wnjpower.com                  ✅
-  NEXT_PUBLIC_GA_ID              = G-7XRHSS9V0F                              ✅
+  NEXT_PUBLIC_SITE_URL           = https://www.wnjpower.com
+  NEXT_PUBLIC_GA_ID              = G-7XRHSS9V0F
   ```
 - [ ] **견적 폼 실제 제출 테스트** — 환경변수 설정 후 폼 제출 → DB 저장 + 이메일 수신 확인
+- [ ] **정규 도메인 확정** — Vercel에 `www.wnjpower.com` · `wnjpower.com` 둘 다 연결돼 있음.
+  코드는 www 기준으로 통일했으므로, Vercel에서 non-www → www 리다이렉트가 걸려 있는지 확인할 것
 
 ### 🟡 콘텐츠 — 사장님 제공 필요
 
 - [ ] **시공 현장 사진** 6~9장 → `public/images/portfolio/` 저장 후 `content/portfolio.ts` 업데이트
 - [ ] **대표 사진** → `components/sections/About.tsx` placeholder 교체
-- [ ] **카카오톡 채널 URL** → `FloatingCta.tsx` · `Contact.tsx` · `Portfolio.tsx` 교체
+- [ ] **카카오톡 채널 URL** → [`lib/site.ts`](lib/site.ts)의 `KAKAO_CHANNEL_URL` **한 곳만** 입력하면
+  FloatingCta · Contact · Portfolio에 자동 반영됨 (현재는 null이라 버튼이 숨겨진 상태)
+- [ ] **네이버 플레이스 · 블로그 URL** → [`lib/site.ts`](lib/site.ts)의 `NAVER_PLACE_URL` · `NAVER_BLOG_URL`.
+  입력 시 SchemaOrg `sameAs`에 자동 반영되어 채널 간 신뢰 신호가 연결됨
 - [ ] **FAQ 내용 검수** → `content/faq.ts` 업데이트
 - [ ] **영업시간 확인** → `components/Header.tsx` · `Contact.tsx` 수정
 - [ ] **About 수치 확인** → `components/sections/About.tsx` 실제 수치로 수정
@@ -92,9 +135,16 @@
 - [x] **네이버 서치어드바이저 소유 확인 메타태그** — 삽입 완료
 - [ ] **네이버 서치어드바이저 사이트맵 제출** — [searchadvisor.naver.com](https://searchadvisor.naver.com) → 요청 → 사이트맵 제출 → `https://www.wnjpower.com/sitemap.xml`
 - [ ] **Google Search Console 등록** — 소유 확인 후 `/sitemap.xml` 제출
+- [ ] **🔴 네이버 스마트플레이스 등록·최적화** — 개편 보고서가 꼽은 **네이버 유입의 최우선 항목**.
+  로컬 검색("대구 전기공사")에서 광고 다음 최상단이 플레이스 영역인데 현재 미등록 상태.
+  기존 미클레임 플레이스가 있는지 먼저 확인 → 없으면 신규 등록(등록 후 90일 '신규' 부스팅 기간 활용)
 - [ ] **네이버 플레이스 NAP 일치** — 사이트 이름·주소·전화번호 = 네이버 플레이스 동일 확인
-- [ ] **OG 이미지·카카오 공유 확인** — 카카오톡 링크 공유 시 미리보기 정상 여부
-- [ ] **Vercel Analytics 활성화** — Vercel 대시보드 → Analytics 탭 Enable
+- [x] **OG 이미지 구현** — `app/opengraph-image.tsx` (한글 렌더 확인 완료)
+- [ ] **OG·카카오 공유 미리보기 확인** — 배포 후 [카카오 공유 디버거](https://developers.kakao.com/tool/debugger/sharing)에서
+  캐시 초기화 + 미리보기 정상 여부 확인
+- [x] **Vercel Analytics 코드 연동** — `@vercel/analytics` 설치 + `<Analytics />` 삽입
+- [ ] **Vercel Analytics 활성화** — Vercel 대시보드 → Analytics 탭 Enable (코드는 완료, 대시보드 토글만 남음)
+- [ ] **GA4 이벤트 수신 확인** — 배포 후 GA4 실시간 보고서에서 `phone_click` · `generate_lead` 발생 확인
 
 ### ⚪ 추후 개선 (선택)
 
@@ -109,16 +159,20 @@
 
 | 목적 | 경로 |
 |------|------|
+| **회사 정보·외부 채널 URL (단일 소스)** | [`lib/site.ts`](lib/site.ts) |
+| 개편 기획 보고서 | [`docs/웹사이트_전면개편_기획보고서.md`](docs/웹사이트_전면개편_기획보고서.md) |
 | 환경변수 템플릿 | [`.env.example`](.env.example) |
 | DB 스키마 | [`supabase/schema.sql`](supabase/schema.sql) |
 | 견적 API | [`app/api/quote/route.ts`](app/api/quote/route.ts) |
 | GA4 컴포넌트 | [`components/GoogleAnalytics.tsx`](components/GoogleAnalytics.tsx) |
+| 전화·카톡 클릭 추적 | [`components/ClickTracking.tsx`](components/ClickTracking.tsx) |
+| OG 이미지 | [`app/opengraph-image.tsx`](app/opengraph-image.tsx) |
 | 카카오 알림톡 | [`lib/kakao-alimtalk.ts`](lib/kakao-alimtalk.ts) |
 | Zod 검증 스키마 | [`lib/validators.ts`](lib/validators.ts) |
 | 서비스 콘텐츠 | [`content/services.ts`](content/services.ts) |
 | FAQ 콘텐츠 | [`content/faq.ts`](content/faq.ts) |
 | 시공사례 콘텐츠 | [`content/portfolio.ts`](content/portfolio.ts) |
-| 카카오톡 URL 교체 | [`components/FloatingCta.tsx`](components/FloatingCta.tsx) · [`components/sections/Contact.tsx`](components/sections/Contact.tsx) |
-| 영업시간 수정 | [`components/Header.tsx`](components/Header.tsx) |
+| 카카오톡 URL 교체 | [`lib/site.ts`](lib/site.ts) (한 곳에서 전역 반영) |
+| 영업시간 수정 | [`components/Header.tsx`](components/Header.tsx) · [`components/sections/Contact.tsx`](components/sections/Contact.tsx) — ⚠️ 현재 Header는 `토 09:00–13:00` 포함, Contact·SchemaOrg는 평일만으로 **불일치**. 사장님 확인 후 통일 필요 |
 | About 수치 수정 | [`components/sections/About.tsx`](components/sections/About.tsx) |
 | 개인정보처리방침 | [`app/privacy/page.tsx`](app/privacy/page.tsx) |

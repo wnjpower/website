@@ -1,31 +1,34 @@
 import { ShieldCheck, Stamp, Landmark, ExternalLink } from 'lucide-react';
+import { COMPANY, VERIFY_LINKS } from '@/lib/site';
 
 const credentials = [
   {
     icon: ShieldCheck,
-    title: '전기공사업 면허',
-    number: null,
-    description: '전기공사업 등록업체로 법적 시공 자격을 갖추고 있습니다.',
+    title: '전기공사업 등록',
+    number: COMPANY.license,
+    description:
+      '전기공사협회 전기공사종합정보시스템에서 등록번호로 업체·실적을 직접 확인하실 수 있습니다.',
     verify: {
-      label: '대한전기공사협회에서 조회',
-      href: 'https://www.keca.or.kr',
+      label: '전기공사협회에서 조회',
+      href: VERIFY_LINKS.keca,
     },
   },
   {
     icon: Stamp,
     title: '사업자등록',
-    number: '637-81-02833',
-    description: '국세청 홈택스에서 사업자 진위 확인이 가능합니다.',
+    number: COMPANY.bizNumber,
+    description: '국세청 홈택스에서 로그인 없이 사업자 상태·진위 확인이 가능합니다.',
     verify: {
-      label: '국세청 사업자등록 상태 조회',
-      href: 'https://www.hometax.go.kr',
+      label: '홈택스 사업자등록상태 조회',
+      href: VERIFY_LINKS.hometax,
     },
   },
   {
     icon: Landmark,
     title: '법인 등록',
-    number: '주식회사 우앤주전력',
-    description: '대표 업력 20년 이상의 베테랑이 2023년 법인으로 출범. 오랜 현장 경험을 법인의 체계로 운영합니다.',
+    number: COMPANY.corpNumber,
+    description:
+      '대표 업력 20년 이상의 베테랑이 2023년 법인으로 출범. 오랜 현장 경험을 법인의 체계로 운영합니다.',
     verify: null,
   },
 ];

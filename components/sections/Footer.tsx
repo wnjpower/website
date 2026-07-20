@@ -1,6 +1,9 @@
 import Link from 'next/link';
+import { COMPANY } from '@/lib/site';
 
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
     <footer className="bg-[#0B1220] text-gray-400 py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -9,10 +12,11 @@ export default function Footer() {
           <div>
             <p className="text-white font-bold text-lg mb-3">주식회사 우앤주전력</p>
             <div className="space-y-1 text-sm">
-              <p>대표자: 임태훈</p>
-              <p>사업자등록번호: <span className="font-mono tabular-nums">637-81-02833</span></p>
-              <p>전기공사업 면허: <span className="font-mono tabular-nums">대구-01425</span></p>
-              <p>주소: 대구광역시 서구 문화로63길 19, 1층 (평리동)</p>
+              <p>대표자: {COMPANY.ceo}</p>
+              <p>사업자등록번호: <span className="font-mono tabular-nums">{COMPANY.bizNumber}</span></p>
+              <p>법인등록번호: <span className="font-mono tabular-nums">{COMPANY.corpNumber}</span></p>
+              <p>전기공사업 등록: <span className="font-mono tabular-nums">{COMPANY.license}</span></p>
+              <p>주소: {COMPANY.address.full}</p>
               <p>
                 전화:{' '}
                 <a href="tel:053-525-0424" className="hover:text-white transition-colors">
@@ -41,7 +45,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs">
-          <p>© 2025 주식회사 우앤주전력. All rights reserved.</p>
+          <p>© {year} {COMPANY.name}. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-white transition-colors">개인정보처리방침</Link>
           </div>
