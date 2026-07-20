@@ -1,7 +1,8 @@
 # 우앤주전력 웹사이트 작업 현황
 
-> **프로덕션 URL**: https://www.wnjpower.com  
-> **GitHub**: https://github.com/sinequanon2002/wnjpower  
+> **프로덕션 URL**: https://www.wnjpower.com (apex는 www로 308 리다이렉트)  
+> **GitHub**: https://github.com/wnjpower/website  
+> **Vercel**: `wnjpower` 팀 / `wnj-website` · **Supabase**: `wnj-website` (서울)  
 > **최종 업데이트**: 2026-07-20 (7차 — 전면 개편 Phase 0: 측정·공유·신뢰 결함 수정)
 
 > 📄 **개편 방향 문서**: [`docs/웹사이트_전면개편_기획보고서.md`](docs/웹사이트_전면개편_기획보고서.md)
@@ -185,7 +186,18 @@
     5000자 스팸 페이로드 차단 · 테스트 행 정리 완료
 - [ ] **② Resend 신규 계정 설정** — API Key 발급 + `wnjpower.com` 도메인 인증(DNS 레코드 추가).
   도메인 인증 전에는 발신 주소를 `onboarding@resend.dev`로 두면 테스트 발송 가능
-- [ ] **③ Vercel 환경변수 입력 후 재배포** (Production · Preview · Development 모두)
+- [x] **③ Vercel 계정 이관 + 환경변수 입력 — 완료 (2026-07-20)**
+  - 계정 `sinequanon2002` → **`wnjpower`** (팀 `wnjpower-erp`), 프로젝트 `wnj-website` 신규 생성
+  - Git 연결: **`wnjpower/website`** — push 시 자동 배포 동작 확인
+  - 도메인 `www.wnjpower.com` · `wnjpower.com` 연결 완료 (가비아 등록, DNS 변경 불필요했음)
+  - 환경변수 6개 입력 (Production · Development). ⚠️ **Preview는 0개** — CLI 비대화형 모드
+    제약으로 추가 불가. master 직접 커밋 워크플로라 Preview 배포가 생기지 않아 실사용 영향 없음.
+    필요해지면 대시보드에서 기존 변수에 Preview 체크만 켜면 된다
+  - 라이브 검증 완료: 전 라우트 200 · 사이트맵 17 URL · OG 이미지 PNG 45KB 생성 ·
+    **견적문의 제출 → Supabase 저장 확인**(`savedToDb: true`) · 테스트 행 정리
+  - `RESEND_API_KEY`는 실제 비밀 키라 미입력 — 아래 ② 참고
+
+- [ ] **(구) Vercel 환경변수** — 위 ③으로 대체됨
   ```
   NEXT_PUBLIC_SUPABASE_URL       = https://wtlvbilsakoktcrrqlfi.supabase.co   ✅ 확보
   NEXT_PUBLIC_SUPABASE_ANON_KEY  = sb_publishable_... (대시보드 Settings → API Keys)  ✅ 확보
