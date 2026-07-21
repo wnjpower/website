@@ -26,7 +26,7 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/services/factory" className="hover:text-white transition-colors">공장·산업 전기공사</Link></li>
               <li><Link href="/services/power" className="hover:text-white transition-colors">수전설비·계약전력 증설</Link></li>
-              <li><Link href="/services/panel" className="hover:text-white transition-colors">배전반·분전반 자체 제작</Link></li>
+              <li><Link href="/services/panel" className="hover:text-white transition-colors">배전반·분전반 설계·설치</Link></li>
               <li><Link href="/services/interior" className="hover:text-white transition-colors">인테리어·일반 전기</Link></li>
             </ul>
           </div>

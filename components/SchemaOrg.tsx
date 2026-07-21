@@ -8,7 +8,7 @@ export default function SchemaOrg() {
     alternateName: COMPANY.brand,
     legalName: COMPANY.name,
     description:
-      '대구·경북 공장·산업 전기공사 전문 법인. 공장 신축·증축·증설, 수전설비·계약전력 증설, 동력설비, 배전반·분전반 자체 제작, 인테리어 전기공사.',
+      '대구·경북 공장·산업 전기공사 전문 법인. 공장 신축·증축·증설, 수전설비·계약전력 증설, 동력설비, 배전반·분전반 설계·설치, 인테리어 전기공사.',
     image: [
       `${SITE_URL}/images/factory-electrical.jpg`,
       `${SITE_URL}/images/switchgear.jpg`,
@@ -51,7 +51,7 @@ export default function SchemaOrg() {
       itemListElement: [
         '공장·산업 전기공사',
         '수전설비·계약전력 증설',
-        '배전반·분전반 자체 제작',
+        '배전반·분전반 설계·설치',
         '인테리어·일반 전기공사',
       ].map((name) => ({
         '@type': 'Offer',

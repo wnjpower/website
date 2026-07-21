@@ -88,7 +88,7 @@ export default async function OpengraphImage() {
               수전설비 · 계약전력 증설
             </span>
             <span style={{ fontSize: 68, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.25 }}>
-              배전반 자체 제작
+              배전반 설계·설치
             </span>
           </div>
 

@@ -6,8 +6,8 @@ const priceItems = [
   { work: '공장 신축·증축 옥내외 전기공사',        audience: '공장·산업시설', priceLabel: '현장 협의 후 견적' },
   { work: '계약전력 증설·수전설비 공사',           audience: '공장·상업건물', priceLabel: '용량 산정 후 견적' },
   { work: '동력설비(생산기계 전원) 배선·결선',     audience: '공장·산업시설', priceLabel: '현장 협의 후 견적' },
-  { work: '산업용·상업용 배전반 자체 제작',        audience: '공장·상업건물', priceLabel: '규격 협의 후 견적' },
-  { work: '분전함(두꺼비집) 자체 제작·교체',       audience: '주택·상가',     priceLabel: '무료 견적으로 확인' },
+  { work: '산업용·상업용 배전반 설계·설치',        audience: '공장·상업건물', priceLabel: '규격 협의 후 견적' },
+  { work: '분전함(두꺼비집) 교체·증설',            audience: '주택·상가',     priceLabel: '무료 견적으로 확인' },
   { work: '상가·병원 인테리어 전기 (33㎡ 기준)',    audience: '상가·병원',     priceLabel: '무료 견적으로 확인' },
   { work: '콘센트 추가·이동 / 조명 교체 (1개소)',  audience: '주택·아파트',   priceLabel: '무료 견적으로 확인' },
 ];

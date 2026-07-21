@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Phone, Menu, X, Clock, Mail, CheckCircle2 } from 'lucide-react';
+import { Phone, Menu, X, Clock, CheckCircle2, ShieldCheck, MapPin } from 'lucide-react';
 import { COMPANY } from '@/lib/site';
 
 // 서브페이지에서도 동작하도록 홈 앵커는 '/#...' 절대 경로로 둔다.
@@ -40,25 +40,36 @@ export default function Header() {
 
   return (
     <>
-      {/* ── 상단 유틸리티 띠 — 조용하게, 신뢰 정보만 ── */}
+      {/* ── 상단 유틸리티 띠 — 조회 가능한 신뢰(등록번호)를 앞세운다 ── */}
       <div
-        className={`fixed top-0 inset-x-0 z-50 bg-brand-dark transition-all duration-200 overflow-hidden ${
+        className={`fixed top-0 inset-x-0 z-50 bg-brand-dark border-b border-white/5 transition-all duration-200 overflow-hidden ${
           scrolled || menuOpen ? 'h-0 opacity-0' : `${TOP_BAR_H} opacity-100`
         }`}
       >
-        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 h-full flex items-center justify-center sm:justify-between">
-          <div className="hidden sm:flex items-center gap-2 text-[0.8125rem] font-medium text-slate-300">
-            <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-            평일 09:00–18:00 · 토 09:00–13:00
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 h-full flex items-center justify-center sm:justify-between text-[0.8125rem] font-medium text-slate-300">
+          {/* 신뢰 — 등록 법인(조회 가능한 번호). 모바일은 지역까지 붙여 밀도를 높인다 */}
+          <div className="flex items-center gap-2 min-w-0">
+            <ShieldCheck className="w-3.5 h-3.5 text-signal flex-shrink-0" />
+            <span className="whitespace-nowrap">전기공사업 등록 법인</span>
+            <span className="hidden sm:inline font-mono tabular-nums text-white whitespace-nowrap">{COMPANY.license}</span>
+            <span className="sm:hidden text-slate-400 whitespace-nowrap">· 대구·경북 전 지역</span>
           </div>
-          <div className="flex items-center gap-4 sm:gap-6 text-[0.8125rem] font-medium text-slate-300">
-            <span className="hidden sm:flex items-center gap-2">
-              <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              {COMPANY.email}
-            </span>
+
+          {/* 지역 · 영업시간 · 무료견적 (데스크톱) */}
+          <div className="hidden sm:flex items-center gap-3.5 lg:gap-5 whitespace-nowrap">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-              현장 견적 출장비 무료
+              <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              대구·경북 전 지역 시공
+            </span>
+            <span className="w-px h-3 bg-white/15 hidden lg:block" aria-hidden />
+            <span className="hidden lg:flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+              평일 09:00–18:00 · 토 09:00–13:00
+            </span>
+            <span className="w-px h-3 bg-white/15" aria-hidden />
+            <span className="flex items-center gap-1.5 text-white">
+              <CheckCircle2 className="w-3.5 h-3.5 text-signal flex-shrink-0" />
+              현장 견적 무료
             </span>
           </div>
         </div>

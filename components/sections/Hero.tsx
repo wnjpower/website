@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldCheck, CalendarClock, CircuitBoard, Wrench, ArrowRight } from 'lucide-react';
+import { ShieldCheck, CalendarClock, Layers, Wrench, ArrowRight } from 'lucide-react';
 import { COMPANY } from '@/lib/site';
 import { PhoneButton } from '@/components/ui/cta';
 
@@ -9,7 +9,7 @@ import { PhoneButton } from '@/components/ui/cta';
 const trustStats = [
   { icon: ShieldCheck,   label: '전기공사업 등록', sub: COMPANY.license, mono: true },
   { icon: CalendarClock, label: '대표 현장경력 20년+', sub: '2023년 법인 설립', mono: false },
-  { icon: CircuitBoard,  label: '배전반 자체 제작', sub: '중간 마진 없음', mono: false },
+  { icon: Layers,        label: '원스톱 직접 시공', sub: '설계 검토→준공', mono: false },
   { icon: Wrench,        label: 'A/S 당일 출동', sub: '준공 후 1년 보증', mono: false },
 ];
 
@@ -58,15 +58,15 @@ export default function Hero() {
             className="animate-fade-up text-[2rem] sm:text-5xl lg:text-[3.5rem] font-bold text-white leading-[1.12] tracking-tight mb-6"
             style={{ animationDelay: '0.06s' }}
           >
-            공장 전기공사, 면허·제작·시공을
-            <br className="hidden sm:block" /> 한 회사가 끝냅니다
+            공장 전기공사, 설계부터 시공까지
+            <br className="hidden sm:block" /> 한 팀이 직접 맡습니다
           </h1>
 
           <p
             className="animate-fade-up text-base sm:text-xl text-slate-300 leading-relaxed max-w-2xl mb-6"
             style={{ animationDelay: '0.16s' }}
           >
-            공장 신축·증축·증설부터 수전설비·계약전력 증설·배전반 자체제작까지 —{' '}
+            공장 신축·증축·증설부터 수전설비·계약전력 증설·동력설비까지 — 하도급 없이{' '}
             <span className="text-white font-semibold">전기공사업 등록 법인이 직접 시공</span>합니다.
             현장 방문 견적은 출장비 없이 무료입니다.
           </p>

@@ -4,7 +4,7 @@ import { Section, Container } from '@/components/ui/section';
 
 const stats = [
   { value: '20년+', label: '대표 현장경력', note: '2023년 법인 설립' },
-  { value: '공장·산업', label: '전기공사 전문', note: '수전·동력·배전반 자체제작' },
+  { value: '공장·산업', label: '전기공사 전문', note: '수전·동력·배전반 설계·설치' },
   { value: '1년 보증', label: '시공 후 사후관리', note: '당일 A/S 출동 원칙' },
 ];
 
@@ -29,7 +29,7 @@ export default function About() {
               </p>
               <p className="text-[0.9375rem] text-slate-600 leading-relaxed mb-5">
                 우앤주전력은 공장·산업시설 전기공사를 주력으로, 수전설비·계약전력 증설·배전반
-                자체 제작까지 직접 시공하는 대구·경북 지역 전기공사 법인입니다.{' '}
+                설계·설치까지 직접 시공하는 대구·경북 지역 전기공사 법인입니다.{' '}
                 <span className="font-semibold text-ink">대표의 20년 이상 현장 경험</span>을 바탕으로
                 주택·상가·병원 인테리어 전기까지 합리적인 가격과 책임 있는 사후관리로 시공합니다.
               </p>
