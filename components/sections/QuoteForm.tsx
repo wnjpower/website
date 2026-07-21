@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Factory, Lamp, HelpCircle } from 'lucide-react';
 import { gtagEvent } from '@/components/GoogleAnalytics';
 import { COMPANY } from '@/lib/site';
+// 색상: #0F2E4D = 브랜드 네이비, #C2620E = 강조색(앰버). globals.css의 토큰과 동일 값.
 
 interface Props {
   defaultCategory?: string;
@@ -52,8 +53,8 @@ function formatPhone(raw: string): string {
 }
 
 const customerTypeConfig: Record<string, { icon: typeof Factory; label: string; sub: string; color: string; activeColor: string }> = {
-  industrial: { icon: Factory,    label: '공장·산업 전기', sub: '신축·증축·수전·배전반',  color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
-  interior:   { icon: Lamp,       label: '인테리어·일반 전기', sub: '상업공간·병원·주택', color: 'border-gray-200 hover:border-[#0A3D91]/50', activeColor: 'border-[#0A3D91] bg-[#0A3D91]/5 ring-2 ring-[#0A3D91]/30' },
+  industrial: { icon: Factory,    label: '공장·산업 전기', sub: '신축·증축·수전·배전반',  color: 'border-gray-200 hover:border-[#0F2E4D]/50', activeColor: 'border-[#0F2E4D] bg-[#0F2E4D]/5 ring-2 ring-[#0F2E4D]/30' },
+  interior:   { icon: Lamp,       label: '인테리어·일반 전기', sub: '상업공간·병원·주택', color: 'border-gray-200 hover:border-[#0F2E4D]/50', activeColor: 'border-[#0F2E4D] bg-[#0F2E4D]/5 ring-2 ring-[#0F2E4D]/30' },
   unknown:    { icon: HelpCircle, label: '잘 모르겠어요', sub: '기타',                   color: 'border-gray-200 hover:border-gray-400',    activeColor: 'border-gray-500 bg-gray-50 ring-2 ring-gray-300' },
 };
 
@@ -208,7 +209,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
           <p className="text-sm text-gray-500 mb-2">급하신 경우 직접 연락 주세요</p>
           <a
             href="tel:010-8552-9994"
-            className="inline-flex items-center gap-2 bg-[#FF5500] text-white font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-[#E04A00] transition-colors"
+            className="inline-flex items-center gap-2 bg-[#C2620E] text-white font-bold text-sm px-5 py-2.5 rounded-lg hover:bg-[#A8540C] transition-colors"
           >
             📞 010-8552-9994 바로 전화
           </a>
@@ -225,7 +226,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
 
       {/* STEP 1: 고객 유형 선택 */}
       <div>
-        <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 1</p>
+        <p className="text-sm font-bold text-[#0F2E4D] mb-1 tracking-wide">STEP 1</p>
         <p className="text-base font-semibold text-[#0F172A] mb-3">어떤 상황이신가요?</p>
         <div className="grid grid-cols-2 gap-2">
           {visibleCustomerTypes.map((type) => {
@@ -240,7 +241,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
                   isActive ? cfg.activeColor : cfg.color + ' bg-white'
                 }`}
               >
-                <cfg.icon className={`w-6 h-6 ${isActive ? 'text-[#0A3D91]' : 'text-gray-400'}`} />
+                <cfg.icon className={`w-6 h-6 ${isActive ? 'text-[#0F2E4D]' : 'text-gray-400'}`} />
                 <span className={`text-sm font-bold leading-tight ${isActive ? 'text-[#0F172A]' : 'text-gray-600'}`}>
                   {cfg.label}
                 </span>
@@ -255,7 +256,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
 
       {/* STEP 2: 공사 종류 */}
       <div>
-        <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 2</p>
+        <p className="text-sm font-bold text-[#0F2E4D] mb-1 tracking-wide">STEP 2</p>
         <label className="block text-base font-semibold text-[#0F172A] mb-3">
           공사 종류를 선택해 주세요 <span className="text-red-500">*</span>
         </label>
@@ -269,8 +270,8 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
                 onClick={() => setValue('category', cat)}
                 className={`text-left px-4 py-3 rounded-lg border-2 text-sm font-semibold transition-all ${
                   isActive
-                    ? 'border-[#0A3D91] bg-[#0A3D91]/5 text-[#0A3D91] ring-2 ring-[#0A3D91]/20'
-                    : 'border-gray-200 text-gray-600 hover:border-[#0A3D91]/40 bg-white'
+                    ? 'border-[#0F2E4D] bg-[#0F2E4D]/5 text-[#0F2E4D] ring-2 ring-[#0F2E4D]/20'
+                    : 'border-gray-200 text-gray-600 hover:border-[#0F2E4D]/40 bg-white'
                 }`}
               >
                 {CategoryLabels[cat]}
@@ -284,7 +285,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
 
       {/* STEP 3: 연락처 */}
       <div>
-        <p className="text-sm font-bold text-[#0A3D91] mb-1 tracking-wide">STEP 3</p>
+        <p className="text-sm font-bold text-[#0F2E4D] mb-1 tracking-wide">STEP 3</p>
         <p className="text-base font-semibold text-[#0F172A] mb-3">연락처를 남겨주세요</p>
         <div className="space-y-4">
 
@@ -299,7 +300,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
           {/* 성함 + 연락처 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="group">
-              <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
+              <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0F2E4D]">
                 성함 <span className="text-red-500">*</span>
               </label>
               <Input
@@ -311,7 +312,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
             </div>
 
             <div className="group">
-              <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
+              <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0F2E4D]">
                 연락처 <span className="text-red-500">*</span>
               </label>
               <Input
@@ -332,7 +333,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
 
           {/* 이메일 — 도메인 자동완성 */}
           <div className="group">
-            <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0A3D91]">
+            <label className="block text-sm font-semibold text-[#0F172A] mb-1.5 transition-colors group-focus-within:text-[#0F2E4D]">
               이메일 <span className="text-gray-400 font-normal">(선택)</span>
             </label>
             <div className="relative">
@@ -353,7 +354,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
                       <li key={domain}>
                         <button
                           type="button"
-                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#0A3D91]/5 transition-colors border-b border-gray-50 last:border-0"
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#0F2E4D]/5 transition-colors border-b border-gray-50 last:border-0"
                           onMouseDown={(e) => {
                             e.preventDefault(); // blur 방지
                             setValue('email', prefix + domain, { shouldValidate: true });
@@ -361,7 +362,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
                           }}
                         >
                           <span className="text-gray-500">{prefix}</span>
-                          <span className="font-semibold text-[#0A3D91]">{domain}</span>
+                          <span className="font-semibold text-[#0F2E4D]">{domain}</span>
                         </button>
                       </li>
                     );
@@ -405,7 +406,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
         />
         <label htmlFor="agree" className="text-sm text-gray-600 leading-snug cursor-pointer">
           <span className="font-semibold">[필수]</span> 개인정보 수집·이용에 동의합니다.{' '}
-          <a href="/privacy" target="_blank" className="text-[#0A3D91] underline">
+          <a href="/privacy" target="_blank" className="text-[#0F2E4D] underline">
             개인정보처리방침
           </a>
         </label>
@@ -415,7 +416,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-[#0A3D91] hover:bg-[#0A3D91]/90 text-white font-bold py-4 text-lg rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0A3D91]/25 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+        className="w-full bg-[#0F2E4D] hover:bg-[#0F2E4D]/90 text-white font-bold py-4 text-lg rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0F2E4D]/25 disabled:hover:translate-y-0 disabled:hover:shadow-none"
       >
         {isSubmitting ? (
           <>

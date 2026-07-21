@@ -54,7 +54,7 @@ export default function PrivacyPage() {
         </div>
 
         <div className="mt-8">
-          <Link href="/" className="text-[#0A3D91] font-semibold hover:underline">
+          <Link href="/" className="text-brand font-semibold hover:underline">
             ← 홈으로 돌아가기
           </Link>
         </div>

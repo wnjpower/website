@@ -26,7 +26,6 @@ export default function FaqPage() {
         title="자주 묻는 질문"
         lead="견적·비용·시공 지역·사후관리부터 공장 증설, 계약전력, 인테리어 전기까지 자주 받는 질문을 정리했습니다. 원하는 답을 찾지 못하셨다면 전화나 견적문의로 알려 주세요."
         crumbs={[{ label: '자주 묻는 질문' }]}
-        bgImage="/images/switchgear.jpg"
       />
 
       {/* FAQPage 구조화 데이터의 정본 페이지 */}

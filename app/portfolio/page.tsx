@@ -6,91 +6,46 @@ import PageHero from '@/components/PageHero';
 import { portfolioItems } from '@/content/portfolio';
 
 export const metadata: Metadata = {
-  title: '시공 사례 | 대구·경북 공장 전기공사 실적 | 우앤주전력',
+  title: '시공 실적 | 대구·경북 공장 전기공사 실적 | 우앤주전력',
   description:
-    '대구·경북 공장 전기공사·수전설비·배전반 제작·인테리어 전기 시공 사례. 지역별 공종별 실적을 확인하세요.',
+    '대구·경북 공장 전기공사·수전설비·배전반 제작·인테리어 전기 시공 실적. 지역별 공종별 실적을 확인하세요.',
   keywords: ['대구 전기공사 시공사례', '공장 전기공사 실적', '배전반 제작 사례', '경북 전기공사'],
   alternates: { canonical: '/portfolio' },
 };
 
-const categoryColors: Record<string, string> = {
-  factory: 'bg-blue-100 text-blue-700',
-  power: 'bg-sky-100 text-sky-700',
-  panel: 'bg-amber-100 text-amber-700',
-  interior: 'bg-purple-100 text-purple-700',
-};
-
 export default function PortfolioIndexPage() {
-  const allPlaceholder = portfolioItems.every((item) => item.isPlaceholder);
-
   return (
     <SubPageShell quoteSource="portfolio_index">
       <PageHero
-        eyebrow="PROJECTS"
-        title="시공 사례"
-        lead="대구·경북 지역에서 진행한 공장 전기공사, 수전설비·계약전력 증설, 배전반 제작, 인테리어 전기 시공 실적입니다."
-        crumbs={[{ label: '시공 사례' }]}
-        bgImage="/images/switchgear.jpg"
+        eyebrow="시공 실적"
+        title="대구·경북 시공 실적"
+        lead="공장 전기공사, 수전설비·계약전력 증설, 배전반 제작, 인테리어 전기 등 실제 진행한 공사 내역입니다. 현장 사진은 순차 공개 예정입니다."
+        crumbs={[{ label: '시공 실적' }]}
       />
 
-      <section className="py-16 sm:py-20 bg-[#F8FAFC]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {allPlaceholder && (
-            <div className="mb-8 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-5 py-4">
-              <p className="text-sm text-amber-900 leading-relaxed">
-                이미지는 <strong>레이아웃 확인용 샘플</strong>입니다. 실제 시공 현장 사진으로 순차
-                교체 중이며, 표기된 시공 실적은 실제 진행 건입니다.
-              </p>
-            </div>
-          )}
-
+      <section className="py-16 sm:py-20 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {portfolioItems.map((item) => (
               <Link
                 key={item.id}
                 href={`/portfolio/${item.slug}`}
-                className="group rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-lg transition-shadow flex flex-col"
+                className="group rounded-xl border border-slate-200 bg-white p-6 hover:border-brand/30 hover:shadow-lg hover:shadow-slate-200/70 transition-all flex flex-col"
               >
-                <div className="relative aspect-[4/3] bg-gray-100">
-                  {item.image && (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={item.image}
-                      alt={
-                        item.isPlaceholder
-                          ? `${item.location} ${item.title} — 샘플 이미지`
-                          : `${item.location} ${item.title}`
-                      }
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  )}
-                  {item.isPlaceholder && (
-                    <span className="absolute top-2 right-2 text-[11px] font-bold px-2 py-1 rounded bg-black/70 text-white">
-                      샘플
-                    </span>
-                  )}
-                </div>
-                <div className="p-5 flex flex-col flex-1">
-                  <span
-                    className={`self-start text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      categoryColors[item.category] ?? 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    {item.categoryLabel}
-                  </span>
-                  <h2 className="font-bold text-[#0F172A] mt-2.5 mb-1 text-lg leading-snug">
-                    {item.title}
-                  </h2>
-                  <p className="text-sm text-gray-400 mb-3">
-                    {item.location} · {item.facility}
-                  </p>
-                  <p className="text-sm text-gray-600 leading-relaxed flex-1">{item.summary}</p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-[#0A3D91] group-hover:underline">
-                    시공 내용 보기
-                    <ArrowRight className="w-4 h-4" />
-                  </span>
-                </div>
+                <span className="self-start text-xs font-semibold px-2.5 py-0.5 rounded bg-brand-tint text-brand-700">
+                  {item.categoryLabel}
+                </span>
+                <h2 className="font-bold text-ink mt-3 mb-1 text-lg leading-snug group-hover:text-brand transition-colors">
+                  {item.title}
+                </h2>
+                <p className="text-sm text-slate-400 mb-3">
+                  {item.location} · {item.facility}
+                </p>
+                <p className="text-[0.9375rem] text-slate-600 leading-relaxed flex-1">{item.summary}</p>
+                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-brand group-hover:gap-2.5 transition-all">
+                  시공 내용 보기
+                  <ArrowRight className="w-4 h-4" />
+                </span>
               </Link>
             ))}
           </div>

@@ -105,10 +105,10 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             {page.scope.map((item) => (
               <div
                 key={item.title}
-                className="rounded-lg border border-gray-200 p-6 hover:border-[#0A3D91]/40 transition-colors"
+                className="rounded-lg border border-gray-200 p-6 hover:border-[#0F2E4D]/40 transition-colors"
               >
                 <div className="flex items-start gap-2.5 mb-2.5">
-                  <CheckCircle2 className="w-5 h-5 text-[#0A3D91] mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-[#0F2E4D] mt-0.5 flex-shrink-0" />
                   <h3 className="text-lg font-bold text-[#0F172A] leading-snug">{item.title}</h3>
                 </div>
                 <p className="text-base text-gray-600 leading-relaxed">{item.body}</p>
@@ -127,7 +127,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
           <ol data-reveal className="space-y-5">
             {page.process.map((step) => (
               <li key={step.step} className="flex items-start gap-5">
-                <span className="flex-shrink-0 w-10 h-10 rounded-md bg-[#0A3D91] text-white font-bold flex items-center justify-center tabular-nums">
+                <span className="flex-shrink-0 w-10 h-10 rounded-md bg-[#0F2E4D] text-white font-bold flex items-center justify-center tabular-nums">
                   {step.step}
                 </span>
                 <div className="pt-1">
@@ -173,30 +173,15 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                 <li key={item.slug}>
                   <Link
                     href={`/portfolio/${item.slug}`}
-                    className="group block h-full rounded-lg border border-gray-200 bg-white overflow-hidden hover:shadow-md transition-shadow"
+                    className="group flex flex-col h-full rounded-xl border border-slate-200 bg-white p-5 hover:border-[#0F2E4D]/30 hover:shadow-sm transition-all"
                   >
-                    {item.image && (
-                      <div className="relative aspect-[4/3] bg-gray-100">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={item.image}
-                          alt={`${item.location} ${item.title}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                        {item.isPlaceholder && (
-                          <span className="absolute top-2 right-2 text-[11px] font-bold px-2 py-1 rounded bg-black/70 text-white">
-                            샘플
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <p className="font-bold text-[#0F172A] text-sm leading-snug mb-1 group-hover:text-[#0A3D91] transition-colors">
-                        {item.title}
-                      </p>
-                      <p className="text-xs text-gray-400">{item.location}</p>
-                    </div>
+                    <span className="self-start text-xs font-semibold px-2 py-0.5 rounded bg-brand-tint text-brand-700 mb-3">
+                      {item.categoryLabel}
+                    </span>
+                    <p className="font-bold text-[#0F172A] text-[0.9375rem] leading-snug mb-1 group-hover:text-[#0F2E4D] transition-colors">
+                      {item.title}
+                    </p>
+                    <p className="text-sm text-slate-400">{item.facility} · {item.location}</p>
                   </Link>
                 </li>
               ))}
@@ -219,7 +204,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
               >
                 <summary className="cursor-pointer list-none text-lg font-semibold text-[#0F172A] flex items-start justify-between gap-4">
                   {faq.question}
-                  <span className="text-[#0A3D91] flex-shrink-0 transition-transform group-open:rotate-45">
+                  <span className="text-[#0F2E4D] flex-shrink-0 transition-transform group-open:rotate-45">
                     +
                   </span>
                 </summary>
@@ -241,12 +226,12 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
               <li key={other.slug}>
                 <Link
                   href={`/services/${other.slug}`}
-                  className="flex items-center justify-between gap-3 h-full rounded-lg border border-gray-200 bg-white px-5 py-4 hover:border-[#0A3D91]/40 hover:shadow-sm transition-all"
+                  className="flex items-center justify-between gap-3 h-full rounded-lg border border-gray-200 bg-white px-5 py-4 hover:border-[#0F2E4D]/40 hover:shadow-sm transition-all"
                 >
                   <span className="font-bold text-[#0F172A] text-base leading-snug">
                     {services.find((s) => s.id === other.slug)?.title ?? other.h1}
                   </span>
-                  <ArrowRight className="w-4 h-4 text-[#0A3D91] flex-shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-[#0F2E4D] flex-shrink-0" />
                 </Link>
               </li>
             ))}

@@ -1,157 +1,134 @@
-'use client';
 import Link from 'next/link';
-import {
-  Phone,
-  ShieldCheck,
-  CalendarDays,
-  CircuitBoard,
-  Wrench,
-  Factory,
-  Lamp,
-  ChevronRight,
-} from 'lucide-react';
+import { ShieldCheck, CalendarClock, CircuitBoard, Wrench, ArrowRight } from 'lucide-react';
 import { COMPANY } from '@/lib/site';
+import { PhoneButton } from '@/components/ui/cta';
 
-const segments = [
-  { icon: Factory, label: '공장·산업 전기공사', sub: '신축·증축·수전·동력', href: '#segments', primary: true },
-  { icon: Lamp,    label: '인테리어·일반 전기', sub: '주택·상가·병원',     href: '#segments', primary: false },
+/* 히어로 하단 신뢰 지표 — 형용사가 아니라 조회 가능한 번호·기간으로 제시한다.
+   "업력 20년+"는 법인 설립(2023)과 어긋나 오해를 사므로 '대표 현장경력'으로 정확히 표기.
+   TODO(사장님 확인): 누적 시공 건수·배전반 제작 면수를 받으면 수치로 교체 가능. */
+const trustStats = [
+  { icon: ShieldCheck,   label: '전기공사업 등록', sub: COMPANY.license, mono: true },
+  { icon: CalendarClock, label: '대표 현장경력 20년+', sub: '2023년 법인 설립', mono: false },
+  { icon: CircuitBoard,  label: '배전반 자체 제작', sub: '중간 마진 없음', mono: false },
+  { icon: Wrench,        label: 'A/S 당일 출동', sub: '준공 후 1년 보증', mono: false },
 ];
 
-// 형용사가 아니라 조회 가능한 번호·기간으로 신뢰를 제시한다.
-// TODO(사장님 확인): 누적 시공 건수 · 배전반 제작 면수를 받으면 아래 2·3번을 수치로 교체
-const trustStats = [
-  { icon: ShieldCheck,  label: '전기공사업 등록', sub: COMPANY.license, mono: true },
-  { icon: CalendarDays, label: '업력 20년+',      sub: '대구·경북 현장', mono: false },
-  { icon: CircuitBoard, label: '배전반 자체 제작', sub: '중간 마진 없음', mono: false },
-  { icon: Wrench,       label: 'A/S 당일 출동',   sub: '준공 후 1년 보증', mono: false },
+const segments = [
+  { label: '공장·산업 전기공사', sub: '신축·증축·수전·배전반', href: '#services' },
+  { label: '인테리어·일반 전기', sub: '상가·병원·주택', href: '#services' },
 ];
 
 export default function Hero() {
-  const handleSegmentClick = (href: string) => {
-    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <section
-      id="hero"
-      className="relative pt-36 pb-16 sm:pt-44 sm:pb-20 overflow-hidden bg-[#0B1220] bg-photo bg-photo-hero"
-      style={{ ['--bg-photo-url' as string]: "url('/images/factory-electrical.jpg')" }}
-    >
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="hero" className="relative overflow-hidden tech-dark pt-32 pb-16 sm:pt-40 sm:pb-20">
+      {/* 사진 대신: 미세한 단선결선도(one-line diagram) 라인아트. 전기 엔지니어링의
+          인상을 사진 없이 만든다. 장식 요소이므로 aria-hidden. */}
+      <svg
+        aria-hidden
+        viewBox="0 0 560 400"
+        className="pointer-events-none absolute right-[-40px] top-1/2 hidden lg:block w-[560px] -translate-y-1/2 text-white/[0.07]"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      >
+        <path d="M40 60 H520" />
+        <path d="M120 60 V200 M280 60 V200 M440 60 V200" />
+        <circle cx="120" cy="230" r="26" />
+        <rect x="256" y="204" width="48" height="52" rx="3" />
+        <path d="M416 206 l24 22 M440 206 l-24 22" />
+        <circle cx="428" cy="252" r="4" fill="currentColor" />
+        <path d="M120 256 V320 M280 256 V320 M428 256 V320" />
+        <path d="M40 320 H520" />
+        <path d="M180 320 V360 M340 320 V360" />
+        <rect x="160" y="356" width="40" height="26" rx="2" />
+        <rect x="320" y="356" width="40" height="26" rx="2" />
+      </svg>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
-          {/* eyebrow */}
           <p
-            className="animate-fade-up text-sm font-bold tracking-widest text-[#FF5500] mb-4"
+            className="animate-fade-up inline-flex items-center gap-2.5 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] text-slate-300 mb-5"
             style={{ animationDelay: '0.02s' }}
           >
+            <span className="rule-accent" aria-hidden />
             대구·경북 공장·산업 전기공사 전문
           </p>
 
-          {/* 헤드라인 */}
           <h1
-            className="animate-fade-up text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight mb-5"
-            style={{ animationDelay: '0.05s' }}
+            className="animate-fade-up text-[2rem] sm:text-5xl lg:text-[3.5rem] font-bold text-white leading-[1.12] tracking-tight mb-6"
+            style={{ animationDelay: '0.06s' }}
           >
-            공장 전기공사,
-            <br />
-            <span className="text-[#FF5500]">면허·제작·시공</span>을 한 회사가 끝냅니다
+            공장 전기공사, 면허·제작·시공을
+            <br className="hidden sm:block" /> 한 회사가 끝냅니다
           </h1>
 
-          {/* 서브헤드 */}
           <p
-            className="animate-fade-up text-base sm:text-xl md:text-2xl text-slate-300 mb-4 leading-relaxed"
-            style={{ animationDelay: '0.18s' }}
+            className="animate-fade-up text-base sm:text-xl text-slate-300 leading-relaxed max-w-2xl mb-6"
+            style={{ animationDelay: '0.16s' }}
           >
             공장 신축·증축·증설부터 수전설비·계약전력 증설·배전반 자체제작까지 —{' '}
             <span className="text-white font-semibold">전기공사업 등록 법인이 직접 시공</span>합니다.
             현장 방문 견적은 출장비 없이 무료입니다.
           </p>
 
-          {/* 등록번호 — 발주처가 바로 조회할 수 있는 식별자를 상단에 노출 */}
           <p
             className="animate-fade-up text-sm text-slate-400 mb-9"
-            style={{ animationDelay: '0.24s' }}
+            style={{ animationDelay: '0.22s' }}
           >
             전기공사업 등록{' '}
             <span className="font-mono tabular-nums text-slate-200">{COMPANY.license}</span>
-            {' · '}사업자{' '}
+            {'  ·  '}사업자{' '}
             <span className="font-mono tabular-nums text-slate-200">{COMPANY.bizNumber}</span>
           </p>
 
-          {/* CTA — 전화 1순위. 공사 사양이 복잡할수록 폼보다 통화 전환율이 높다. */}
+          {/* CTA — 전화 1순위. 공사 사양이 복잡할수록 폼보다 통화 전환율이 높다.
+              강조색(앰버)은 이 전화 버튼 한 곳에만 쓴다. */}
           <div
-            className="animate-fade-up flex flex-col sm:flex-row gap-4 mb-12"
-            style={{ animationDelay: '0.3s' }}
+            className="animate-fade-up flex flex-col sm:flex-row gap-3 mb-8"
+            style={{ animationDelay: '0.28s' }}
           >
-            <a
-              href={`tel:${COMPANY.mobile}`}
-              className="inline-flex items-center justify-center gap-3 bg-[#FF5500] hover:bg-[#E04A00] text-[#0F172A] font-extrabold text-xl px-10 py-5 rounded-lg transition-all shadow-lg shadow-black/30 hover:-translate-y-0.5 w-full sm:w-auto"
-            >
-              <Phone className="w-6 h-6" />
-              {COMPANY.mobile}
-            </a>
+            <PhoneButton size="lg" />
             <Link
               href="#quote"
-              className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/25 text-white font-bold text-xl px-10 py-5 rounded-lg transition-all backdrop-blur-sm w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/5 hover:bg-white/10 text-white font-bold px-8 py-4 text-[1.0625rem] sm:text-lg transition-all backdrop-blur-sm"
             >
               견적문의 남기기
             </Link>
           </div>
-        </div>
 
-        {/* 고객 유형 카드 — 공장(주력) 우선 */}
-        <div
-          className="animate-fade-up grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10 max-w-3xl"
-          style={{ animationDelay: '0.42s' }}
-        >
-          {segments.map((seg) => {
-            const Icon = seg.icon;
-            return (
-              <button
+          {/* 고객 유형 라우팅 — 큰 카드로 시선을 뺏지 않고, 조용한 안내 링크로 둔다 */}
+          <div
+            className="animate-fade-up flex flex-col sm:flex-row gap-2.5"
+            style={{ animationDelay: '0.36s' }}
+          >
+            {segments.map((seg) => (
+              <a
                 key={seg.label}
-                onClick={() => handleSegmentClick(seg.href)}
-                className={`group flex items-center gap-4 rounded-lg px-5 py-4 transition-all text-left border ${
-                  seg.primary
-                    ? 'bg-[#0A3D91] hover:bg-[#0A3D91]/90 border-[#0A3D91] shadow-md'
-                    : 'bg-white/5 hover:bg-white/10 border-white/15 backdrop-blur-sm'
-                }`}
+                href={seg.href}
+                className="group flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 hover:border-white/25 transition-colors"
               >
-                <div
-                  className={`w-11 h-11 rounded-md flex items-center justify-center flex-shrink-0 ${
-                    seg.primary ? 'bg-white/15' : 'bg-white/10'
-                  }`}
-                >
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-base font-bold text-white">{seg.label}</p>
-                  <p className={`text-sm ${seg.primary ? 'text-blue-100' : 'text-slate-400'}`}>
-                    {seg.sub}
-                  </p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-white/70 flex-shrink-0" />
-              </button>
-            );
-          })}
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm font-bold text-white">{seg.label}</span>
+                  <span className="block text-xs text-slate-400">{seg.sub}</span>
+                </span>
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+              </a>
+            ))}
+          </div>
         </div>
 
-        {/* 신뢰 스탯 배너 */}
+        {/* 신뢰 지표 — 오렌지 상단선 카드 대신, 헤어라인으로 나눈 조용한 지표 행 */}
         <div
-          className="animate-fade-up grid grid-cols-2 md:grid-cols-4 gap-3"
-          style={{ animationDelay: '0.54s' }}
+          className="animate-fade-up mt-14 grid grid-cols-2 lg:grid-cols-4 gap-px rounded-xl overflow-hidden border border-white/10 bg-white/10"
+          style={{ animationDelay: '0.48s' }}
         >
           {trustStats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <div
-                key={stat.label}
-                className="bg-white/5 border-t-2 border-t-[#FF5500] border-x border-b border-white/10 rounded-b-lg backdrop-blur-sm px-4 py-5 flex flex-col items-center gap-2 text-center"
-              >
-                <Icon className="w-7 h-7 text-[#FF5500]" />
-                <span className="font-bold text-white text-base tracking-tight">{stat.label}</span>
-                <span
-                  className={`text-sm text-slate-400 ${stat.mono ? 'font-mono tabular-nums' : ''}`}
-                >
+              <div key={stat.label} className="bg-brand-dark/80 px-5 py-6 flex flex-col gap-2">
+                <Icon className="w-6 h-6 text-slate-400" />
+                <span className="font-bold text-white text-[0.9375rem] leading-tight">{stat.label}</span>
+                <span className={`text-sm text-slate-400 ${stat.mono ? 'font-mono tabular-nums' : ''}`}>
                   {stat.sub}
                 </span>
               </div>

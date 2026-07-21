@@ -49,12 +49,12 @@ export default async function OpengraphImage() {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#0B1220',
+          backgroundColor: '#0A2138',
           fontFamily: 'Pretendard',
         }}
       >
         {/* 상단 안전 오렌지 액센트 바 */}
-        <div style={{ display: 'flex', width: '100%', height: 14, backgroundColor: '#FF5500' }} />
+        <div style={{ display: 'flex', width: '100%', height: 14, backgroundColor: '#C2620E' }} />
 
         <div
           style={{
@@ -81,7 +81,7 @@ export default async function OpengraphImage() {
 
           {/* 핵심 메시지 */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: 36, fontWeight: 700, color: '#FF5500', marginBottom: 16 }}>
+            <span style={{ fontSize: 36, fontWeight: 700, color: '#C2620E', marginBottom: 16 }}>
               대구·경북 공장·산업 전기공사 전문
             </span>
             <span style={{ fontSize: 68, fontWeight: 700, color: '#FFFFFF', lineHeight: 1.25 }}>

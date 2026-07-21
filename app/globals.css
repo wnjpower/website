@@ -46,54 +46,62 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  /* WNJ 브랜드 색상 커스텀 토큰
-     강조색은 안전 오렌지 1종으로 통일한다. 이전에는 옐로(#FFB800)·
-     테라코타(#C8581F)가 함께 쓰여 스크롤할 때마다 강조색이 바뀌었다. */
-  --color-wnj-blue: #0A3D91;
-  --color-wnj-accent: #FF5500;
-  --color-wnj-dark: #0F172A;
-  --color-wnj-bg: #F8FAFC;
+
+  /* =========================================================
+     WNJ 브랜드 팔레트 — "절제된 기관형"
+     딥 스틸네이비를 지배색으로, 강조색(signal)은 CTA·핵심 수치 등
+     극소수 지점에만. 고채도 색을 남발하지 않는 것이 이 시스템의 원칙.
+     이 토큰들이 bg-brand / text-brand / bg-signal 등 유틸리티를 만든다.
+     ========================================================= */
+  --color-brand: #0F2E4D;        /* 지배 네이비 — 헤더·기본 버튼·아이콘 */
+  --color-brand-700: #1B4B7A;    /* 밝은 네이비 — 링크 hover·보조 */
+  --color-brand-600: #24608F;    /* 라인·강조 라인 */
+  --color-brand-dark: #0A2138;   /* 히어로·푸터 등 어두운 면 */
+  --color-brand-950: #071829;    /* 가장 어두운 네이비 */
+  --color-brand-tint: #EEF3F8;   /* 아주 옅은 네이비 — 칩·연한 배경 */
+  --color-ink: #0F172A;          /* 본문 최진한 텍스트 */
+  --color-signal: #C2620E;       /* 강조색(번트 앰버) — CTA 채움, 흰 글씨 AA */
+  --color-signal-dark: #9A4E0B;  /* 밝은 배경 위 강조 텍스트용(AA) */
 }
 
 :root {
-  --background: oklch(0.98 0 0);
-  --foreground: oklch(0.13 0.02 264);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.13 0.02 264);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.13 0.02 264);
-  /* primary = WNJ Blue #0A3D91
-     이전 값 oklch(0.49 0.27 264)는 주석과 달리 실제 #0A3D91보다 훨씬 밝고
-     채도가 높아(색역 초과), shadcn 기본 컴포넌트와 하드코딩된 #0A3D91의
-     색이 미묘하게 어긋났다. 실측값으로 교정. */
-  --primary: oklch(0.386 0.148 260);
-  --primary-foreground: oklch(0.98 0 0);
-  /* secondary = light blue tint */
-  --secondary: oklch(0.95 0.03 260);
-  --secondary-foreground: oklch(0.386 0.148 260);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.54 0.01 264);
-  /* accent = 안전 오렌지 #FF5500 (강조색 단일화) */
-  --accent: oklch(0.676 0.217 39);
-  --accent-foreground: oklch(0.13 0.02 264);
+  --background: #FFFFFF;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  /* shadcn primary = 브랜드 네이비. Button/Input/Checkbox/Accordion가
+     이 값을 그대로 따라오므로 전역 일관성이 유지된다. */
+  --primary: #0F2E4D;
+  --primary-foreground: #FFFFFF;
+  /* secondary = 옅은 네이비 틴트 */
+  --secondary: #EEF3F8;
+  --secondary-foreground: #0F2E4D;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  /* shadcn accent(고스트/보조 hover 등)는 중립 슬레이트로 둔다.
+     강조색(signal)은 별도 토큰이며 이 자리에 오렌지가 새지 않게 한다. */
+  --accent: #F1F5F9;
+  --accent-foreground: #0F2E4D;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.91 0 0);
-  --input: oklch(0.91 0 0);
-  --ring: oklch(0.386 0.148 260);
-  --chart-1: oklch(0.386 0.148 260);
-  --chart-2: oklch(0.676 0.217 39);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #0F2E4D;
+  --chart-1: #0F2E4D;
+  --chart-2: #C2620E;
+  --chart-3: #1B4B7A;
+  --chart-4: #64748B;
+  --chart-5: #94A3B8;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.386 0.148 260);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #F8FAFC;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #0F2E4D;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #0F2E4D;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #0F2E4D;
 }
 
 @layer base {
@@ -119,9 +127,9 @@ body {
   overflow-wrap: break-word;
 }
 
-/* 고정 헤더 높이만큼 앵커 스크롤 보정 (상단 띠 2.5rem + 헤더 5rem = 7.5rem) */
+/* 고정 헤더 높이만큼 앵커 스크롤 보정 (상단 띠 + 헤더) */
 section[id] {
-  scroll-margin-top: 7.5rem;
+  scroll-margin-top: 7rem;
 }
 
 /* 모바일 하단 고정 CTA 바가 마지막 콘텐츠를 가리지 않도록 여백 확보 */
@@ -131,62 +139,43 @@ section[id] {
   }
 }
 
-/* 블루프린트 도면 격자 패턴 */
-.bg-blueprint {
-  background-image:
-    linear-gradient(rgba(10, 61, 145, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10, 61, 145, 0.05) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
-.bg-blueprint-dark {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
 /* =========================================================
-   사진 배경 시스템 — 전기공사 현장 사진 + 가독성 오버레이
-   섹션에서 style={{ '--bg-photo-url': "url('/images/xxx.jpg')" }} 로 주입.
-   실제 시공 사진을 확보하면 public/images 의 파일만 교체하면 됨.
+   기술 배경(사진 대신) — 어두운 네이비 면에 얹는 미세 도면 격자.
+   전기 엔지니어링의 인상을 사진 없이 만든다. 강조는 극히 낮은 대비.
    ========================================================= */
-.bg-photo {
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-/* 어두운 섹션용 (흰색 텍스트) */
-.bg-photo-dark {
+.tech-dark {
+  background-color: var(--color-brand-dark);
   background-image:
-    linear-gradient(rgba(11, 18, 32, 0.82), rgba(11, 18, 32, 0.9)),
-    var(--bg-photo-url);
+    radial-gradient(120% 90% at 85% -10%, rgba(36, 96, 143, 0.28) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(7, 24, 41, 0) 0%, rgba(7, 24, 41, 0.55) 100%),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 34px 34px, 34px 34px;
 }
-/* 히어로용 — 어두운 현장 사진이 화면을 지배하고 그 위에 텍스트를 얹는다.
-   이전에는 흰색 워시(좌측 alpha 0.97)를 덮어 사진이 사실상 보이지 않았고
-   결과적으로 "연회색 배경 + 파란 글씨"의 SaaS 랜딩 히어로가 되어 있었다. */
-.bg-photo-hero {
+
+/* 밝은 면의 아주 옅은 도면 격자 (선택적 텍스처) */
+.tech-light {
   background-image:
-    linear-gradient(100deg, rgba(11, 18, 32, 0.95) 0%, rgba(11, 18, 32, 0.86) 45%, rgba(11, 18, 32, 0.6) 100%),
-    var(--bg-photo-url);
+    linear-gradient(rgba(15, 46, 77, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 46, 77, 0.04) 1px, transparent 1px);
+  background-size: 34px 34px;
 }
-/* 강조 카드용 (네이비 오버레이 + 흰 텍스트) */
-.bg-photo-accent {
-  background-image:
-    linear-gradient(155deg, rgba(10, 61, 145, 0.93), rgba(11, 18, 32, 0.88)),
-    var(--bg-photo-url);
+
+/* 상단 얇은 강조 규칙선(hairline accent) */
+.rule-accent {
+  height: 2px;
+  width: 2.5rem;
+  background: var(--color-signal);
 }
 
 /* =========================================================
    동적 효과 (모션) — 모두 prefers-reduced-motion 가드
    reduced-motion 사용자는 모션 없이 콘텐츠가 즉시 보임
    ========================================================= */
-
-/* 스크롤 등장: 기본은 보이게 두고, 모션 허용 시에만 숨겼다 등장 */
 @media (prefers-reduced-motion: no-preference) {
   [data-reveal] {
     opacity: 0;
-    transform: translateY(28px);
+    transform: translateY(22px);
     transition:
       opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
       transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
@@ -197,11 +186,10 @@ section[id] {
     transform: none;
   }
 
-  /* Hero 진입 모션 (마운트 시 단계적 등장) */
   @keyframes wnj-fade-up {
     from {
       opacity: 0;
-      transform: translateY(24px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
@@ -211,22 +199,6 @@ section[id] {
   .animate-fade-up {
     opacity: 0;
     animation: wnj-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  /* Floating 전화 버튼 맥박 — 시선 유도 */
-  @keyframes wnj-cta-pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(10, 61, 145, 0.5);
-    }
-    70% {
-      box-shadow: 0 0 0 16px rgba(10, 61, 145, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(10, 61, 145, 0);
-    }
-  }
-  .animate-cta-pulse {
-    animation: wnj-cta-pulse 2.4s ease-out infinite;
   }
 
   /* 폼 제출 성공 체크 팝업 */
@@ -259,7 +231,6 @@ section[id] {
     stroke-dashoffset: 30;
     animation: wnj-check-draw 0.45s ease-out 0.25s forwards;
   }
-
 }
 
 /* Floating CTA 등장/퇴장 (모션 무관하게 부드러운 표시 전환) */
@@ -270,7 +241,7 @@ section[id] {
 }
 .cta-dock-hidden {
   opacity: 0;
-  transform: translateY(16px) scale(0.9);
+  transform: translateY(16px) scale(0.95);
   pointer-events: none;
 }
 .cta-dock-visible {

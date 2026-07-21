@@ -82,9 +82,9 @@ export default function CallbackForm() {
 
   if (done) {
     return (
-      <div className="rounded-lg border border-[#FF5500]/30 bg-[#FF5500]/10 px-5 py-6 text-center">
-        <div className="w-11 h-11 rounded-full bg-[#FF5500] flex items-center justify-center mx-auto mb-3">
-          <Check className="w-6 h-6 text-[#0F172A]" />
+      <div className="rounded-xl border border-signal/30 bg-signal/10 px-5 py-6 text-center">
+        <div className="w-11 h-11 rounded-full bg-signal flex items-center justify-center mx-auto mb-3">
+          <Check className="w-6 h-6 text-white" strokeWidth={2.5} />
         </div>
         <p className="text-white font-bold mb-1">콜백 요청이 접수됐습니다</p>
         <p className="text-sm text-slate-300">
@@ -97,10 +97,10 @@ export default function CallbackForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-lg border border-white/15 bg-white/5 backdrop-blur-sm px-5 py-5 sm:px-6 sm:py-6"
+      className="rounded-xl border border-white/15 bg-white/[0.06] backdrop-blur-sm px-5 py-5 sm:px-6 sm:py-6"
     >
       <div className="flex items-center gap-2.5 mb-1.5">
-        <PhoneCall className="w-5 h-5 text-[#FF5500] flex-shrink-0" />
+        <PhoneCall className="w-5 h-5 text-signal flex-shrink-0" />
         <p className="text-white font-bold text-lg">작성이 번거로우신가요?</p>
       </div>
       <p className="text-sm text-slate-300 mb-4">
@@ -115,16 +115,16 @@ export default function CallbackForm() {
           onChange={(e) => setPhone(formatPhone(e.target.value))}
           placeholder="연락처 (010-0000-0000)"
           aria-label="연락처"
-          className="flex-1 rounded-lg bg-white/10 border border-white/20 px-4 py-3 text-white placeholder:text-slate-400 font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-[#FF5500] focus:border-transparent"
+          className="flex-1 rounded-lg bg-white/10 border border-white/20 px-4 py-3 text-white placeholder:text-slate-400 font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-signal focus:border-transparent"
         />
         <select
           value={slot}
           onChange={(e) => setSlot(e.target.value)}
           aria-label="희망 통화 시간대"
-          className="rounded-lg bg-white/10 border border-white/20 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#FF5500] focus:border-transparent"
+          className="rounded-lg bg-white/10 border border-white/20 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-signal focus:border-transparent"
         >
           {TIME_SLOTS.map((s) => (
-            <option key={s} value={s} className="text-[#0F172A]">
+            <option key={s} value={s} className="text-ink">
               {s}
             </option>
           ))}
@@ -132,7 +132,7 @@ export default function CallbackForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="bg-[#FF5500] hover:bg-[#E04A00] disabled:opacity-60 text-[#0F172A] font-extrabold px-6 py-3 rounded-lg transition-colors whitespace-nowrap"
+          className="bg-signal hover:brightness-105 disabled:opacity-60 text-white font-bold px-6 py-3 rounded-lg transition-all whitespace-nowrap"
         >
           {submitting ? '접수 중…' : '전화 요청'}
         </button>
@@ -143,7 +143,7 @@ export default function CallbackForm() {
           type="checkbox"
           checked={agree}
           onChange={(e) => setAgree(e.target.checked)}
-          className="mt-0.5 w-4 h-4 accent-[#FF5500] flex-shrink-0"
+          className="mt-0.5 w-4 h-4 accent-signal flex-shrink-0"
         />
         <span>
           상담 연락을 위한 연락처 수집·이용에 동의합니다.{' '}

@@ -3,8 +3,8 @@ import SubPageShell from '@/components/SubPageShell';
 import PageHero from '@/components/PageHero';
 import About from '@/components/sections/About';
 import Credentials from '@/components/sections/Credentials';
-import WhyUs from '@/components/sections/WhyUs';
 import Process from '@/components/sections/Process';
+import { Section, Container, SectionHeading } from '@/components/ui/section';
 import { COMPANY } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -36,27 +36,25 @@ export default function AboutPage() {
   return (
     <SubPageShell quoteSource="about">
       <PageHero
-        eyebrow="ABOUT"
+        eyebrow="회사소개"
         title="공장·산업 전기공사 전문 법인"
         lead="우앤주전력은 대구·경북 지역의 공장·산업시설 전기공사를 주력으로, 수전설비·계약전력 증설과 배전반 자체 제작까지 직접 시공하는 전기공사업 등록 법인입니다."
         crumbs={[{ label: '회사소개' }]}
       />
 
       {/* 사업자 정보 */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 data-reveal className="text-2xl sm:text-3xl font-bold text-[#0F172A] tracking-tight mb-8">
-            사업자 정보
-          </h2>
+      <Section tone="white">
+        <Container size="narrow">
+          <SectionHeading align="left" eyebrow="사업자 정보" title="법인 개요" className="mb-8" />
           <dl
             data-reveal
-            className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-slate-200 border border-slate-200 rounded-xl overflow-hidden"
           >
             {companyFacts.map((fact) => (
               <div key={fact.label} className="bg-white px-5 py-4">
-                <dt className="text-sm text-gray-400 font-medium mb-1">{fact.label}</dt>
+                <dt className="text-sm text-slate-400 font-medium mb-1">{fact.label}</dt>
                 <dd
-                  className={`text-base font-semibold text-[#0F172A] ${
+                  className={`text-[0.9375rem] font-semibold text-ink break-keep ${
                     fact.mono ? 'font-mono tabular-nums' : ''
                   }`}
                 >
@@ -65,12 +63,11 @@ export default function AboutPage() {
               </div>
             ))}
           </dl>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <Credentials />
       <About />
-      <WhyUs />
+      <Credentials />
       <Process />
     </SubPageShell>
   );

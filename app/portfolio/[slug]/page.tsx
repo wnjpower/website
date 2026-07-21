@@ -52,40 +52,11 @@ export default function PortfolioDetailPage({ params }: { params: { slug: string
         eyebrow={item.categoryLabel}
         title={`${item.location} ${item.title}`}
         lead={item.summary}
-        crumbs={[{ label: '시공 사례', href: '/portfolio' }, { label: item.title }]}
-        bgImage="/images/switchgear.jpg"
+        crumbs={[{ label: '시공 실적', href: '/portfolio' }, { label: item.title }]}
       />
 
       <article className="py-16 sm:py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* 사진 */}
-          {item.image && (
-            <figure data-reveal className="mb-12">
-              <div className="relative rounded-lg overflow-hidden border border-gray-200">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.image}
-                  alt={
-                    item.isPlaceholder
-                      ? `${item.location} ${item.title} — 샘플 이미지`
-                      : `${item.location} ${item.title} 현장`
-                  }
-                  className="w-full object-cover"
-                />
-                {item.isPlaceholder && (
-                  <span className="absolute top-3 right-3 text-xs font-bold px-2.5 py-1 rounded bg-black/70 text-white">
-                    샘플 이미지
-                  </span>
-                )}
-              </div>
-              {item.isPlaceholder && (
-                <figcaption className="mt-2 text-sm text-gray-400">
-                  실제 시공 현장 사진으로 교체 예정입니다.
-                </figcaption>
-              )}
-            </figure>
-          )}
-
+        <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8">
           {/* 공사 개요 */}
           <section data-reveal className="mb-12">
             <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-5">공사 개요</h2>
@@ -115,7 +86,7 @@ export default function PortfolioDetailPage({ params }: { params: { slug: string
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
               {item.scopeItems.map((scope) => (
                 <li key={scope} className="flex items-start gap-2.5 text-base text-gray-700">
-                  <CheckCircle2 className="w-5 h-5 text-[#0A3D91] mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-[#0F2E4D] mt-0.5 flex-shrink-0" />
                   {scope}
                 </li>
               ))}
@@ -136,7 +107,7 @@ export default function PortfolioDetailPage({ params }: { params: { slug: string
             <ol className="space-y-4">
               {item.work.map((step, i) => (
                 <li key={step} className="flex items-start gap-4">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-md bg-[#0A3D91] text-white font-bold text-sm flex items-center justify-center tabular-nums">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-md bg-[#0F2E4D] text-white font-bold text-sm flex items-center justify-center tabular-nums">
                     {i + 1}
                   </span>
                   <span className="text-base text-gray-700 leading-relaxed pt-1">{step}</span>
@@ -153,7 +124,7 @@ export default function PortfolioDetailPage({ params }: { params: { slug: string
               <p className="text-base text-gray-600 leading-relaxed mb-4">{relatedService.detail}</p>
               <Link
                 href={`/services/${relatedService.id}`}
-                className="inline-flex items-center gap-1.5 text-base font-bold text-[#0A3D91] hover:underline"
+                className="inline-flex items-center gap-1.5 text-base font-bold text-[#0F2E4D] hover:underline"
               >
                 시공 범위·절차 자세히 보기
                 <ArrowRight className="w-4 h-4" />
@@ -169,7 +140,7 @@ export default function PortfolioDetailPage({ params }: { params: { slug: string
                 <li key={other.slug}>
                   <Link
                     href={`/portfolio/${other.slug}`}
-                    className="block h-full rounded-lg border border-gray-200 p-4 hover:border-[#0A3D91]/40 hover:shadow-sm transition-all"
+                    className="block h-full rounded-lg border border-gray-200 p-4 hover:border-[#0F2E4D]/40 hover:shadow-sm transition-all"
                   >
                     <p className="text-xs font-semibold text-gray-400 mb-1">{other.categoryLabel}</p>
                     <p className="font-bold text-[#0F172A] text-sm leading-snug mb-1">

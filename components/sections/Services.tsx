@@ -1,8 +1,9 @@
 'use client';
 import Link from 'next/link';
-import { Factory, Gauge, CircuitBoard, Lamp, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Factory, Gauge, CircuitBoard, Lamp, Check, ArrowRight } from 'lucide-react';
 import { services } from '@/content/services';
 import { useQuotePrefill } from '@/components/QuotePrefill';
+import { Section, Container, SectionHeading } from '@/components/ui/section';
 
 const iconMap = { Factory, Gauge, CircuitBoard, Lamp } as const;
 type IconKey = keyof typeof iconMap;
@@ -10,76 +11,68 @@ type IconKey = keyof typeof iconMap;
 export default function Services() {
   const { selectCategory } = useQuotePrefill();
   return (
-    <section id="services" className="py-20 bg-[#F8FAFC]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div data-reveal className="text-center mb-12">
-          <p className="text-sm font-bold tracking-widest text-[#0A3D91] mb-2">INDUSTRIAL · 공장 전기 전문</p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] tracking-tight mb-3">
-            4대 전문 분야
-          </h2>
-          <p className="text-lg text-gray-500">공장·산업 전기공사 전문 — 수전설비·배전반 자체제작까지 직접 시공</p>
-        </div>
+    <Section id="services" tone="muted">
+      <Container>
+        <SectionHeading
+          eyebrow="사업영역"
+          title="4대 전문 분야"
+          lead="공장·산업 전기공사를 주력으로, 수전설비·배전반 자체제작부터 인테리어 전기까지 직접 시공합니다."
+        />
 
-        <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {services.map((svc, idx) => {
             const Icon = iconMap[svc.icon as IconKey];
             const isPrimary = svc.tier === 'primary';
             return (
               <div
                 key={svc.id}
-                className={`group bg-white rounded-lg p-7 shadow-sm hover:shadow-xl transition-all duration-200 border hover:border-[#0A3D91]/40 hover:-translate-y-1.5 flex flex-col ${
-                  isPrimary ? 'border-gray-200 border-t-4 border-t-[#0A3D91]' : 'border-gray-200 bg-[#F8FAFC]'
-                }`}
+                className="group relative bg-white rounded-xl border border-slate-200 p-6 flex flex-col transition-all duration-200 hover:border-brand/30 hover:shadow-lg hover:shadow-slate-200/70"
               >
-                {/* 번호 + 아이콘 */}
-                <div className="flex items-start justify-between mb-5">
-                  <div className="w-14 h-14 rounded-md bg-[#0A3D91]/8 group-hover:bg-[#0A3D91] flex items-center justify-center transition-colors duration-200">
-                    <Icon className="w-7 h-7 text-[#0A3D91] group-hover:text-white transition-colors duration-200" />
+                {isPrimary && (
+                  <span className="absolute top-6 right-6 text-[0.625rem] font-bold px-2 py-0.5 rounded bg-brand text-white tracking-wide">
+                    주력
+                  </span>
+                )}
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-12 h-12 rounded-lg bg-brand-tint flex items-center justify-center transition-colors group-hover:bg-brand">
+                    <Icon className="w-6 h-6 text-brand transition-colors group-hover:text-white" />
                   </div>
-                  <span className="text-3xl font-bold text-gray-200 tabular-nums tracking-tight">
+                  <span className="text-2xl font-bold text-slate-200 tabular-nums tracking-tight">
                     {String(idx + 1).padStart(2, '0')}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-xl font-bold text-[#0F172A] tracking-tight">{svc.title}</h3>
-                  {isPrimary && (
-                    <span className="text-[0.625rem] font-bold px-1.5 py-0.5 rounded bg-[#0A3D91] text-white tracking-wide">주력</span>
-                  )}
-                </div>
-                <p className="text-base text-gray-600 mb-1 font-medium">{svc.description}</p>
-                <p className="text-sm text-gray-500 leading-relaxed mb-4">{svc.detail}</p>
+                <h3 className="text-lg font-bold text-ink tracking-tight mb-1.5">{svc.title}</h3>
+                <p className="text-[0.9375rem] text-slate-600 leading-relaxed mb-4">{svc.detail}</p>
 
-                {/* 상세 포인트 */}
-                <ul className="space-y-1.5 flex-1 mb-5">
+                <ul className="space-y-2 flex-1 mb-5">
                   {svc.points.map((point) => (
-                    <li key={point} className="flex items-start gap-2 text-sm text-gray-600">
-                      <CheckCircle2 className="w-4 h-4 text-[#0A3D91] mt-0.5 flex-shrink-0" />
+                    <li key={point} className="flex items-start gap-2 text-sm text-slate-600">
+                      <Check className="w-4 h-4 text-brand mt-0.5 flex-shrink-0" strokeWidth={2.5} />
                       {point}
                     </li>
                   ))}
                 </ul>
 
-                {/* 적합 대상 */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
+                <div className="flex flex-wrap gap-1.5 mb-5">
                   {svc.audiences.map((a) => (
-                    <span key={a} className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#0A3D91]/8 text-[#0A3D91]">
+                    <span key={a} className="text-xs font-semibold px-2 py-0.5 rounded bg-brand-tint text-brand-700">
                       {a}
                     </span>
                   ))}
                 </div>
 
-                <div className="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-2.5">
+                <div className="mt-auto pt-4 border-t border-slate-100 flex flex-col gap-2">
                   <Link
                     href={`/services/${svc.id}`}
-                    className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0A3D91] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A3D91] rounded"
+                    className="inline-flex items-center gap-1.5 text-sm font-bold text-brand hover:gap-2.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
                   >
-                    시공 범위·절차 자세히 보기
+                    시공 범위·절차 보기
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                   <button
                     onClick={() => selectCategory(svc.id)}
-                    className="text-sm text-gray-500 font-semibold hover:text-[#0A3D91] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A3D91] rounded"
+                    className="text-sm text-slate-500 font-semibold hover:text-brand text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded"
                   >
                     이 항목으로 문의하기 →
                   </button>
@@ -88,7 +81,7 @@ export default function Services() {
             );
           })}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

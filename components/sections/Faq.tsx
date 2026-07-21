@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/accordion';
 import { faqs, type FaqSegment } from '@/content/faq';
 import FaqSchema from '@/components/FaqSchema';
+import { Container, SectionHeading } from '@/components/ui/section';
 
 const tabs: { value: FaqSegment; label: string }[] = [
   { value: 'all',        label: '전체' },
@@ -32,27 +33,24 @@ export default function Faq({ withSchema = false }: Props) {
   );
 
   return (
-    <section id="faq" className="py-20 bg-white">
-      {/* 탭 필터와 무관하게 전체 FAQ를 구조화 데이터로 노출 */}
+    <section id="faq" className="py-20 sm:py-24 bg-slate-50 text-ink">
       {withSchema && <FaqSchema />}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div data-reveal className="text-center mb-10">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] mb-3">
-            자주 묻는 질문
-          </h2>
-          <p className="text-lg text-gray-500">내 상황에 맞는 탭을 선택하세요</p>
-        </div>
+      <Container size="reading">
+        <SectionHeading
+          eyebrow="자주 묻는 질문"
+          title="궁금한 점을 먼저 확인하세요"
+          lead="상황에 맞는 탭을 선택하면 관련 질문만 모아 보실 수 있습니다."
+        />
 
-        {/* 탭 필터 */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
           {tabs.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setActiveTab(tab.value)}
-              className={`px-5 py-2.5 rounded-md text-base font-semibold transition-all ${
+              className={`px-5 py-2.5 rounded-lg text-[0.9375rem] font-semibold transition-all ${
                 activeTab === tab.value
-                  ? 'bg-[#0A3D91] text-white shadow-sm'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:border-[#0A3D91] hover:text-[#0A3D91]'
+                  ? 'bg-brand text-white shadow-sm'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-brand hover:text-brand'
               }`}
             >
               {tab.label}
@@ -65,18 +63,18 @@ export default function Faq({ withSchema = false }: Props) {
             <AccordionItem
               key={`${activeTab}-${i}`}
               value={i}
-              className="bg-white rounded-lg border border-gray-100 shadow-sm px-6 data-[state=open]:shadow-md transition-shadow"
+              className="bg-white rounded-xl border border-slate-200 px-5 sm:px-6 data-[state=open]:border-brand/30 data-[state=open]:shadow-sm transition-all"
             >
-              <AccordionTrigger className="text-left text-lg font-semibold text-[#0F172A] py-6 hover:no-underline">
+              <AccordionTrigger className="text-left text-base sm:text-[1.0625rem] font-semibold text-ink py-5 hover:no-underline">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-base text-gray-500 leading-relaxed pb-6">
+              <AccordionContent className="text-[0.9375rem] text-slate-600 leading-relaxed pb-5">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
-      </div>
+      </Container>
     </section>
   );
 }
