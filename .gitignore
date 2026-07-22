@@ -64,5 +64,7 @@ next-env.d.ts
 # 로컬 임시 이미지
 *.png
 !public/**/*.png
+!app/icon.png
+!app/apple-icon.png
 
 .vercel
