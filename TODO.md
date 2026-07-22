@@ -11,30 +11,30 @@
 
 ---
 
-## 🔴 서비스 운영 — 필수
+> ✅ **리드 알림(이메일) 라이브** — 견적폼·콜백 퀵폼 모두 `/api/quote`로 접수돼 Supabase 저장 +
+> 사장님 Naver 메일 발송이 프로덕션에서 동작 중. (상세: [`CHANGELOG.md`](CHANGELOG.md) 2026-07-22)
 
-- [x] **Resend 이메일 활성화** — 완료(CHANGELOG 2026-07-22 참조). `wnjpower.com` 도메인 인증 +
-  신규 `RESEND_API_KEY`·`NOTIFY_FROM_EMAIL=quote@wnjpower.com` 로컬/Vercel Production 설정,
-  Naver 받은편지함 도착 확인. **단, 환경변수는 다음 재배포부터 실배포에 반영됨.**
-- [ ] **프로덕션 재배포** — Vercel 환경변수 정정 값을 실배포에 반영하려면 재배포 필요
-  (`git push` 자동 배포 또는 `vercel --prod`).
-- [ ] **견적 폼 실배포 E2E 테스트** — 재배포 후 프로덕션에서 실제 폼 제출 → Supabase 저장 +
-  사장님 Naver 메일 수신 동시 확인. (로컬 `npm run test:resend`로 Resend→Naver 발신 도착은 확인됨)
+## 🟡 카카오 알림톡 연동 (추후) — 코드 완료, 외부 설정만 남음
 
-## 🔴 카카오 알림톡 활성화 (코드 완료 — 외부 설정만)
-
-> 코드 준비 완료(`lib/kakao-alimtalk.ts`). 아래 후 Vercel 환경변수 입력 시 자동 활성화.
+> 리드 알림의 **기본 경로(이메일)는 이미 라이브**다. 알림톡은 그 위에 얹는 **선택 강화**이며
+> 지금 당장 없어도 리드는 정상 전달된다. 코드는 준비 완료(`lib/kakao-alimtalk.ts`)이고,
+> 견적폼·콜백폼이 모두 `/api/quote`를 타므로 아래 설정만 마치면 **두 경로 모두 자동으로
+> 알림톡이 함께 발송**된다. 설정 전까지는 알림톡 없이 이메일만 발송된다(graceful degradation).
 
 - [ ] **STEP 1** — 카카오 비즈니스 채널 개설 ([business.kakao.com](https://business.kakao.com), 인증 1~2영업일)
 - [ ] **STEP 2** — Solapi 가입·API 키 발급 + 채널 연동 + 발신번호 `010-8552-9994` 등록
 - [ ] **STEP 3** — 알림톡 템플릿 등록·카카오 검수 (1~3영업일, 템플릿은 `.env.example` 참고)
-- [ ] **STEP 4** — Vercel 환경변수 입력 후 재배포
+  - ⚠️ 콜백 접수는 이름이 `콜백 요청`으로 저장된다. 신청자 수신 템플릿의 `#{성함}` 문구가
+    어색하지 않은지("콜백 요청님") 검토하거나 콜백 전용 문구를 별도로 둘지 정할 것.
+- [ ] **STEP 4** — Vercel 환경변수 입력 후 재배포 (입력 시 자동 활성화)
   ```
   SOLAPI_API_KEY / SOLAPI_API_SECRET / SOLAPI_PF_ID
   SOLAPI_SENDER_NUMBER=010-8552-9994
   SOLAPI_TEMPLATE_TO_REQUESTER / SOLAPI_TEMPLATE_TO_OWNER
   OWNER_MOBILE=010-8552-9994
   ```
+  > ⚠️ Vercel 환경변수는 이 환경의 CLI(`vercel env add`)로는 값이 빈 채로 저장되니 주의.
+  > REST API 또는 Vercel 대시보드로 입력할 것 (배경: memory `wnj-vercel-env-cli-gotcha`).
 
 ## 🟡 콘텐츠 — 사장님 제공 필요
 
