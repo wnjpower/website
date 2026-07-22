@@ -9,6 +9,23 @@
 
 ---
 
+## 2026-07-22 — Resend→Naver 견적 알림 메일 연동 완료
+
+신규 Resend 계정 기준으로 견적문의 알림 메일 발송을 활성화. 발신 도메인 `wnjpower.com`
+인증 완료(SPF/DKIM), 발신 `quote@wnjpower.com` → 수신 사장님 Naver 메일함
+(`wnj-2023@naver.com`) 받은편지함 도착 확인.
+
+- `.env.local`에 신규 `RESEND_API_KEY` + `NOTIFY_FROM_EMAIL=quote@wnjpower.com` 설정
+- **Vercel Production 환경변수 정정** — 기존 값이 내용 없는 `sensitive` 타입
+  (`RESEND_API_KEY=""`, `NOTIFY_FROM_EMAIL=onboarding@resend.dev`)이라 실배포에서 메일이
+  발송되지 않던 문제를, 읽기 가능한 `encrypted` 타입 + 신규 키·인증 도메인 값으로 교체해 정상화
+- `scripts/test-resend.mjs` + `npm run test:resend` 스모크 테스트 신설(Naver 도착 확인용)
+- ⚠️ 환경변수 반영은 **다음 프로덕션 재배포부터** 적용됨
+- 참고(개발 환경): 이 Windows/Git Bash 환경에서 `vercel env add`는 stdin 값이 전달되지 않아
+  빈 값으로 저장되므로, Vercel 환경변수는 REST API로 설정함
+
+---
+
 ## 2026-07-22 — 절제된 기관형 디자인·정보구조 전면 재구축
 
 디자인이 전문적으로 보이지 않고 정보 구조가 직관적이지 않던 문제를 해결하기 위해

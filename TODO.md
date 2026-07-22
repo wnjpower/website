@@ -13,17 +13,13 @@
 
 ## 🔴 서비스 운영 — 필수
 
-- [ ] **Resend 이메일 활성화** — `RESEND_API_KEY` 발급 + `wnjpower.com` 도메인 인증(DNS).
-  미설정 시 견적 제출은 Supabase에 저장되지만 **사장님께 알림 메일이 가지 않는다**(graceful degradation).
-  도메인 인증 전에는 발신 주소를 `onboarding@resend.dev`로 두면 테스트 발송 가능.
-  Vercel 환경변수(Production):
-  ```
-  RESEND_API_KEY   = (Resend 대시보드에서 발급)   ← 남은 항목
-  NOTIFY_TO_EMAIL  = wnj-2023@naver.com
-  NOTIFY_FROM_EMAIL= quote@wnjpower.com  (또는 onboarding@resend.dev)
-  ```
-  > Supabase·Vercel·도메인·GA4 환경변수는 이미 설정 완료(CHANGELOG 참조).
-- [ ] **견적 폼 실제 제출 테스트** — Resend 설정 후 폼 제출 → DB 저장 + 이메일 수신 동시 확인.
+- [x] **Resend 이메일 활성화** — 완료(CHANGELOG 2026-07-22 참조). `wnjpower.com` 도메인 인증 +
+  신규 `RESEND_API_KEY`·`NOTIFY_FROM_EMAIL=quote@wnjpower.com` 로컬/Vercel Production 설정,
+  Naver 받은편지함 도착 확인. **단, 환경변수는 다음 재배포부터 실배포에 반영됨.**
+- [ ] **프로덕션 재배포** — Vercel 환경변수 정정 값을 실배포에 반영하려면 재배포 필요
+  (`git push` 자동 배포 또는 `vercel --prod`).
+- [ ] **견적 폼 실배포 E2E 테스트** — 재배포 후 프로덕션에서 실제 폼 제출 → Supabase 저장 +
+  사장님 Naver 메일 수신 동시 확인. (로컬 `npm run test:resend`로 Resend→Naver 발신 도착은 확인됨)
 
 ## 🔴 카카오 알림톡 활성화 (코드 완료 — 외부 설정만)
 
@@ -73,6 +69,9 @@
 
 ## ⚪ 추후 개선 (선택)
 
+- [ ] **견적서 이메일 양식 개선** — 견적문의 알림 메일을 "견적서" 양식으로 발전시키고,
+  받은편지함에서 **일반 메일과 시각적으로 명확히 구분**되게 설정(전용 발신자 표시명·제목
+  규칙·전용 라벨/템플릿 등). 현재는 `app/api/quote/route.ts`의 `buildEmailHtml` 단일 템플릿.
 - [ ] Cloudflare Turnstile — 견적 폼 봇 차단 강화
 - [ ] 카카오맵 실제 임베드 — 현재는 카카오맵 링크 카드(`Contact.tsx`)
 - [ ] Lighthouse 모바일 90점 이상 최적화
