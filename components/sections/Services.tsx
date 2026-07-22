@@ -16,7 +16,7 @@ export default function Services() {
         <SectionHeading
           eyebrow="사업영역"
           title="3대 전문 분야"
-          lead="공장·산업 전기공사를 주력으로, 배전반 설계·설치와 인테리어 전기까지 직접 시공합니다. 계약전력 증설·수전설비는 공장 전기공사와 함께 진행합니다."
+          lead="공장·산업 전기공사를 주력으로, 인테리어 전기와 배전반 설계·설치까지 직접 시공합니다. 계약전력 증설·수전설비는 공장 전기공사와 함께 진행합니다."
         />
 
         <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
