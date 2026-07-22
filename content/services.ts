@@ -41,7 +41,7 @@ export const services: Service[] = [
       '인테리어 업체와 일정 직접 조율',
     ],
     audiences: ['주택', '아파트', '상가', '병원'],
-    tier: 'secondary',
+    tier: 'primary',
   },
   {
     id: 'panel',
@@ -56,6 +56,6 @@ export const services: Service[] = [
       '차단기·누전차단기 교체·증설',
     ],
     audiences: ['공장', '상업건물', '상가', '주택'],
-    tier: 'primary',
+    tier: 'secondary',
   },
 ];
