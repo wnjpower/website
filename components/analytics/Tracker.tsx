@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { gtagEvent } from '@/components/GoogleAnalytics';
-import { isStaffCookieSet } from '@/lib/analytics/staff';
+import { isStaffExcluded } from '@/lib/analytics/staff';
 
 /**
  * 자체 분석 수집기 (+ GA4 동시 전송).
@@ -71,24 +71,21 @@ export function track(event: QueuedEvent) {
  * 둘 다 막지 않으면 사장님이 사이트를 확인할수록 방문자 수가 늘고
  * 전환율(문의÷방문자)이 실제보다 낮게 보인다. 성과를 판단하는 숫자가
  * 스스로를 오염시키는 셈이다.
+ *
+ * 판정은 이벤트를 보내기 직전에 매번 한다. 상태(useState)에 담아두면 안 된다 —
+ * 첫 렌더에서 false로 시작하는 순간, 같은 커밋의 페이지뷰 이펙트가 그 값을 보고
+ * 이미 발사해 버린다(상태 갱신은 다음 커밋에 반영되므로). 그래서 새로고침마다
+ * 1건씩 새는 버그가 있었다. document.cookie는 이펙트 안에서 언제든 읽을 수 있으니
+ * 상태를 둘 이유가 없다.
  */
 function isExcluded(pathname: string | null): boolean {
   if (pathname && pathname.startsWith('/admin')) return true;
-  return isStaffCookieSet();
+  return isStaffExcluded();
 }
 
 export default function Tracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  /*
-   * 표식은 어드민에서 켜고 끌 수 있으므로 페이지가 바뀔 때마다 다시 읽는다.
-   * 첫 렌더에는 false로 두어 서버·클라이언트 렌더를 일치시킨다(document 접근 불가).
-   */
-  const [excluded, setExcluded] = useState(false);
-  useEffect(() => {
-    setExcluded(isExcluded(pathname));
-  }, [pathname]);
   const lastPath = useRef<string | null>(null);
   const seenImpressions = useRef<Set<string>>(new Set());
   const scrollMarks = useRef<Set<number>>(new Set());
@@ -96,7 +93,7 @@ export default function Tracker() {
 
   // ── 페이지뷰 ──
   useEffect(() => {
-    if (excluded) return;
+    if (isExcluded(pathname)) return;
     const key = `${pathname}?${searchParams?.toString() ?? ''}`;
     if (lastPath.current === key) return;
     lastPath.current = key;
@@ -106,11 +103,11 @@ export default function Tracker() {
     // 새 페이지에서는 스크롤·노출 집계를 초기화한다
     scrollMarks.current = new Set();
     formStarted.current = false;
-  }, [pathname, searchParams, excluded]);
+  }, [pathname, searchParams]);
 
   // ── 클릭 (CTA·전화·카카오) ──
   useEffect(() => {
-    if (excluded) return;
+    if (isExcluded(pathname)) return;
 
     const onClick = (event: MouseEvent) => {
       const target = event.target;
@@ -153,11 +150,11 @@ export default function Tracker() {
 
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
-  }, [excluded]);
+  }, [pathname]);
 
   // ── CTA 노출 (A/B 전환율의 분모) ──
   useEffect(() => {
-    if (excluded) return;
+    if (isExcluded(pathname)) return;
     if (typeof IntersectionObserver === 'undefined') return;
 
     const observer = new IntersectionObserver(
@@ -187,11 +184,11 @@ export default function Tracker() {
     const raf = requestAnimationFrame(scan);
 
     return () => { cancelAnimationFrame(raf); observer.disconnect(); };
-  }, [pathname, excluded]);
+  }, [pathname]);
 
   // ── 스크롤 깊이 ──
   useEffect(() => {
-    if (excluded) return;
+    if (isExcluded(pathname)) return;
 
     const onScroll = () => {
       const doc = document.documentElement;
@@ -208,11 +205,11 @@ export default function Tracker() {
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [pathname, excluded]);
+  }, [pathname]);
 
   // ── 폼 작성 시작 (폼 이탈률 파악용) ──
   useEffect(() => {
-    if (excluded) return;
+    if (isExcluded(pathname)) return;
 
     const onFocus = (event: FocusEvent) => {
       if (formStarted.current) return;
@@ -227,7 +224,7 @@ export default function Tracker() {
     };
     document.addEventListener('focusin', onFocus);
     return () => document.removeEventListener('focusin', onFocus);
-  }, [pathname, excluded]);
+  }, [pathname]);
 
   // ── 이탈 시 잔여 큐 전송 ──
   useEffect(() => {
