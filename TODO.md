@@ -3,7 +3,7 @@
 > **프로덕션**: https://www.wnjpower.com (apex → www 308 리다이렉트)
 > **GitHub**: https://github.com/wnjpower/website · **Vercel**: `wnjpower-erp` 팀 / `wnj-website`
 > **Supabase**: `wnj-website` (서울 `ap-northeast-2`)
-> **최종 업데이트**: 2026-07-22
+> **최종 업데이트**: 2026-07-31
 
 > ✅ **완료된 변경 이력은 [`CHANGELOG.md`](CHANGELOG.md)** 참조.
 > 이 문서는 아직 끝나지 않은 **운영·콘텐츠·선택** 항목만 추적한다.
@@ -13,6 +13,37 @@
 
 > ✅ **리드 알림(이메일) 라이브** — 견적폼·콜백 퀵폼 모두 `/api/quote`로 접수돼 Supabase 저장 +
 > 사장님 Naver 메일 발송이 프로덕션에서 동작 중. (상세: [`CHANGELOG.md`](CHANGELOG.md) 2026-07-22)
+
+## 🔴 지금 바로 — 어드민 활성화 (개발 완료, 외부 설정만 남음)
+
+> 2026-07-31 관리형 전환(어드민 CMS·분석·CTA 실험·게시판)의 **코드는 완료**됐다.
+> 아래 3단계를 마쳐야 어드민이 열린다. 그 전까지 **공개 사이트는 코드 기본값으로 정상 동작**한다.
+> 사용법: [`docs/어드민_사용법.md`](docs/어드민_사용법.md)
+
+- [ ] **STEP 0 — Supabase 프로젝트 재개(restore)**
+  프로젝트 `wnj-website`(`wtlvbilsakoktcrrqlfi`)가 **일시중지(INACTIVE)** 상태다.
+  무료 tier는 일정 기간 미사용 시 자동 정지되며, 정지 중에는 **견적문의의 DB 저장이 실패**한다
+  (이메일 알림은 정상이라 리드 자체는 전달됨 — `savedToDb:false`로 응답에 드러남).
+  Supabase 대시보드에서 **Restore project** 필요.
+- [ ] **STEP 1 — SQL 실행** (Supabase SQL Editor, 순서대로)
+  1. [`supabase/admin-schema.sql`](supabase/admin-schema.sql) — 관리자·콘텐츠·CTA·이벤트·게시판 테이블
+  2. [`supabase/analytics-functions.sql`](supabase/analytics-functions.sql) — 실시간 분석 집계 함수
+  여러 번 실행해도 안전하다.
+- [ ] **STEP 2 — 관리자 계정 등록**
+  Authentication → Users에서 계정 생성(Auto Confirm 체크) 후 SQL 실행:
+  ```sql
+  insert into public.admins (user_id, email, name)
+  select id, email, '임태훈' from auth.users where email = 'wnj-2023@naver.com'
+  on conflict (user_id) do nothing;
+  ```
+  ⚠️ 이걸 빼면 로그인은 되지만 "관리자 권한이 없는 계정" 화면이 나온다.
+- [ ] **STEP 3 — 확인**
+  `/admin` 로그인 → 실시간 현황이 뜨는지 → 홈페이지 편집에서 문구 하나 바꿔 [발행] →
+  사이트 반영 확인 → 게시판에 시험 글 1건 발행 → `/admin/seo`에서 IndexNow 제출 성공 확인
+
+- [ ] **광고 링크에 UTM 붙이기** (사장님/광고 담당)
+  광고 성과를 경로별로 나누려면 도착 URL에 `?utm_source=naver&utm_medium=cpc&utm_campaign=이름`
+  형태를 붙여야 한다. 특히 **`utm_medium=cpc`가 빠지면 유료 광고가 자연 검색으로 잡힌다.**
 
 ## 🟡 카카오 알림톡 연동 (추후) — 코드 완료, 외부 설정만 남음
 
@@ -75,7 +106,16 @@
 - [ ] Cloudflare Turnstile — 견적 폼 봇 차단 강화
 - [ ] 카카오맵 실제 임베드 — 현재는 카카오맵 링크 카드(`Contact.tsx`)
 - [ ] Lighthouse 모바일 90점 이상 최적화
-- [ ] 포트폴리오 CMS화 — Supabase Storage + 관리자 페이지
+- [x] ~~포트폴리오 CMS화~~ — 완료. 어드민 게시판(`/admin/posts`, 타입 `시공실적`)에서
+      사진과 함께 등록하면 `/portfolio`에 노출된다. 기존 파일 기반 실적 원장은 그대로 유지
+- [ ] **서비스 상세 페이지도 어드민 편집 대상으로** — 현재 `content/service-pages.ts` 파일 기반.
+      제도 수치가 많은 긴 기술 문서라 이번 범위에서 제외했다
+- [ ] **이벤트 자동 정리 스케줄** — `prune_events(180)` 함수는 만들어 뒀으나 자동 실행은 미설정.
+      Supabase `pg_cron`을 켜서 하루 1회 돌리면 무료 tier 500MB를 안정적으로 유지할 수 있다
+- [ ] **@vercel/og 로컬 빌드 실패(Windows)** — 프로젝트 경로에 공백·한글이 있으면
+      `@vercel/og`가 `fileURLToPath`에서 `Invalid URL`로 죽는다. Vercel(리눅스) 빌드는 정상이라
+      배포에는 영향이 없다. 로컬에서 `npm run build`를 끝까지 돌려야 하면 경로를 영문으로
+      옮기거나 해당 라우트를 임시로 비워야 한다
 
 ---
 
@@ -83,6 +123,15 @@
 
 | 목적 | 경로 |
 |------|------|
+| **어드민 사용법 (사장님용)** | [`docs/어드민_사용법.md`](docs/어드민_사용법.md) |
+| **편집 가능한 문구·기본값·어드민 폼 정의 (단일 소스)** | [`lib/content/schema.ts`](lib/content/schema.ts) |
+| 어드민 스키마 · 분석 집계 함수 | [`supabase/admin-schema.sql`](supabase/admin-schema.sql) · [`supabase/analytics-functions.sql`](supabase/analytics-functions.sql) |
+| 유입 경로(광고 귀속) 판정 | [`lib/analytics/attribution.ts`](lib/analytics/attribution.ts) |
+| CTA 슬롯·A/B 배정 | [`lib/cta/schema.ts`](lib/cta/schema.ts) · [`lib/cta/get.ts`](lib/cta/get.ts) |
+| 한국어 SEO 분석기 | [`lib/seo/analyze.ts`](lib/seo/analyze.ts) |
+| 게시판(블로그·공지·시공실적) | [`lib/posts.ts`](lib/posts.ts) |
+| IndexNow 자동 색인 제출 | [`lib/indexnow.ts`](lib/indexnow.ts) · 키 파일 `public/<키>.txt` |
+| 인증·어드민 가드 | [`middleware.ts`](middleware.ts) · [`lib/supabase-server.ts`](lib/supabase-server.ts) |
 | **회사 정보·외부 채널 URL (단일 소스)** | [`lib/site.ts`](lib/site.ts) |
 | **디자인 토큰·유틸리티** | [`app/globals.css`](app/globals.css) |
 | **공용 레이아웃·CTA 프리미티브** | [`components/ui/section.tsx`](components/ui/section.tsx) · [`components/ui/cta.tsx`](components/ui/cta.tsx) |

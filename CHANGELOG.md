@@ -9,6 +9,90 @@
 
 ---
 
+## 2026-07-31 — 관리형 전환: 어드민 CMS · 실시간 분석 · CTA 실험 · 게시판 · 자동 색인
+
+개발자 없이 마케팅을 운영할 수 있도록 사이트를 **관리형 구조로 전환**했다.
+사장님이 직접 문구·사진·버튼을 바꾸고, 광고 성과를 보고, 검색 유입용 글을 쓸 수 있다.
+운영 방법은 [`docs/어드민_사용법.md`](docs/어드민_사용법.md)에 정리했다.
+
+> ⚠️ **적용 전 필수**: Supabase SQL Editor에서 `supabase/admin-schema.sql` →
+> `supabase/analytics-functions.sql` 순서로 실행하고, 관리자 계정을 `public.admins`에
+> 등록해야 어드민이 동작한다. 실행 전까지 **공개 사이트는 코드 기본값으로 정상 동작**한다.
+
+### 콘텐츠 편집 (`/admin/content`)
+- [`lib/content/schema.ts`](lib/content/schema.ts) **한 파일이 기본값·타입·어드민 폼을 동시에 정의**한다.
+  필드를 늘릴 때 어드민 화면 코드를 건드릴 필요가 없다.
+- DB(`site_content`) 값을 코드 기본값 위에 병합하므로, **DB가 비어 있거나 죽어 있어도
+  사이트는 그대로 동작**한다(빌드 중 DB 접속 실패 시 기본값으로 렌더되는 것을 확인).
+- 초안(`site_drafts`)과 발행본(`site_content`)을 **테이블로 분리**했다. 한 테이블에
+  draft/published 컬럼을 두면 "익명은 published 컬럼만"을 RLS로 표현할 수 없어
+  미발행 문구가 새어나간다.
+- 편집 화면은 좌측 폼 / 우측 실제 사이트 iframe. 입력을 멈추면 1.5초 뒤 자동 임시 저장 →
+  미리보기 갱신. 반영은 [발행]을 눌러야 하며 **재배포 없이 즉시** 적용된다(`revalidateTag`).
+- 홈 섹션 전체가 콘텐츠 소비형으로 리팩터됨(Hero·Services·WhyUs·Process·Pricing·Faq·
+  Quote·Contact·Footer·Header). 사업자 등록번호류는 **의도적으로 편집 대상에서 제외**했다.
+
+### 실시간 분석 (`/admin`)
+- 자체 이벤트 수집(`events`) + GA4 병행. GA4의 지연·표본 문제 없이 **15초 주기로 갱신**된다.
+- 유입 경로 판정은 [`lib/analytics/attribution.ts`](lib/analytics/attribution.ts) 한 곳에서만 한다.
+  UTM 우선, 없으면 referrer. `gclid`·`fbclid`·`n_ad_group` 같은 광고 클릭 식별자도 인식한다.
+- **last non-direct click** 귀속(90일). 광고로 들어왔다가 나중에 직접 방문해 문의해도
+  광고 성과로 남는다. 귀속 정보는 리드 행(`quotes`)에 복사 저장해 이벤트 보관기간(180일)이
+  지나도 성과가 사라지지 않는다.
+- 집계는 전부 DB 함수([`supabase/analytics-functions.sql`](supabase/analytics-functions.sql)).
+  원본을 브라우저로 내려받아 집계하면 데이터가 쌓이는 순간 어드민이 멈춘다.
+- 알림 메일에도 **유입 경로·캠페인**이 표시된다.
+
+### CTA 실험 (`/admin/cta`)
+- 슬롯 8곳(헤더·히어로·비용·폼·플로팅 등)의 문구·색·링크·아이콘을 어드민에서 직접 편집.
+- 같은 슬롯에 변형을 추가하면 A/B 실험. **세션 ID 해시로 고정 배정**해 새로고침 시 버튼이
+  바뀌지 않고, 서버에서 확정해 내려보내므로 깜빡임(CLS)이 없다.
+- 노출·클릭을 집계해 클릭률 비교. 변형당 노출 100회 미만이면 "판단하기 이릅니다"로 표시해
+  **표본이 적을 때 잘못된 결론을 내리지 않도록** 막았다.
+
+### 게시판 + 한국어 SEO 글쓰기 도우미 (`/admin/posts`)
+- `posts` 테이블 하나로 블로그(`/blog`)·공지(`/notice`)·시공실적(`/portfolio`) 운용.
+  기존 파일 기반 시공실적 원장은 그대로 두고 **DB 글을 함께 노출**해 하위 호환을 지켰다.
+- [`lib/seo/analyze.ts`](lib/seo/analyze.ts) — RankMath/Yoast식 실시간 점검(0~100점).
+  영어권 기준(300 단어·수동태·전환어)을 그대로 쓰지 않고 **한국어 기준으로 재조정**했다:
+  본문 글자 수(600/1,500자), 제목 15~35자, 메타 70~90자, 어절 기준 키워드 밀도.
+  한국어 신뢰도가 낮은 수동태·전환어 검사는 넣지 않았다.
+- 검색 결과 미리보기, 포커스 키워드 위치 점검(제목·메타·첫 문단·소제목·이미지 alt),
+  내부/외부 링크, 이미지 alt 누락 검사.
+- Article JSON-LD, `/feed.xml` RSS, sitemap 자동 반영.
+
+### 자동 색인 제출
+- 발행 시 **IndexNow**로 네이버 서치어드바이저·Bing에 자동 제출([`lib/indexnow.ts`](lib/indexnow.ts)).
+  제출 이력은 `/admin/seo`에서 확인.
+- **구글은 IndexNow 미참여**이고 공식 Indexing API도 채용공고·방송 전용이라 일반 페이지에는
+  쓸 수 없다. 대신 sitemap `lastmod`를 **글의 실제 수정 시각**으로 내보내도록 고쳤다
+  (기존에는 전 항목이 빌드 시각이라 변경 신호로서 의미가 없었다).
+
+### 크로스브라우징
+- Tailwind v4는 Safari 16.4+/Chrome 111+/Firefox 128+를 요구한다. 그 미만에서는 화면이
+  깨진 채 렌더되므로, `@supports`로 기능을 검사해 **안내 띠 + 전화번호**를 노출한다
+  (UA 판별이 아니라 기능 검사라 브라우저가 새로 나와도 오탐이 없다).
+- 카카오톡·네이버 인앱 브라우저 대응: iOS 16px 미만 입력창 자동 확대 방지, `safe-area-inset`
+  하단 여백, `-webkit-tap-highlight-color` 제거, `text-size-adjust` 고정, 가로 넘침 차단.
+- 대시보드에 **기기·브라우저 분포**를 넣어 인앱 브라우저 비중을 실제 수치로 확인할 수 있게 했다.
+- `browserslist` 명시, `viewport` export(`viewportFit: cover`), 404 페이지 추가.
+
+### 보안
+- Supabase Auth + `public.admins` 화이트리스트. 계정이 있어도 화이트리스트에 없으면 권한 없음.
+- **service_role 키를 도입하지 않았다.** 어드민도 로그인 사용자의 JWT로 접근하므로
+  DB의 RLS(`is_admin()`)가 최종 방어선이다. 앱 코드에 구멍이 나도 데이터가 새지 않는다.
+- `is_admin()`은 `security definer` + `search_path` 고정(미고정 시 권한 상승 경로가 열린다).
+- 이벤트 수집 API는 클라이언트가 보낸 유입 정보를 믿지 않고 **서버가 쿠키에서 읽는다**.
+  그대로 믿으면 조작된 광고 성과가 쌓인다.
+- 어드민 `robots: noindex` + `robots.txt` `/admin` 차단.
+
+### 기타 수정
+- `app/opengraph-image.tsx` — 폰트 CDN 실패 시 예외로 **배포 전체가 실패**하던 것을
+  기본 글꼴 폴백으로 완화.
+- 미사용 `content/faq.ts` 제거(어드민 편집으로 이관). `ClickTracking` → `Tracker`로 통합.
+
+---
+
 ## 2026-07-22 — 리드 알림 파이프라인 프로덕션 라이브 · 사업영역 3대 개편
 
 **리드 알림 라이브 확정.** Resend 환경변수 정정 후 프로덕션 재배포(`git push` 자동 배포)로

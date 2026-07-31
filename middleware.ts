@@ -37,6 +37,16 @@ export async function middleware(request: NextRequest) {
     return handleAdmin(request);
   }
 
+  /*
+   * API 요청에는 방문자 쿠키를 건드리지 않는다.
+   * 예컨대 폼 제출(/api/quote)의 referer는 우리 사이트라 '직접 유입'으로 잡히는데,
+   * 여기서 최초 유입 쿠키를 새로 심으면 랜딩 경로가 /api/quote로 기록돼
+   * 광고 성과 리포트가 오염된다. 쿠키는 사람이 보는 페이지에서만 갱신한다.
+   */
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   return handleVisitor(request);
 }
 

@@ -112,6 +112,12 @@ export default async function OpengraphImage() {
         </div>
       </div>
     ),
-    { ...size, fonts },
+    /*
+     * fonts는 비어 있으면 안 된다. Satori는 글꼴이 하나도 없으면 예외를 던지는데,
+     * 이 이미지는 빌드 시점에 생성되므로 그 예외가 배포 전체를 실패시킨다.
+     * CDN이 잠시 죽었다고 배포가 막히는 것은 과한 결합이라, 글꼴을 못 받으면
+     * 기본 글꼴로라도(한글은 깨지더라도) 이미지를 만들어 배포는 통과시킨다.
+     */
+    fonts.length > 0 ? { ...size, fonts } : size,
   );
 }
