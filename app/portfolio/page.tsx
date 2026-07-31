@@ -4,6 +4,8 @@ import { ArrowRight } from 'lucide-react';
 import SubPageShell from '@/components/SubPageShell';
 import PageHero from '@/components/PageHero';
 import { portfolioItems } from '@/content/portfolio';
+import { PostList } from '@/components/PostViews';
+import { getPublishedPosts } from '@/lib/posts';
 
 export const metadata: Metadata = {
   title: '시공 실적 | 대구·경북 공장 전기공사 실적 | 우앤주전력',
@@ -13,7 +15,15 @@ export const metadata: Metadata = {
   alternates: { canonical: '/portfolio' },
 };
 
-export default function PortfolioIndexPage() {
+/**
+ * 시공 실적은 두 곳에서 온다.
+ *  - content/portfolio.ts : 공종별 실적 원장(기존). 구조화된 필드가 많아 파일로 관리한다.
+ *  - 게시판(posts, type=portfolio) : 사장님이 어드민에서 사진과 함께 직접 올리는 현장.
+ * 둘을 한 화면에 이어 붙여, 새 현장을 올리는 데 개발자가 필요 없게 한다.
+ */
+export default async function PortfolioIndexPage() {
+  const posts = await getPublishedPosts('portfolio');
+
   return (
     <SubPageShell quoteSource="portfolio_index">
       <PageHero
@@ -23,8 +33,21 @@ export default function PortfolioIndexPage() {
         crumbs={[{ label: '시공 실적' }]}
       />
 
+      {posts.length > 0 && (
+        <section className="py-16 sm:py-20 bg-white">
+          <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold text-ink tracking-tight mb-2">현장 사진</h2>
+            <p className="text-slate-600 mb-8 break-keep">최근 진행한 현장입니다.</p>
+            <PostList posts={posts} emptyMessage="" />
+          </div>
+        </section>
+      )}
+
       <section className="py-16 sm:py-20 bg-slate-50">
         <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+          {posts.length > 0 && (
+            <h2 className="text-2xl font-bold text-ink tracking-tight mb-8">공종별 시공 실적</h2>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {portfolioItems.map((item) => (
               <Link

@@ -4,16 +4,22 @@ import CallbackForm from './CallbackForm';
 import { COMPANY } from '@/lib/site';
 import { useQuotePrefill } from '@/components/QuotePrefill';
 import { Container } from '@/components/ui/section';
+import type { SiteContent } from '@/lib/content/schema';
+import type { Cta, CtaSlot } from '@/lib/cta/schema';
 
 const QuoteForm = dynamic(() => import('./QuoteForm'), { ssr: false });
 
 interface Props {
   /** 유입 위치 구분 — 'main_form' | 'service_factory' 등. DB의 source 컬럼에 저장된다. */
   source?: string;
+  content: SiteContent['quote'];
+  ctas: Record<CtaSlot, Cta>;
 }
 
-export default function QuoteSection({ source }: Props) {
+export default function QuoteSection({ source, content, ctas }: Props) {
   const { category: defaultCategory, customerType: defaultCustomerType } = useQuotePrefill();
+  const submitCta = ctas.quote_submit;
+
   return (
     <section id="quote" className="py-20 sm:py-24 tech-dark">
       <Container size="narrow">
@@ -22,15 +28,14 @@ export default function QuoteSection({ source }: Props) {
             <div className="flex justify-center mb-4">
               <span className="inline-flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.16em] text-slate-300">
                 <span className="rule-accent" aria-hidden />
-                무료 견적문의
+                {content.eyebrow}
               </span>
             </div>
-            <h2 className="text-[1.75rem] sm:text-4xl font-bold text-white tracking-tight mb-3">
-              현장에 맞는 정확한 견적을 드립니다
+            <h2 className="text-[1.75rem] sm:text-4xl font-bold text-white tracking-tight mb-3 break-keep">
+              {content.title}
             </h2>
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
-              영업시간 내 접수는 당일, 그 외에는 다음 영업일 오전에 연락드립니다.
-              <br className="hidden sm:block" />
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed break-keep">
+              {content.lead}
               {' '}바로 통화를 원하시면{' '}
               <a
                 href={`tel:${COMPANY.mobile}`}
@@ -52,6 +57,11 @@ export default function QuoteSection({ source }: Props) {
               defaultCategory={defaultCategory}
               defaultCustomerType={defaultCustomerType}
               source={source}
+              submitLabel={submitCta.label}
+              privacyNote={content.privacyNote}
+              successTitle={content.successTitle}
+              successBody={content.successBody}
+              submitCta={{ id: submitCta.id, slot: submitCta.slot, variant: submitCta.variant }}
             />
           </div>
         </div>

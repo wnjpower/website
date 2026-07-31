@@ -6,6 +6,7 @@ import Credentials from '@/components/sections/Credentials';
 import Process from '@/components/sections/Process';
 import { Section, Container, SectionHeading } from '@/components/ui/section';
 import { COMPANY } from '@/lib/site';
+import { getSiteContent } from '@/lib/content/get';
 
 export const metadata: Metadata = {
   title: '회사소개 | 대구 전기공사업 등록 법인 | 우앤주전력',
@@ -32,7 +33,8 @@ const companyFacts: { label: string; value: string; mono?: boolean }[] = [
   { label: '시공 지역', value: '대구광역시 전 지역 · 경상북도' },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const content = await getSiteContent();
   return (
     <SubPageShell quoteSource="about">
       <PageHero
@@ -68,7 +70,7 @@ export default function AboutPage() {
 
       <About />
       <Credentials />
-      <Process />
+      <Process content={content.process} />
     </SubPageShell>
   );
 }

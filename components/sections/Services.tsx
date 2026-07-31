@@ -1,27 +1,24 @@
 'use client';
 import Link from 'next/link';
 import { Factory, CircuitBoard, Lamp, Check, ArrowRight } from 'lucide-react';
-import { services } from '@/content/services';
 import { useQuotePrefill } from '@/components/QuotePrefill';
 import { Section, Container, SectionHeading } from '@/components/ui/section';
+import type { SiteContent } from '@/lib/content/schema';
 
-const iconMap = { Factory, CircuitBoard, Lamp } as const;
-type IconKey = keyof typeof iconMap;
+// 사업영역별 고정 아이콘. id는 상세 페이지 경로와 묶여 있어 어드민에서 바뀌지 않는다.
+const iconById = { factory: Factory, panel: CircuitBoard, interior: Lamp } as const;
 
-export default function Services() {
+export default function Services({ content }: { content: SiteContent['services'] }) {
   const { selectCategory } = useQuotePrefill();
+
   return (
     <Section id="services" tone="muted">
       <Container>
-        <SectionHeading
-          eyebrow="사업영역"
-          title="3대 전문 분야"
-          lead="공장·산업 전기공사를 주력으로, 인테리어 전기와 배전반 설계·설치까지 직접 시공합니다. 계약전력 증설·수전설비는 공장 전기공사와 함께 진행합니다."
-        />
+        <SectionHeading eyebrow={content.eyebrow} title={content.title} lead={content.lead} />
 
         <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {services.map((svc, idx) => {
-            const Icon = iconMap[svc.icon as IconKey];
+          {content.items.map((svc, idx) => {
+            const Icon = iconById[svc.id as keyof typeof iconById] ?? Factory;
             const isPrimary = svc.tier === 'primary';
             return (
               <div

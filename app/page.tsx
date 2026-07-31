@@ -1,4 +1,6 @@
+import type { Metadata } from 'next';
 import Header from '@/components/Header';
+import Banner, { BANNER_HEIGHT, bannerIsOn } from '@/components/Banner';
 import Hero from '@/components/sections/Hero';
 import Services from '@/components/sections/Services';
 import WhyUs from '@/components/sections/WhyUs';
@@ -12,9 +14,11 @@ import Footer from '@/components/sections/Footer';
 import FloatingCta from '@/components/FloatingCta';
 import ScrollReveal from '@/components/ScrollReveal';
 import { QuotePrefillProvider } from '@/components/QuotePrefill';
+import { getSiteContent } from '@/lib/content/get';
+import { resolveCtas } from '@/lib/cta/get';
 
 /*
- * 원페이지 정보구조 (재구축) — 방문자의 질문 하나씩만 담당하도록 정리했다.
+ * 원페이지 정보구조 — 방문자의 질문 하나씩만 담당하도록 정리했다.
  *   Hero        무엇을 하는 회사인가 / 어떻게 연락하나
  *   Services    구체적으로 어떤 공사를 하나
  *   WhyUs       믿을 수 있나 (차별점 + 조회 가능한 자격)
@@ -25,27 +29,45 @@ import { QuotePrefillProvider } from '@/components/QuotePrefill';
  *   Quote       문의하기 (전환)
  *   Contact     찾아가기·연락
  *
- * 이전의 CustomerSegments·About·Credentials 섹션은 서로 내용이 겹쳐 스크롤만
- * 길게 만들었다. 고객 유형 안내는 Hero·Services로, 신뢰·자격은 WhyUs로,
- * 대표 인사말·연혁은 /about 페이지로 정리했다.
+ * 모든 문구는 어드민(/admin/content)에서 편집되며 발행 즉시 반영된다.
  */
-export default function Home() {
+
+/** 홈 메타데이터도 어드민에서 편집한다 (검색 결과에 그대로 노출되는 제목·설명). */
+export async function generateMetadata(): Promise<Metadata> {
+  const { seo } = await getSiteContent();
+  return {
+    title: seo.title,
+    description: seo.description,
+    keywords: seo.keywords,
+    openGraph: { title: seo.title, description: seo.description },
+    twitter: { title: seo.title, description: seo.description },
+    alternates: { canonical: '/' },
+  };
+}
+
+export default async function Home() {
+  const [content, ctas] = await Promise.all([getSiteContent(), resolveCtas()]);
+  const bannerOn = bannerIsOn(content.banner);
+
   return (
     <QuotePrefillProvider>
-      <main>
+      <Banner content={content.banner} />
+      <main
+        style={{ ['--banner-h' as string]: bannerOn ? BANNER_HEIGHT : '0px', paddingTop: bannerOn ? BANNER_HEIGHT : undefined }}
+      >
         <ScrollReveal />
-        <Header />
-        <Hero />
-        <Services />
-        <WhyUs />
-        <Process />
+        <Header content={content.header} ctas={ctas} />
+        <Hero content={content.hero} ctas={ctas} />
+        <Services content={content.services} />
+        <WhyUs content={content.whyus} />
+        <Process content={content.process} />
         <Portfolio />
-        <Pricing />
-        <Faq />
-        <QuoteSection source="main_form" />
-        <Contact />
-        <Footer />
-        <FloatingCta />
+        <Pricing content={content.pricing} ctas={ctas} />
+        <Faq content={content.faq} />
+        <QuoteSection source="main_form" content={content.quote} ctas={ctas} />
+        <Contact content={content.contact} />
+        <Footer content={content.footer} />
+        <FloatingCta ctas={ctas} />
       </main>
     </QuotePrefillProvider>
   );

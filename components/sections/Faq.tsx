@@ -6,40 +6,43 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { faqs, type FaqSegment } from '@/content/faq';
 import FaqSchema from '@/components/FaqSchema';
 import { Container, SectionHeading } from '@/components/ui/section';
+import type { SiteContent } from '@/lib/content/schema';
 
-const tabs: { value: FaqSegment; label: string }[] = [
+const tabs = [
   { value: 'all',        label: '전체' },
   { value: 'industrial', label: '공장·산업' },
   { value: 'interior',   label: '인테리어·일반' },
-];
+] as const;
 
-interface Props {
+type Segment = (typeof tabs)[number]['value'];
+
+export default function Faq({
+  content,
+  withSchema = false,
+}: {
+  content: SiteContent['faq'];
   /**
    * FAQPage 구조화 데이터를 함께 출력할지 여부.
-   * 같은 내용의 FAQPage가 여러 URL에 중복 노출되지 않도록,
-   * 정본인 /faq 페이지에서만 true로 둔다.
+   * 같은 내용의 FAQPage가 여러 URL에 중복 노출되지 않도록 /faq에서만 true로 둔다.
    */
   withSchema?: boolean;
-}
+}) {
+  const [activeTab, setActiveTab] = useState<Segment>('all');
 
-export default function Faq({ withSchema = false }: Props) {
-  const [activeTab, setActiveTab] = useState<FaqSegment>('all');
-
-  const filtered = faqs.filter(
-    (f) => f.segments.includes('all') || f.segments.includes(activeTab) || activeTab === 'all',
+  const filtered = content.items.filter(
+    (f) => activeTab === 'all' || f.segment === 'all' || f.segment === activeTab,
   );
 
   return (
     <section id="faq" className="py-20 sm:py-24 bg-slate-50 text-ink">
-      {withSchema && <FaqSchema />}
+      {withSchema && <FaqSchema items={content.items} />}
       <Container size="reading">
         <SectionHeading
-          eyebrow="자주 묻는 질문"
-          title="궁금한 점을 먼저 확인하세요"
-          lead="상황에 맞는 탭을 선택하면 관련 질문만 모아 보실 수 있습니다."
+          eyebrow={content.eyebrow}
+          title={content.title}
+          lead={content.lead || '상황에 맞는 탭을 선택하면 관련 질문만 모아 보실 수 있습니다.'}
         />
 
         <div className="flex flex-wrap justify-center gap-2 mb-8">

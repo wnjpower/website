@@ -17,6 +17,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Loader2, Factory, Lamp, HelpCircle } from 'lucide-react';
 import { gtagEvent } from '@/components/GoogleAnalytics';
+import { track } from '@/components/analytics/Tracker';
 import { COMPANY } from '@/lib/site';
 // 색상: #0F2E4D = 브랜드 네이비, #C2620E = 강조색(앰버). globals.css의 토큰과 동일 값.
 
@@ -25,6 +26,13 @@ interface Props {
   defaultCustomerType?: string;
   /** 유입 위치 구분 — DB의 source 컬럼에 저장되어 어느 페이지에서 온 리드인지 추적한다. */
   source?: string;
+  /** 아래 문구들은 어드민(견적 문의 폼 섹션)에서 편집된다. */
+  submitLabel?: string;
+  privacyNote?: string;
+  successTitle?: string;
+  successBody?: string;
+  /** 어드민 CTA(quote_submit) — 제출 버튼 클릭을 A/B 집계에 잡기 위한 표식 */
+  submitCta?: { id: string; slot: string; variant: string } | null;
 }
 
 // 국내 주요 이메일 도메인 (첫 글자 입력 시 자동완성)
@@ -68,7 +76,16 @@ const legacyCategoryMap: Record<string, string> = {
 
 const visibleCustomerTypes = CUSTOMER_TYPES.filter((t) => t !== 'unknown');
 
-export default function QuoteForm({ defaultCategory, defaultCustomerType, source }: Props) {
+export default function QuoteForm({
+  defaultCategory,
+  defaultCustomerType,
+  source,
+  submitLabel = '무료 현장 견적 신청하기',
+  privacyNote,
+  successTitle = '접수 완료!',
+  successBody = '1영업일 내에 담당자가 직접 연락드리겠습니다.',
+  submitCta,
+}: Props) {
   const loadedAtRef = useRef(Date.now());
   const [submitted, setSubmitted] = useState(false);
   const [submittedPhone, setSubmittedPhone] = useState('');
@@ -161,6 +178,8 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
       setAlimtalkSent(Boolean(json?.alimtalkSent));
       setSubmitted(true);
       gtagEvent('generate_lead', { category: data.category });
+      // 자체 분석 — 광고별 리드 성과를 어드민에서 바로 볼 수 있게 한다
+      track({ type: 'lead', label: data.category, variant: submitCta?.variant, ctaId: submitCta?.id });
       toast.success('견적 문의가 접수됐습니다! 1영업일 내 연락드립니다.');
     } catch {
       toast.error('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
@@ -178,10 +197,10 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
             </svg>
           </div>
           <h3 className="animate-fade-up text-xl font-bold text-[#0F172A] mb-2" style={{ animationDelay: '0.2s' }}>
-            접수 완료!
+            {successTitle}
           </h3>
-          <p className="animate-fade-up text-gray-500" style={{ animationDelay: '0.3s' }}>
-            1영업일 내에 담당자가 직접 연락드리겠습니다.
+          <p className="animate-fade-up text-gray-500 break-keep" style={{ animationDelay: '0.3s' }}>
+            {successBody}
           </p>
         </div>
 
@@ -404,8 +423,9 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
           onCheckedChange={(v) => setValue('agree', v === true ? true : (undefined as unknown as true))}
           className={errors.agree ? 'border-red-400' : ''}
         />
-        <label htmlFor="agree" className="text-sm text-gray-600 leading-snug cursor-pointer">
-          <span className="font-semibold">[필수]</span> 개인정보 수집·이용에 동의합니다.{' '}
+        <label htmlFor="agree" className="text-sm text-gray-600 leading-snug cursor-pointer break-keep">
+          <span className="font-semibold">[필수]</span>{' '}
+          {privacyNote ?? '개인정보 수집·이용에 동의합니다.'}{' '}
           <a href="/privacy" target="_blank" className="text-[#0F2E4D] underline">
             개인정보처리방침
           </a>
@@ -416,6 +436,9 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
       <Button
         type="submit"
         disabled={isSubmitting}
+        data-cta-slot={submitCta?.slot}
+        data-cta-variant={submitCta?.variant}
+        data-cta-id={submitCta?.id}
         className="w-full bg-[#0F2E4D] hover:bg-[#0F2E4D]/90 text-white font-bold py-4 text-lg rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0F2E4D]/25 disabled:hover:translate-y-0 disabled:hover:shadow-none"
       >
         {isSubmitting ? (
@@ -424,7 +447,7 @@ export default function QuoteForm({ defaultCategory, defaultCustomerType, source
             접수 중…
           </>
         ) : (
-          '무료 현장 견적 신청하기'
+          submitLabel
         )}
       </Button>
     </form>

@@ -1,16 +1,21 @@
-import { faqs } from '@/content/faq';
-
 /**
  * FAQPage 구조화 데이터.
  *
- * 이미 작성돼 있는 FAQ 14건을 그대로 활용하는 것만으로 구글 리치 결과 후보가 된다.
- * 콘텐츠를 새로 쓸 필요가 없어 투입 대비 효과가 큰 항목.
+ * 어드민에서 편집한 FAQ가 그대로 구글·네이버 리치 결과 후보가 된다.
+ * 같은 FAQPage가 여러 URL에 중복 노출되면 오히려 감점이므로,
+ * 정본인 /faq 페이지에서만 렌더한다.
  */
-export default function FaqSchema() {
+export default function FaqSchema({
+  items,
+}: {
+  items: { question: string; answer: string }[];
+}) {
+  if (items.length === 0) return null;
+
   const data = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqs.map((faq) => ({
+    mainEntity: items.map((faq) => ({
       '@type': 'Question',
       name: faq.question,
       acceptedAnswer: {

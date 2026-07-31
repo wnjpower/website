@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 import { QuoteSchema, CategoryLabels, CustomerTypeLabels } from '@/lib/validators';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { sendAlimtalk } from '@/lib/kakao-alimtalk';
+import { parseAttribution, CHANNEL_LABELS, type Channel } from '@/lib/analytics/attribution';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,6 +34,9 @@ function buildEmailHtml(data: {
   customerTypeLabel: string;
   message?: string | null;
   timestamp: string;
+  /** 어느 유입(광고·검색·직접)에서 온 리드인지 — 광고비 판단 근거가 된다 */
+  channelLabel?: string | null;
+  campaign?: string | null;
 }): string {
   const row = (label: string, value: string, highlight = false) => `
     <tr>
@@ -103,6 +107,7 @@ function buildEmailHtml(data: {
         ${row('연락처', `<a href="tel:${escape(data.phone)}" style="color:#0A3D91;font-weight:bold;text-decoration:none;font-size:15px;">📞 ${escape(data.phone)}</a>`, false)}
         ${data.email ? row('이메일', `<a href="mailto:${escape(data.email)}" style="color:#0A3D91;text-decoration:none;">${escape(data.email)}</a>`) : ''}
         ${data.region ? row('시공 지역', escape(data.region)) : ''}
+        ${data.channelLabel ? row('유입 경로', escape(data.channelLabel) + (data.campaign ? ` <span style="color:#64748B;">(${escape(data.campaign)})</span>` : '')) : ''}
       </table>
     </td>
   </tr>
@@ -195,6 +200,17 @@ export async function POST(req: NextRequest) {
     req.headers.get('x-real-ip') ??
     null;
 
+  /*
+   * 광고 귀속 — 이 리드가 어느 유입에서 왔는지 리드 행에 직접 적어 둔다.
+   *
+   * 값은 클라이언트가 보낸 것이 아니라 미들웨어가 심은 쿠키에서 서버가 읽는다.
+   * 폼 payload로 받으면 조작된 성과 데이터가 그대로 쌓인다.
+   * 이벤트 테이블로도 이을 수 있지만 이벤트는 보관기간이 지나면 지워지므로,
+   * 리드에는 복사해 영구 보관한다.
+   */
+  const attribution = parseAttribution(req.cookies.get('wnj_attr')?.value);
+  const sessionId = req.cookies.get('wnj_sid')?.value ?? null;
+
   // 접수 경로별 성공 여부. 하나라도 성공하면 리드는 사장님께 전달된다.
   let savedToDb = false;
   let emailSent = false;
@@ -214,6 +230,15 @@ export async function POST(req: NextRequest) {
         source:        data.source || null,
         user_agent:    userAgent.slice(0, 200),
         ip_hash:       hashIp(ip),
+        session_id:    sessionId,
+        channel:       attribution?.channel       ?? 'direct',
+        utm_source:    attribution?.utmSource     ?? null,
+        utm_medium:    attribution?.utmMedium     ?? null,
+        utm_campaign:  attribution?.utmCampaign   ?? null,
+        utm_term:      attribution?.utmTerm       ?? null,
+        utm_content:   attribution?.utmContent    ?? null,
+        landing_path:  attribution?.landingPath   ?? null,
+        referrer_host: attribution?.referrerHost  ?? null,
       });
       if (dbError) {
         // 권한 오류(42501)는 대개 Data API GRANT 누락이다. supabase/schema.sql 3번 섹션 참고.
@@ -255,6 +280,8 @@ export async function POST(req: NextRequest) {
         customerTypeLabel,
         message:           data.message || null,
         timestamp,
+        channelLabel:      attribution ? CHANNEL_LABELS[attribution.channel as Channel] : null,
+        campaign:          attribution?.utmCampaign ?? null,
       }),
     });
     emailSent = true;

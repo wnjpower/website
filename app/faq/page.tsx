@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import SubPageShell from '@/components/SubPageShell';
 import PageHero from '@/components/PageHero';
 import Faq from '@/components/sections/Faq';
+import { getSiteContent } from '@/lib/content/get';
 
 export const metadata: Metadata = {
   title: '자주 묻는 질문 | 전기공사 비용·절차 안내 | 우앤주전력',
@@ -18,7 +19,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/faq' },
 };
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const content = await getSiteContent();
   return (
     <SubPageShell quoteSource="faq">
       <PageHero
@@ -29,7 +31,7 @@ export default function FaqPage() {
       />
 
       {/* FAQPage 구조화 데이터의 정본 페이지 */}
-      <Faq withSchema />
+      <Faq content={content.faq} withSchema />
     </SubPageShell>
   );
 }

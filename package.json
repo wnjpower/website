@@ -12,11 +12,13 @@
   "dependencies": {
     "@base-ui/react": "^1.4.1",
     "@hookform/resolvers": "^5.2.2",
+    "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.105.3",
     "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.14.0",
+    "marked": "^18.0.7",
     "next": "^14.2.35",
     "next-themes": "^0.4.6",
     "react": "^18.3.1",
@@ -42,5 +44,15 @@
   },
   "overrides": {
     "glob": "^13.0.0"
-  }
+  },
+  "//browserslist": "Tailwind v4가 요구하는 최저선(Safari 16.4 / Chrome 111 / Firefox 128)에 맞춘다. 이보다 낮은 브라우저에는 globals.css의 .legacy-browser-notice가 안내를 띄운다. 한국 인앱 브라우저(카카오톡·네이버 앱)는 OS 웹뷰를 쓰므로 iOS 16.4+ / 안드로이드 최신 크로미움이면 정상 동작한다.",
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 128",
+    "safari >= 16.4",
+    "ios_saf >= 16.4",
+    "samsung >= 22",
+    "not dead"
+  ]
 }

@@ -6,14 +6,39 @@ import SubPageShell from '@/components/SubPageShell';
 import PageHero from '@/components/PageHero';
 import { portfolioItems, getPortfolioItem } from '@/content/portfolio';
 import { services } from '@/content/services';
+import { PostArticle } from '@/components/PostViews';
+import { getPublishedPost, getPublishedPosts, postSummary, formatPostDate } from '@/lib/posts';
 
-export function generateStaticParams() {
-  return portfolioItems.map((item) => ({ slug: item.slug }));
+export async function generateStaticParams() {
+  const posts = await getPublishedPosts('portfolio');
+  return [
+    ...portfolioItems.map((item) => ({ slug: item.slug })),
+    ...posts.map((p) => ({ slug: p.slug })),
+  ];
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const item = getPortfolioItem(params.slug);
-  if (!item) return {};
+
+  // 파일 원장에 없으면 어드민에서 올린 현장 글이다
+  if (!item) {
+    const post = await getPublishedPost('portfolio', params.slug);
+    if (!post) return {};
+    const title = post.metaTitle || `${post.title} | 시공사례 | 우앤주전력`;
+    const description = post.metaDescription || postSummary(post, 160);
+    return {
+      title,
+      description,
+      alternates: { canonical: `/portfolio/${post.slug}` },
+      robots: post.noindex ? { index: false, follow: true } : undefined,
+      openGraph: {
+        type: 'article',
+        title,
+        description,
+        images: post.coverImage ? [post.coverImage] : undefined,
+      },
+    };
+  }
 
   const title = `${item.location} ${item.title} 시공사례 | 우앤주전력`;
   return {
@@ -30,9 +55,26 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function PortfolioDetailPage({ params }: { params: { slug: string } }) {
+export default async function PortfolioDetailPage({ params }: { params: { slug: string } }) {
   const item = getPortfolioItem(params.slug);
-  if (!item) notFound();
+
+  // 어드민에서 사진과 함께 올린 현장 글
+  if (!item) {
+    const post = await getPublishedPost('portfolio', params.slug);
+    if (!post) notFound();
+
+    return (
+      <SubPageShell quoteSource={`portfolio_${post.slug}`}>
+        <PageHero
+          eyebrow={formatPostDate(post.publishedAt) || '시공 사례'}
+          title={post.title}
+          lead={post.excerpt ?? undefined}
+          crumbs={[{ label: '시공 실적', href: '/portfolio' }, { label: post.title }]}
+        />
+        <PostArticle post={post} />
+      </SubPageShell>
+    );
+  }
 
   const relatedService = services.find((svc) => svc.id === item.category);
   const otherItems = portfolioItems.filter((i) => i.slug !== item.slug).slice(0, 3);

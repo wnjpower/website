@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { COMPANY } from '@/lib/site';
+import type { SiteContent } from '@/lib/content/schema';
 
-export default function Footer() {
+export default function Footer({ content }: { content: SiteContent['footer'] }) {
   const year = new Date().getFullYear();
 
   return (
@@ -10,7 +11,10 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
           {/* 회사 정보 */}
           <div className="md:col-span-1">
-            <p className="text-white font-bold text-lg mb-4 tracking-tight">{COMPANY.name}</p>
+            <p className="text-white font-bold text-lg mb-1.5 tracking-tight">{COMPANY.name}</p>
+            {content.tagline && (
+              <p className="text-sm text-slate-400 mb-4 break-keep">{content.tagline}</p>
+            )}
             <div className="space-y-1.5 text-sm leading-relaxed">
               <p>대표자 {COMPANY.ceo}</p>
               <p>사업자등록번호 <span className="font-mono tabular-nums">{COMPANY.bizNumber}</span></p>
@@ -38,6 +42,7 @@ export default function Footer() {
               <li><Link href="/portfolio" className="hover:text-white transition-colors">시공 실적</Link></li>
               <li><Link href="/about" className="hover:text-white transition-colors">회사소개</Link></li>
               <li><Link href="/faq" className="hover:text-white transition-colors">자주 묻는 질문</Link></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">전기공사 정보</Link></li>
               <li>
                 전화{' '}
                 <a href={`tel:${COMPANY.phone}`} className="font-mono tabular-nums hover:text-white transition-colors">
@@ -54,7 +59,13 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs">
+        {content.note && (
+          <p className="text-sm text-slate-500 leading-relaxed border-t border-white/10 pt-6 mb-2 break-keep">
+            {content.note}
+          </p>
+        )}
+
+        <div className={`${content.note ? '' : 'border-t border-white/10 pt-6'} flex flex-col sm:flex-row justify-between items-center gap-3 text-xs`}>
           <p>© {year} {COMPANY.name}. All rights reserved.</p>
           <Link href="/privacy" className="hover:text-white transition-colors">개인정보처리방침</Link>
         </div>

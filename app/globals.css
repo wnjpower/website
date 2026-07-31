@@ -116,26 +116,103 @@
   }
 }
 
-/* 부드러운 스크롤 */
+/* =========================================================
+   크로스브라우징 기반
+   실제 방문자의 상당수가 카카오톡·네이버 앱 안의 인앱 브라우저로 들어온다.
+   그 환경들은 각각 iOS WebKit / Android Chromium을 쓰지만 뷰포트 처리와
+   기본 스타일이 조금씩 달라서, 아래 보정이 없으면 폰마다 화면이 어긋난다.
+   ========================================================= */
+
 html {
+  /* 부드러운 스크롤 */
   scroll-behavior: smooth;
+  /* iOS에서 가로↔세로 전환 시 본문 글씨가 제멋대로 커지는 것을 막는다 */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-/* 한국어 자연스러운 단어 단위 줄바꿈 */
+/* 모션을 줄이도록 설정한 사용자에게는 자동 스크롤 이동도 즉시 처리한다 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 body {
+  /* 한국어 자연스러운 단어 단위 줄바꿈 */
   word-break: keep-all;
   overflow-wrap: break-word;
+  /* 안드로이드 인앱 브라우저에서 링크를 누를 때 생기는 회색 사각형 제거 */
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* 고정 헤더 높이만큼 앵커 스크롤 보정 (상단 띠 + 헤더) */
+/* 가로 스크롤 방지 — 인앱 브라우저는 뷰포트가 좁아 넘침이 잘 생긴다 */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* 고정 헤더 높이만큼 앵커 스크롤 보정 (배너 + 상단 띠 + 헤더) */
 section[id] {
-  scroll-margin-top: 7rem;
+  scroll-margin-top: calc(7rem + var(--banner-h, 0px));
 }
 
-/* 모바일 하단 고정 CTA 바가 마지막 콘텐츠를 가리지 않도록 여백 확보 */
+/* iOS Safari는 글꼴 크기가 16px 미만인 입력창에 포커스가 가면 화면을 강제로
+   확대한다. 확대된 화면은 되돌아오지 않아서 폼 작성이 매우 불편해진다. */
+input,
+select,
+textarea {
+  font-size: max(16px, 1em);
+}
+
+/* iOS가 input·button에 입히는 기본 그림자·둥근 모서리를 걷어낸다 */
+input,
+textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: inherit;
+}
+
+/* 모바일 하단 고정 CTA 바가 마지막 콘텐츠를 가리지 않도록 여백 확보.
+   아이폰 홈 인디케이터 영역(safe-area)까지 더해야 실제로 가려지지 않는다. */
 @media (max-width: 639px) {
   body {
-    padding-bottom: 4.5rem;
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* =========================================================
+   구형 브라우저 안내
+
+   Tailwind v4는 @property·color-mix 같은 최신 CSS에 의존한다
+   (Safari 16.4+ / Chrome 111+ / Firefox 128+). 그 아래 버전에서는 색과
+   간격이 깨진 채 렌더된다 — 깨진 화면을 그대로 보여주느니, 왜 이상한지
+   알려주고 전화라도 걸 수 있게 한다.
+
+   자바스크립트 UA 판별이 아니라 @supports로 기능 자체를 검사하므로,
+   브라우저가 새로 나와도 오탐이 없다.
+   ========================================================= */
+.legacy-browser-notice {
+  display: none;
+}
+
+@supports not (color: color-mix(in oklab, red 50%, blue)) {
+  .legacy-browser-notice {
+    display: block;
+    position: relative;
+    z-index: 100;
+    background: #7c2d12;
+    color: #ffffff;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: center;
+  }
+  .legacy-browser-notice a {
+    color: #ffffff;
+    font-weight: bold;
+    text-decoration: underline;
   }
 }
 
@@ -247,4 +324,144 @@ section[id] {
 .cta-dock-visible {
   opacity: 1;
   transform: none;
+}
+
+/* =========================================================
+   게시글 본문 (마크다운 → HTML)
+
+   @tailwindcss/typography를 쓰지 않고 직접 정의한다. 플러그인은 영문
+   기준 여백·줄간격이라 한국어 본문에서 답답해 보이고, 필요한 건 아래
+   몇 가지뿐이라 의존성을 하나 늘릴 이유가 없다.
+   ========================================================= */
+.prose-wnj {
+  color: #334155;
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.prose-wnj > * + * {
+  margin-top: 1.25em;
+}
+
+.prose-wnj h2 {
+  margin-top: 2.5em;
+  margin-bottom: 0.75em;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.prose-wnj h3 {
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--color-ink);
+}
+
+.prose-wnj h2:first-child,
+.prose-wnj h3:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.prose-wnj a {
+  color: var(--color-brand-700);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
+.prose-wnj a:hover {
+  color: var(--color-brand);
+}
+
+.prose-wnj strong {
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.prose-wnj ul,
+.prose-wnj ol {
+  padding-left: 1.35em;
+}
+.prose-wnj ul {
+  list-style: disc;
+}
+.prose-wnj ol {
+  list-style: decimal;
+}
+.prose-wnj li + li {
+  margin-top: 0.5em;
+}
+.prose-wnj li::marker {
+  color: var(--color-brand-600);
+}
+
+.prose-wnj blockquote {
+  border-left: 3px solid var(--color-signal);
+  padding: 0.25em 0 0.25em 1.15em;
+  color: #475569;
+  background: #f8fafc;
+}
+
+.prose-wnj img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.prose-wnj code {
+  background: #f1f5f9;
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.prose-wnj pre {
+  background: var(--color-brand-950);
+  color: #e2e8f0;
+  padding: 1.15rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+}
+.prose-wnj pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* 표는 좁은 화면에서 가로 스크롤로 처리한다. 축소해서 넣으면 글자가 읽히지 않는다. */
+.prose-wnj table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.prose-wnj th,
+.prose-wnj td {
+  border: 1px solid #e2e8f0;
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+}
+.prose-wnj th {
+  background: #f8fafc;
+  font-weight: 700;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.prose-wnj hr {
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+  margin: 2.5em 0;
 }
