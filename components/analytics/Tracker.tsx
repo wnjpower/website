@@ -199,12 +199,18 @@ export default function Tracker() {
   // ── 이탈 시 잔여 큐 전송 ──
   useEffect(() => {
     const onHide = () => flush(true);
-    window.addEventListener('pagehide', onHide);
-    // iOS Safari는 pagehide를 놓치는 경우가 있어 visibilitychange도 함께 건다
-    document.addEventListener('visibilitychange', () => {
+    // iOS Safari는 pagehide를 놓치는 경우가 있어 visibilitychange도 함께 건다.
+    // 특히 tel: 링크로 전화 앱이 뜰 때는 unload가 아예 발생하지 않는다.
+    const onVisibilityChange = () => {
       if (document.visibilityState === 'hidden') flush(true);
-    });
-    return () => window.removeEventListener('pagehide', onHide);
+    };
+
+    window.addEventListener('pagehide', onHide);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      window.removeEventListener('pagehide', onHide);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, []);
 
   return null;

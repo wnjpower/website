@@ -32,6 +32,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   select
     count(distinct session_id)                                          as sessions,
@@ -61,6 +62,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   select
     coalesce(e.channel, 'direct')                        as channel,
@@ -90,6 +92,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   select
     coalesce(e.channel, 'direct')                   as channel,
@@ -119,6 +122,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   select
     coalesce(e.path, '/')          as path,
@@ -147,6 +151,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   select
     coalesce(e.label, '(알 수 없음)')                        as slot,
@@ -176,6 +181,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   select
     to_timestamp(
@@ -205,6 +211,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   select
     coalesce(e.device, 'unknown')   as device,
@@ -225,6 +232,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   select
     count(distinct session_id) as active_sessions,
@@ -247,6 +255,7 @@ returns table (
 )
 language sql
 stable
+set search_path = public, pg_temp
 as $$
   select
     coalesce(q.channel, 'direct')             as channel,
@@ -260,7 +269,24 @@ as $$
 $$;
 
 
--- 실행 권한 — RLS가 실제 접근을 판정하므로 authenticated에게만 열어 둔다
+-- ─────────────────────────────────────────────
+--  실행 권한 — RLS가 실제 접근을 판정하지만, 권한도 최소로 맞춘다.
+--
+--  Postgres는 함수를 만들면 PUBLIC에 EXECUTE를 자동으로 준다. anon에서만 회수하면
+--  PUBLIC 경유로 여전히 호출된다. 그래서 PUBLIC에서 먼저 회수하고 필요한 역할에만 준다.
+--  (security invoker라 익명이 불러도 RLS에 막혀 빈 결과가 나오지만,
+--   "부를 수는 있다"는 상태를 남겨둘 이유가 없다)
+-- ─────────────────────────────────────────────
+revoke execute on function public.analytics_overview(timestamptz, timestamptz)        from public;
+revoke execute on function public.analytics_by_channel(timestamptz, timestamptz)      from public;
+revoke execute on function public.analytics_by_campaign(timestamptz, timestamptz)     from public;
+revoke execute on function public.analytics_top_paths(timestamptz, timestamptz)       from public;
+revoke execute on function public.analytics_cta_performance(timestamptz, timestamptz) from public;
+revoke execute on function public.analytics_timeseries(timestamptz, timestamptz, int) from public;
+revoke execute on function public.analytics_by_device(timestamptz, timestamptz)       from public;
+revoke execute on function public.analytics_live(int)                                 from public;
+revoke execute on function public.leads_by_channel(timestamptz, timestamptz)          from public;
+
 grant execute on function public.analytics_overview(timestamptz, timestamptz)        to authenticated;
 grant execute on function public.analytics_by_channel(timestamptz, timestamptz)      to authenticated;
 grant execute on function public.analytics_by_campaign(timestamptz, timestamptz)     to authenticated;
@@ -271,12 +297,10 @@ grant execute on function public.analytics_by_device(timestamptz, timestamptz)  
 grant execute on function public.analytics_live(int)                                 to authenticated;
 grant execute on function public.leads_by_channel(timestamptz, timestamptz)          to authenticated;
 
-revoke execute on function public.analytics_overview(timestamptz, timestamptz)        from anon;
-revoke execute on function public.analytics_by_channel(timestamptz, timestamptz)      from anon;
-revoke execute on function public.analytics_by_campaign(timestamptz, timestamptz)     from anon;
-revoke execute on function public.analytics_top_paths(timestamptz, timestamptz)       from anon;
-revoke execute on function public.analytics_cta_performance(timestamptz, timestamptz) from anon;
-revoke execute on function public.analytics_timeseries(timestamptz, timestamptz, int) from anon;
-revoke execute on function public.analytics_by_device(timestamptz, timestamptz)       from anon;
-revoke execute on function public.analytics_live(int)                                 from anon;
-revoke execute on function public.leads_by_channel(timestamptz, timestamptz)          from anon;
+-- ─────────────────────────────────────────────
+--  적용 후 확인 — 익명이 호출 가능한 함수가 남아 있으면 안 된다 (빈 결과가 정상)
+-- ─────────────────────────────────────────────
+--   select p.proname
+--     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+--    where n.nspname = 'public'
+--      and has_function_privilege('anon', p.oid, 'EXECUTE');

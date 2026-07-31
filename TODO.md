@@ -14,32 +14,40 @@
 > ✅ **리드 알림(이메일) 라이브** — 견적폼·콜백 퀵폼 모두 `/api/quote`로 접수돼 Supabase 저장 +
 > 사장님 Naver 메일 발송이 프로덕션에서 동작 중. (상세: [`CHANGELOG.md`](CHANGELOG.md) 2026-07-22)
 
-## 🔴 지금 바로 — 어드민 활성화 (개발 완료, 외부 설정만 남음)
+## 🔴 지금 바로 — 어드민 활성화
 
-> 2026-07-31 관리형 전환(어드민 CMS·분석·CTA 실험·게시판)의 **코드는 완료**됐다.
-> 아래 3단계를 마쳐야 어드민이 열린다. 그 전까지 **공개 사이트는 코드 기본값으로 정상 동작**한다.
+> 2026-07-31 관리형 전환(어드민 CMS·분석·CTA 실험·게시판). **코드와 DB는 완료**됐다.
+> 남은 것은 **관리자 계정 등록**과 **배포**뿐이다.
 > 사용법: [`docs/어드민_사용법.md`](docs/어드민_사용법.md)
 
-- [ ] **STEP 0 — Supabase 프로젝트 재개(restore)**
-  프로젝트 `wnj-website`(`wtlvbilsakoktcrrqlfi`)가 **일시중지(INACTIVE)** 상태다.
-  무료 tier는 일정 기간 미사용 시 자동 정지되며, 정지 중에는 **견적문의의 DB 저장이 실패**한다
-  (이메일 알림은 정상이라 리드 자체는 전달됨 — `savedToDb:false`로 응답에 드러남).
-  Supabase 대시보드에서 **Restore project** 필요.
-- [ ] **STEP 1 — SQL 실행** (Supabase SQL Editor, 순서대로)
-  1. [`supabase/admin-schema.sql`](supabase/admin-schema.sql) — 관리자·콘텐츠·CTA·이벤트·게시판 테이블
-  2. [`supabase/analytics-functions.sql`](supabase/analytics-functions.sql) — 실시간 분석 집계 함수
-  여러 번 실행해도 안전하다.
-- [ ] **STEP 2 — 관리자 계정 등록**
-  Authentication → Users에서 계정 생성(Auto Confirm 체크) 후 SQL 실행:
+- [x] ~~**STEP 0 — Supabase 프로젝트 재개**~~ ✅ 완료 (2026-07-31)
+  `wnj-website`(`wtlvbilsakoktcrrqlfi`)가 일시중지 상태였다 → 재개함. 무료 tier는 일정 기간
+  미사용 시 자동 정지되고, **정지 중에는 견적문의 DB 저장이 실패**한다(이메일은 정상이라
+  리드 자체는 전달됨). 앞으로도 방문이 뜸하면 다시 정지될 수 있으니 주기적으로 확인할 것.
+- [x] ~~**STEP 1 — SQL 실행**~~ ✅ 완료 (2026-07-31)
+  `admin-schema.sql`·`analytics-functions.sql`을 마이그레이션으로 적용. 적용 후 Supabase
+  보안 점검(advisors)에서 나온 경고를 반영해 아래를 추가로 조였고, 저장소 SQL 파일도 동일하게 맞췄다.
+  - 전 함수 `search_path` 고정 (미고정 시 가짜 테이블을 앞세우는 권한 상승 경로가 열린다)
+  - `prune_events()`에 관리자 검사 추가 — 없으면 **관리자가 아닌 로그인 사용자가 RPC로
+    분석 데이터를 통째로 삭제**할 수 있었다
+  - `is_admin()`·분석 함수의 PUBLIC EXECUTE 회수 (익명 호출 가능 함수 0개 확인)
+  - media 버킷 익명 목록 조회 차단 (public 버킷은 SELECT 정책 없이도 사진이 정상 노출됨)
+  - 검증 결과: 익명은 `site_content`·`ctas`·`posts` 읽기 200 / 나머지 전부 401,
+    `quotes`·`events` INSERT는 정상 동작
+- [ ] **STEP 2 — 관리자 계정 등록** ← 지금 할 일
+  현재 `auth.users`가 **0명**이라 아직 아무도 로그인할 수 없다.
+  Supabase → Authentication → Users → Add user (**Auto Confirm User 체크**) 후 SQL 실행:
   ```sql
   insert into public.admins (user_id, email, name)
   select id, email, '임태훈' from auth.users where email = 'wnj-2023@naver.com'
   on conflict (user_id) do nothing;
   ```
   ⚠️ 이걸 빼면 로그인은 되지만 "관리자 권한이 없는 계정" 화면이 나온다.
-- [ ] **STEP 3 — 확인**
-  `/admin` 로그인 → 실시간 현황이 뜨는지 → 홈페이지 편집에서 문구 하나 바꿔 [발행] →
-  사이트 반영 확인 → 게시판에 시험 글 1건 발행 → `/admin/seo`에서 IndexNow 제출 성공 확인
+- [ ] **STEP 3 — 배포** — `git push` (Vercel 자동 배포). 배포 전까지 `/admin`은 열리지 않는다.
+- [ ] **STEP 4 — 확인**
+  `/admin` 로그인 → 실시간 현황 → 홈페이지 편집에서 문구 하나 바꿔 [발행] → 사이트 반영 확인 →
+  게시판에 시험 글 1건 발행 → `/admin/seo`에서 IndexNow 제출 성공 확인
+  (키 파일 `https://www.wnjpower.com/7cc4061689dcd8a0e0b037335893d356.txt` 가 200이어야 한다)
 
 - [ ] **광고 링크에 UTM 붙이기** (사장님/광고 담당)
   광고 성과를 경로별로 나누려면 도착 URL에 `?utm_source=naver&utm_medium=cpc&utm_campaign=이름`
@@ -112,10 +120,13 @@
       제도 수치가 많은 긴 기술 문서라 이번 범위에서 제외했다
 - [ ] **이벤트 자동 정리 스케줄** — `prune_events(180)` 함수는 만들어 뒀으나 자동 실행은 미설정.
       Supabase `pg_cron`을 켜서 하루 1회 돌리면 무료 tier 500MB를 안정적으로 유지할 수 있다
-- [ ] **@vercel/og 로컬 빌드 실패(Windows)** — 프로젝트 경로에 공백·한글이 있으면
-      `@vercel/og`가 `fileURLToPath`에서 `Invalid URL`로 죽는다. Vercel(리눅스) 빌드는 정상이라
-      배포에는 영향이 없다. 로컬에서 `npm run build`를 끝까지 돌려야 하면 경로를 영문으로
-      옮기거나 해당 라우트를 임시로 비워야 한다
+- [ ] **@vercel/og 로컬 빌드 실패 (Windows 전반)** — `npm run build`가 `/opengraph-image`에서
+      `TypeError: Invalid URL`로 멈춘다. 원인은 `@vercel/og` 내부의
+      `fileURLToPath(join(import.meta.url, '../noto-sans...ttf'))`인데, Windows의 `path.join`은
+      `file:///C:/...` 를 `.\file:\C:\...` 로 바꿔버려 URL이 깨진다.
+      **경로에 공백·한글이 없어도 Windows면 항상 실패**한다(재현: 위 두 줄을 node로 실행).
+      Vercel(리눅스) 빌드는 정상이라 **배포에는 영향이 없고**, 나머지 37개 페이지는 모두 생성된다.
+      로컬에서 빌드를 끝까지 돌려야 하면 WSL/리눅스에서 빌드하거나 해당 라우트를 임시로 비울 것.
 
 ---
 

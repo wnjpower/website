@@ -20,15 +20,23 @@
 -- ═══════════════════════════════════════════════
 
 -- updated_at 자동 갱신
+--
+-- search_path를 고정한다. 고정하지 않으면 호출자가 search_path를 바꿔 동명의 가짜
+-- 테이블/함수를 앞세울 수 있다(Supabase 린터 0011).
 create or replace function public.touch_updated_at()
 returns trigger
 language plpgsql
+set search_path = public, pg_temp
 as $$
 begin
   new.updated_at = now();
   return new;
 end;
 $$;
+
+-- 트리거 함수는 트리거가 소유자 권한으로 실행하므로 호출자에게 EXECUTE가 필요 없다.
+-- Supabase의 public 스키마 기본 권한이 신규 함수에 anon EXECUTE를 자동으로 주므로 회수한다.
+revoke execute on function public.touch_updated_at() from public, anon, authenticated;
 
 
 -- ═══════════════════════════════════════════════
@@ -74,7 +82,13 @@ create policy "admins readable by admins"
 
 revoke all on table public.admins from anon, authenticated;
 grant select on table public.admins to authenticated;
-grant execute on function public.is_admin() to anon, authenticated;
+
+-- 익명에게 열린 정책(site_content·ctas·posts·events·quotes)은 어느 것도 is_admin()을
+-- 호출하지 않는다. 즉 anon에게 EXECUTE가 필요 없다.
+-- Postgres는 함수 생성 시 PUBLIC에 EXECUTE를 자동으로 주므로 anon만 회수해서는
+-- PUBLIC 경유로 여전히 호출된다. PUBLIC에서 회수하고 필요한 역할에만 다시 준다.
+revoke execute on function public.is_admin() from public, anon;
+grant  execute on function public.is_admin() to authenticated;
 
 
 -- ═══════════════════════════════════════════════
@@ -263,6 +277,13 @@ as $$
 declare
   removed bigint;
 begin
+  -- 함수 안에서 관리자 여부를 반드시 확인한다.
+  -- security definer + DELETE 조합이라, 이 검사가 없으면 관리자가 아닌 로그인
+  -- 사용자가 /rest/v1/rpc/prune_events 를 직접 호출해 분석 데이터를 통째로 지울 수 있다.
+  if not public.is_admin() then
+    raise exception '관리자만 실행할 수 있습니다.' using errcode = '42501';
+  end if;
+
   delete from public.events
    where created_at < now() - make_interval(days => keep_days);
   get diagnostics removed = row_count;
@@ -418,10 +439,16 @@ on conflict (id) do update
       file_size_limit = 10485760,
       allowed_mime_types = excluded.allowed_mime_types;
 
-drop policy if exists "media public read"   on storage.objects;
-create policy "media public read"
-  on storage.objects for select to anon, authenticated
-  using (bucket_id = 'media');
+-- 목록 조회(SELECT)는 관리자에게만 준다.
+--
+-- public 버킷의 객체는 /storage/v1/object/public/media/... 경로로 RLS와 무관하게
+-- 제공되므로, 사이트에 사진을 띄우는 데 익명 SELECT 정책이 필요 없다.
+-- 정책을 열어두면 익명이 버킷 안 파일 목록을 훑을 수 있다(Supabase 린터 0025).
+drop policy if exists "media public read" on storage.objects;
+drop policy if exists "media admin list"  on storage.objects;
+create policy "media admin list"
+  on storage.objects for select to authenticated
+  using (bucket_id = 'media' and public.is_admin());
 
 drop policy if exists "media admin insert" on storage.objects;
 create policy "media admin insert"
