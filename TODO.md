@@ -49,6 +49,35 @@
   게시판에 시험 글 1건 발행 → `/admin/seo`에서 IndexNow 제출 성공 확인
   (키 파일 `https://www.wnjpower.com/7cc4061689dcd8a0e0b037335893d356.txt` 가 200이어야 한다)
 
+## 🔴 실시간 알림 활성화 (CTA 클릭 → 폰 알림)
+
+> 2026-07-31 추가. **코드는 완료**됐고 남은 것은 키 발급·SQL·기기 등록뿐이다.
+> 셋 중 무엇이 빠져도 **알림만 꺼지고 사이트·견적 접수는 정상 동작**한다.
+> 사용법: [`docs/어드민_사용법.md`](docs/어드민_사용법.md) 7번
+
+- [x] ~~**STEP 1 — VAPID 키 생성**~~ ✅ 완료 (2026-07-31)
+      키는 Vercel(production·development)과 로컬 `.env.local`에 들어가 있다.
+      바꾸면 등록된 기기가 전부 무효가 되므로 그대로 쓸 것.
+- [x] ~~**STEP 2 — SQL 실행**~~ ✅ 완료 (2026-07-31)
+      `supabase/push-schema.sql`을 Management API로 적용. 검증 결과:
+      `push_subscriptions`·`notification_settings` 생성 · RLS 활성 · 정책 각 1개 ·
+      **익명 권한 0**(anon REST 접근 404) · 설정 기본행 1건 · updated_at 트리거 2개
+- [x] ~~**STEP 3 — Vercel 환경변수 입력**~~ ✅ 완료 (2026-07-31)
+      `NEXT_PUBLIC_VAPID_PUBLIC_KEY` · `VAPID_PRIVATE_KEY` · `SUPABASE_SERVICE_ROLE_KEY`
+      3개를 **production + development**에 encrypted 타입으로 등록하고, 저장된 값이
+      원본과 일치하는지 되읽어 확인함. (`VAPID_SUBJECT`는 코드 기본값으로 충분해 생략)
+      > ⚠️ `SUPABASE_SERVICE_ROLE_KEY`는 RLS를 전부 우회하는 키다. `NEXT_PUBLIC_` 접두어를
+      > 절대 붙이지 말 것. 이 앱에서는 알림 발송 경로(`lib/push/*`)에서만 쓴다.
+- [ ] **STEP 3.5 — 배포** ← 지금 할 일
+      알림 코드가 아직 `wnjpower/이벤트알림기능` 브랜치에만 있다. master 머지 + push로
+      Vercel 배포가 되어야 환경변수가 실제로 쓰인다.
+- [ ] **STEP 4 — 기기 등록** — `/admin/notifications`에서 **휴대폰·PC 각각** [이 기기에서
+      알림 받기] → [시험 알림 보내기]로 도착 확인
+      - 아이폰은 사파리 [공유] → [홈 화면에 추가] 후 **그 아이콘으로 들어와서** 켜야 한다
+        (iOS 16.4+ 애플 정책, 우회 불가)
+- [ ] **STEP 5 — 실사용 점검** — 며칠 써 보고 알림이 잦으면 '그 밖의 버튼 클릭'을 끄거나
+      반복 억제 간격을 늘린다. 밤에 방해되면 방해금지 시간(예: 22~07)을 설정
+
 - [ ] **광고 링크에 UTM 붙이기** (사장님/광고 담당)
   광고 성과를 경로별로 나누려면 도착 URL에 `?utm_source=naver&utm_medium=cpc&utm_campaign=이름`
   형태를 붙여야 한다. 특히 **`utm_medium=cpc`가 빠지면 유료 광고가 자연 검색으로 잡힌다.**
@@ -155,6 +184,7 @@
 | OG 이미지 | [`app/opengraph-image.tsx`](app/opengraph-image.tsx) |
 | 구조화 데이터 | [`components/SchemaOrg.tsx`](components/SchemaOrg.tsx) · [`components/FaqSchema.tsx`](components/FaqSchema.tsx) |
 | 카카오 알림톡 | [`lib/kakao-alimtalk.ts`](lib/kakao-alimtalk.ts) |
+| **실시간 알림(웹 푸시)** | [`lib/push/`](lib/push) · [`public/sw.js`](public/sw.js) · [`supabase/push-schema.sql`](supabase/push-schema.sql) |
 | 서비스/시공사례/FAQ 콘텐츠 | [`content/service-pages.ts`](content/service-pages.ts) · [`content/portfolio.ts`](content/portfolio.ts) · [`content/faq.ts`](content/faq.ts) |
 | 서브페이지 골격 | [`components/SubPageShell.tsx`](components/SubPageShell.tsx) · [`components/PageHero.tsx`](components/PageHero.tsx) |
 | 히어로 수치 | [`components/sections/Hero.tsx`](components/sections/Hero.tsx) |

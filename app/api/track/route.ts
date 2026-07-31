@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { parseAttribution, parseUserAgent, EMPTY_ATTRIBUTION } from '@/lib/analytics/attribution';
 import { STAFF_COOKIE } from '@/lib/analytics/staff';
+import { pickNotifiableTypes, notifyEvent } from '@/lib/push/dispatch';
+import { isNotifyType, type NotifyType } from '@/lib/push/config';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -120,11 +122,53 @@ export async function POST(req: NextRequest) {
 
   if (rows.length === 0) return noContent;
 
+  /*
+   * 사장님 기기로 보낼 알림을 고른다 — INSERT 하기 전에.
+   *
+   * 반복 억제("같은 방문자가 30분 안에 또 눌렀나")를 events 테이블로 판단하는데,
+   * 지금 들어온 행을 먼저 넣어 버리면 그 행이 "이미 알린 적 있음"으로 잡혀
+   * 첫 알림부터 막힌다. 순서를 바꾸지 말 것.
+   */
+  const notifyCandidates = rows
+    .map((r) => r.type)
+    .filter(isNotifyType)
+    // 견적문의(lead) 알림은 /api/quote가 보낸다. 거기엔 고객 이름·연락처가 있어
+    // 훨씬 쓸모 있는 알림이 되고, 여기서 같이 보내면 같은 문의로 두 번 울린다.
+    .filter((t) => t !== 'lead');
+
+  const allowed = notifyCandidates.length
+    ? await pickNotifiableTypes(sessionId, notifyCandidates)
+    : [];
+
   try {
     const { error } = await supabase.from('events').insert(rows);
     if (error) console.error('[track] insert 실패', error.message);
   } catch (e) {
     console.error('[track] insert 예외', e);
+  }
+
+  /*
+   * 알림 발송. 응답을 기다리게 만들지만(서버리스는 응답 후 실행이 끊긴다)
+   * 클라이언트는 sendBeacon으로 보내고 결과를 기다리지 않으므로 체감 지연이 없다.
+   * 한 번에 두 건까지만 보낸다 — 한 요청에 여러 종류가 섞여도 알림이 쏟아지지 않게.
+   */
+  if (allowed.length) {
+    const sent = new Set<NotifyType>();
+    for (const type of allowed.slice(0, 2)) {
+      if (sent.has(type)) continue;
+      sent.add(type);
+      const row = rows.find((r) => r.type === type);
+      await notifyEvent(
+        {
+          type,
+          label:   row?.label ?? null,
+          path:    row?.path ?? null,
+          channel: attribution.channel,
+          device,
+        },
+        sessionId,
+      );
+    }
   }
 
   return noContent;

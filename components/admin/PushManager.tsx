@@ -1,0 +1,615 @@
+'use client';
+
+import { useCallback, useEffect, useState } from 'react';
+import {
+  Bell, BellOff, Send, Trash2, Loader2, Check, AlertCircle,
+  Smartphone, Monitor, Tablet, Share, PlusSquare,
+} from 'lucide-react';
+import {
+  NOTIFY_TYPES, NOTIFY_TYPE_LABELS, NOTIFY_TYPE_HINTS, DEFAULT_SETTINGS,
+  type NotificationSettings, type NotifyType, type PushDevice,
+} from '@/lib/push/config';
+
+/**
+ * 알림 설정 화면.
+ *
+ * 세 가지를 한 화면에서 한다.
+ *   1) 지금 보고 있는 기기에서 알림 켜기/끄기 (권한 요청 → 구독 등록)
+ *   2) 등록된 기기 목록 확인·삭제, 시험 알림 발송
+ *   3) 어떤 클릭에 알릴지 / 방해금지 / 반복 억제 설정
+ *
+ * 알림은 "설정했는데 안 온다"가 가장 흔한 실패다. 그래서 지금 상태(권한·구독·
+ * 서버 설정)를 숨기지 않고 전부 드러내고, 시험 발송 버튼을 눈에 띄게 둔다.
+ */
+
+interface PushState {
+  settings: NotificationSettings;
+  devices: PushDevice[];
+  publicKey: string | null;
+  ready: boolean;
+  vapidConfigured: boolean;
+  serviceRoleConfigured: boolean;
+}
+
+type Banner = { ok: boolean; text: string } | null;
+
+const cardClass = 'rounded-xl border border-slate-200 bg-white overflow-hidden';
+const sectionHeadClass = 'px-4 sm:px-5 py-3.5 border-b border-slate-200 bg-slate-50';
+
+// 반환 타입을 명시하지 않는다. `Uint8Array`로 적으면 ArrayBufferLike로 넓어져
+// applicationServerKey(BufferSource)에 넣을 수 없다 — 추론된 타입이 정확하다.
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = window.atob(base64);
+  const output = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) output[i] = raw.charCodeAt(i);
+  return output;
+}
+
+/** 아이폰·아이패드에서 홈 화면에 추가하지 않은 상태인가 (이 경우 알림 자체가 불가) */
+function needsIosInstall(): boolean {
+  if (typeof window === 'undefined') return false;
+  const ua = window.navigator.userAgent;
+  const isIos = /iphone|ipad|ipod/i.test(ua) ||
+    // 아이패드는 iPadOS 13부터 UA가 맥으로 나온다
+    (/macintosh/i.test(ua) && 'ontouchend' in document);
+  if (!isIos) return false;
+  const standalone =
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+  return !standalone;
+}
+
+function DeviceIcon({ device }: { device: string | null }) {
+  const cls = 'w-4 h-4 text-slate-400 flex-shrink-0';
+  if (device === 'mobile') return <Smartphone className={cls} />;
+  if (device === 'tablet') return <Tablet className={cls} />;
+  return <Monitor className={cls} />;
+}
+
+function formatDateTime(iso: string | null): string {
+  if (!iso) return '아직 없음';
+  return new Date(iso).toLocaleString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false,
+  });
+}
+
+export default function PushManager() {
+  const [state, setState] = useState<PushState | null>(null);
+  const [tableMissing, setTableMissing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [banner, setBanner] = useState<Banner>(null);
+  const [busy, setBusy] = useState<'enable' | 'disable' | 'test' | 'save' | null>(null);
+
+  // 브라우저 쪽 상태
+  const [supported, setSupported] = useState(true);
+  const [iosInstallNeeded, setIosInstallNeeded] = useState(false);
+  const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [myEndpointTail, setMyEndpointTail] = useState<string | null>(null);
+
+  // 설정 폼 (저장 전 임시 상태)
+  const [form, setForm] = useState<NotificationSettings>(DEFAULT_SETTINGS);
+
+  const loadState = useCallback(async () => {
+    try {
+      const res = await fetch('/api/push', { cache: 'no-store' });
+      if (res.status === 503) { setTableMissing(true); return; }
+      if (!res.ok) { setBanner({ ok: false, text: '설정을 불러오지 못했습니다.' }); return; }
+      const json = (await res.json()) as PushState;
+      setState(json);
+      setForm(json.settings);
+      setTableMissing(false);
+    } catch {
+      setBanner({ ok: false, text: '설정을 불러오지 못했습니다. 네트워크를 확인해 주세요.' });
+    }
+  }, []);
+
+  /** 이 브라우저가 지금 구독 중인지 확인한다 */
+  const refreshLocalSubscription = useCallback(async () => {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      const reg = await navigator.serviceWorker.getRegistration('/');
+      const sub = await reg?.pushManager.getSubscription();
+      setMyEndpointTail(sub ? sub.endpoint.slice(-24) : null);
+    } catch {
+      setMyEndpointTail(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    const ok =
+      'serviceWorker' in navigator &&
+      'PushManager' in window &&
+      'Notification' in window;
+    setSupported(ok);
+    setIosInstallNeeded(needsIosInstall());
+    if (ok) setPermission(Notification.permission);
+
+    void (async () => {
+      await Promise.all([loadState(), ok ? refreshLocalSubscription() : Promise.resolve()]);
+      setLoading(false);
+    })();
+  }, [loadState, refreshLocalSubscription]);
+
+  const subscribedHere = Boolean(
+    myEndpointTail && state?.devices.some((d) => d.endpointTail === myEndpointTail && d.active),
+  );
+
+  async function enableHere() {
+    setBusy('enable');
+    setBanner(null);
+    try {
+      const result = await Notification.requestPermission();
+      setPermission(result);
+      if (result !== 'granted') {
+        setBanner({
+          ok: false,
+          text: result === 'denied'
+            ? '이 브라우저에서 알림이 차단돼 있습니다. 주소창 왼쪽 자물쇠 → 알림을 «허용»으로 바꾼 뒤 다시 눌러 주세요.'
+            : '알림 권한을 허용해야 알림을 받을 수 있습니다.',
+        });
+        return;
+      }
+
+      const publicKey = state?.publicKey;
+      if (!publicKey) {
+        setBanner({ ok: false, text: '서버에 VAPID 키가 설정돼 있지 않습니다. 아래 안내를 따라 환경변수를 먼저 넣어 주세요.' });
+        return;
+      }
+
+      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      await navigator.serviceWorker.ready;
+
+      let sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        // 서버 키가 바뀌었으면 옛 구독으로는 알림이 오지 않는다. 갈아끼운다.
+        const current = sub.options?.applicationServerKey;
+        const wanted = urlBase64ToUint8Array(publicKey);
+        const currentBytes = current ? new Uint8Array(current) : null;
+        const same =
+          currentBytes !== null &&
+          currentBytes.length === wanted.length &&
+          currentBytes.every((b, i) => b === wanted[i]);
+        if (!same) {
+          await sub.unsubscribe();
+          sub = null;
+        }
+      }
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicKey),
+        });
+      }
+
+      const res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: sub.toJSON() }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setBanner({
+          ok: false,
+          text: json?.error === 'table_missing'
+            ? 'DB에 알림 테이블이 없습니다. supabase/push-schema.sql을 먼저 실행해 주세요.'
+            : '기기 등록에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+        });
+        return;
+      }
+
+      await Promise.all([loadState(), refreshLocalSubscription()]);
+      setBanner({ ok: true, text: '이 기기에서 알림을 받습니다. 아래 «시험 알림 보내기»로 확인해 보세요.' });
+    } catch (e) {
+      setBanner({ ok: false, text: `알림을 켜지 못했습니다. ${e instanceof Error ? e.message : ''}` });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function disableHere() {
+    setBusy('disable');
+    setBanner(null);
+    try {
+      const reg = await navigator.serviceWorker.getRegistration('/');
+      const sub = await reg?.pushManager.getSubscription();
+      if (sub) {
+        await fetch('/api/push/subscribe', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint: sub.endpoint }),
+        });
+        await sub.unsubscribe();
+      }
+      await Promise.all([loadState(), refreshLocalSubscription()]);
+      setBanner({ ok: true, text: '이 기기의 알림을 껐습니다.' });
+    } catch {
+      setBanner({ ok: false, text: '알림을 끄지 못했습니다.' });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function sendTest() {
+    setBusy('test');
+    setBanner(null);
+    try {
+      const res = await fetch('/api/push/test', { method: 'POST' });
+      const json = (await res.json()) as { sent?: number; failed?: number; reason?: string };
+
+      if (json.reason === 'not_configured') {
+        setBanner({ ok: false, text: 'VAPID 키가 설정돼 있지 않습니다. 아래 준비 상태를 확인해 주세요.' });
+      } else if (json.reason === 'no_service_role') {
+        setBanner({ ok: false, text: 'SUPABASE_SERVICE_ROLE_KEY가 설정돼 있지 않습니다.' });
+      } else if (json.reason === 'no_devices') {
+        setBanner({ ok: false, text: '알림을 받을 기기가 없습니다. 먼저 «이 기기에서 알림 받기»를 눌러 주세요.' });
+      } else {
+        setBanner({
+          ok: (json.sent ?? 0) > 0,
+          text: (json.sent ?? 0) > 0
+            ? `${json.sent}대에 시험 알림을 보냈습니다. 알림이 뜨는지 확인해 주세요.`
+            : '발송에 실패했습니다. 기기 목록의 오류 메시지를 확인해 주세요.',
+        });
+      }
+      await loadState();
+    } catch {
+      setBanner({ ok: false, text: '시험 알림 발송에 실패했습니다.' });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function removeDevice(id: string, label: string) {
+    if (!confirm(`'${label}' 기기를 목록에서 지웁니다. 계속할까요?`)) return;
+    try {
+      await fetch('/api/push/subscribe', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      await Promise.all([loadState(), refreshLocalSubscription()]);
+    } catch {
+      setBanner({ ok: false, text: '기기를 지우지 못했습니다.' });
+    }
+  }
+
+  async function saveSettings() {
+    setBusy('save');
+    setBanner(null);
+    try {
+      const res = await fetch('/api/push', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        setBanner({ ok: false, text: '설정을 저장하지 못했습니다.' });
+        return;
+      }
+      await loadState();
+      setBanner({ ok: true, text: '설정을 저장했습니다.' });
+    } catch {
+      setBanner({ ok: false, text: '설정을 저장하지 못했습니다.' });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function toggleType(type: NotifyType) {
+    setForm((f) => ({
+      ...f,
+      types: f.types.includes(type) ? f.types.filter((t) => t !== type) : [...f.types, type],
+    }));
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 text-slate-500 py-10 justify-center">
+        <Loader2 className="w-4 h-4 animate-spin" /> 불러오는 중…
+      </div>
+    );
+  }
+
+  if (tableMissing) {
+    return (
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 space-y-2">
+        <p className="font-bold flex items-center gap-2">
+          <AlertCircle className="w-4 h-4" /> DB 준비가 아직 안 됐습니다
+        </p>
+        <p className="leading-relaxed break-keep">
+          Supabase SQL Editor에서 <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">supabase/push-schema.sql</code>을
+          한 번 실행한 뒤 이 화면을 새로고침해 주세요. 알림 기기 목록과 설정을 담을 테이블이 만들어집니다.
+        </p>
+      </div>
+    );
+  }
+
+  const settingsChanged = JSON.stringify(form) !== JSON.stringify(state?.settings ?? DEFAULT_SETTINGS);
+
+  return (
+    <div className="space-y-4">
+      {banner && (
+        <p
+          className={`flex gap-2 items-start rounded-lg px-4 py-3 text-sm break-keep ${
+            banner.ok
+              ? 'bg-green-50 border border-green-200 text-green-800'
+              : 'bg-red-50 border border-red-200 text-red-700'
+          }`}
+        >
+          {banner.ok
+            ? <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            : <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />}
+          {banner.text}
+        </p>
+      )}
+
+      {/* ── 서버 준비 상태 ── */}
+      {!state?.ready && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 space-y-2">
+          <p className="font-bold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" /> 서버 설정이 아직 끝나지 않았습니다
+          </p>
+          <ul className="list-disc pl-5 space-y-1 leading-relaxed">
+            {!state?.vapidConfigured && (
+              <li>
+                <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">NEXT_PUBLIC_VAPID_PUBLIC_KEY</code> ·
+                <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200 ml-1">VAPID_PRIVATE_KEY</code> 미설정
+              </li>
+            )}
+            {!state?.serviceRoleConfigured && (
+              <li>
+                <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">SUPABASE_SERVICE_ROLE_KEY</code> 미설정
+              </li>
+            )}
+          </ul>
+          <p className="leading-relaxed break-keep">
+            <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">npm run push:keys</code>로 키를 만들어
+            Vercel 환경변수에 넣고 재배포하면 이 안내가 사라집니다. (자세한 순서: <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">.env.example</code>)
+          </p>
+        </div>
+      )}
+
+      {/* ── ① 이 기기 ── */}
+      <section className={cardClass}>
+        <div className={sectionHeadClass}>
+          <h2 className="font-bold text-ink">지금 보고 있는 기기</h2>
+          <p className="text-sm text-slate-500 break-keep">
+            알림을 받을 기기마다 한 번씩 켜 주세요. 휴대폰과 PC 둘 다 켜두면 양쪽에 다 뜹니다.
+          </p>
+        </div>
+
+        <div className="p-4 sm:p-5 space-y-4">
+          {!supported ? (
+            <p className="text-sm text-slate-600 break-keep">
+              이 브라우저는 웹 알림을 지원하지 않습니다. 크롬·엣지·사파리(최신)에서 열어 주세요.
+            </p>
+          ) : iosInstallNeeded ? (
+            <div className="rounded-lg bg-slate-50 border border-slate-200 p-4 space-y-2 text-sm text-slate-700">
+              <p className="font-bold text-ink">아이폰·아이패드는 홈 화면에 추가해야 알림을 받을 수 있습니다</p>
+              <ol className="space-y-1.5 leading-relaxed">
+                <li className="flex gap-2">
+                  <Share className="w-4 h-4 mt-0.5 flex-shrink-0 text-slate-400" />
+                  사파리 하단 <b>공유</b> 버튼을 누릅니다.
+                </li>
+                <li className="flex gap-2">
+                  <PlusSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-slate-400" />
+                  <b>홈 화면에 추가</b>를 선택합니다.
+                </li>
+                <li className="flex gap-2">
+                  <Bell className="w-4 h-4 mt-0.5 flex-shrink-0 text-slate-400" />
+                  홈 화면에 생긴 아이콘으로 다시 들어와 이 화면에서 알림을 켭니다.
+                </li>
+              </ol>
+              <p className="text-xs text-slate-500 break-keep">
+                애플이 iOS 16.4부터 정한 규칙이라 우회할 방법이 없습니다. 안드로이드·PC는 그냥 켜면 됩니다.
+              </p>
+            </div>
+          ) : subscribedHere ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 border border-green-200 text-green-800 px-3 py-1.5 text-sm font-bold">
+                <Bell className="w-4 h-4" /> 이 기기에서 알림 받는 중
+              </span>
+              <button
+                onClick={disableHere}
+                disabled={busy !== null}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-600 hover:border-slate-400 disabled:opacity-50"
+              >
+                {busy === 'disable' ? <Loader2 className="w-4 h-4 animate-spin" /> : <BellOff className="w-4 h-4" />}
+                이 기기 알림 끄기
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={enableHere}
+                disabled={busy !== null}
+                className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50"
+              >
+                {busy === 'enable' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+                이 기기에서 알림 받기
+              </button>
+              {permission === 'denied' && (
+                <span className="text-sm text-red-600 break-keep">
+                  브라우저에서 알림이 차단돼 있습니다. 주소창 왼쪽 자물쇠 → 알림 → 허용으로 바꿔 주세요.
+                </span>
+              )}
+            </div>
+          )}
+
+          <button
+            onClick={sendTest}
+            disabled={busy !== null || !state?.ready}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-700 hover:border-brand hover:text-brand disabled:opacity-50"
+          >
+            {busy === 'test' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            시험 알림 보내기
+          </button>
+        </div>
+      </section>
+
+      {/* ── ② 등록된 기기 ── */}
+      <section className={cardClass}>
+        <div className={sectionHeadClass}>
+          <h2 className="font-bold text-ink">알림 받는 기기 ({state?.devices.length ?? 0})</h2>
+          <p className="text-sm text-slate-500 break-keep">
+            기기를 바꾸거나 더 이상 쓰지 않는 브라우저는 지워 주세요.
+          </p>
+        </div>
+
+        {(state?.devices.length ?? 0) === 0 ? (
+          <p className="p-5 text-sm text-slate-500">아직 등록된 기기가 없습니다.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {state?.devices.map((d) => {
+              const isCurrent = d.endpointTail === myEndpointTail;
+              return (
+                <li key={d.id} className="flex items-start gap-3 px-4 sm:px-5 py-3.5">
+                  <DeviceIcon device={d.device} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-ink text-[0.9375rem]">{d.label ?? '이름 없는 기기'}</span>
+                      {isCurrent && (
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-brand-tint text-brand-700">이 기기</span>
+                      )}
+                      {!d.active && (
+                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">
+                          알림 중단됨
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      마지막 알림 도착 {formatDateTime(d.lastSuccessAt)}
+                      {d.failureCount > 0 && ` · 연속 실패 ${d.failureCount}회`}
+                    </p>
+                    {d.lastError && (
+                      <p className="text-xs text-red-600 mt-0.5 break-all">{d.lastError}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => removeDevice(d.id, d.label ?? '이름 없는 기기')}
+                    aria-label="기기 삭제"
+                    className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex-shrink-0"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      {/* ── ③ 무엇을 알릴지 ── */}
+      <section className={cardClass}>
+        <div className={sectionHeadClass}>
+          <h2 className="font-bold text-ink">어떤 클릭에 알릴까요</h2>
+          <p className="text-sm text-slate-500 break-keep">
+            알림이 너무 잦으면 정작 중요한 문의를 놓칩니다. 필요 없는 항목은 꺼 두세요.
+          </p>
+        </div>
+
+        <div className="p-4 sm:p-5 space-y-5">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.enabled}
+              onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))}
+              className="mt-1 w-4 h-4 accent-brand"
+            />
+            <span>
+              <span className="font-semibold text-ink block">알림 사용</span>
+              <span className="text-sm text-slate-500 break-keep">
+                끄면 등록된 기기를 지우지 않고도 모든 알림이 멈춥니다.
+              </span>
+            </span>
+          </label>
+
+          <fieldset className="space-y-2.5" disabled={!form.enabled}>
+            <legend className="sr-only">알릴 이벤트 종류</legend>
+            {NOTIFY_TYPES.map((type) => (
+              <label
+                key={type}
+                className={`flex items-start gap-3 cursor-pointer ${form.enabled ? '' : 'opacity-50'}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={form.types.includes(type)}
+                  onChange={() => toggleType(type)}
+                  className="mt-1 w-4 h-4 accent-brand"
+                />
+                <span>
+                  <span className="font-semibold text-ink block">{NOTIFY_TYPE_LABELS[type]}</span>
+                  <span className="text-sm text-slate-500 break-keep">{NOTIFY_TYPE_HINTS[type]}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="font-semibold text-ink block mb-1.5">같은 방문자 반복 알림 억제</span>
+              <select
+                value={form.minIntervalMinutes}
+                onChange={(e) => setForm((f) => ({ ...f, minIntervalMinutes: Number(e.target.value) }))}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+              >
+                <option value={0}>억제 안 함 (누를 때마다)</option>
+                <option value={10}>10분에 한 번</option>
+                <option value={30}>30분에 한 번</option>
+                <option value={60}>1시간에 한 번</option>
+                <option value={180}>3시간에 한 번</option>
+              </select>
+              <span className="text-sm text-slate-500 block mt-1 break-keep">
+                한 사람이 버튼을 여러 번 눌러도 이 간격 안에는 한 번만 알립니다.
+              </span>
+            </label>
+
+            <div>
+              <span className="font-semibold text-ink block mb-1.5">방해금지 시간</span>
+              <div className="flex items-center gap-2">
+                <select
+                  value={form.quietStart ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, quietStart: e.target.value === '' ? null : Number(e.target.value) }))}
+                  className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+                >
+                  <option value="">설정 안 함</option>
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <option key={h} value={h}>{String(h).padStart(2, '0')}시</option>
+                  ))}
+                </select>
+                <span className="text-slate-400">~</span>
+                <select
+                  value={form.quietEnd ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, quietEnd: e.target.value === '' ? null : Number(e.target.value) }))}
+                  className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+                >
+                  <option value="">설정 안 함</option>
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <option key={h} value={h}>{String(h).padStart(2, '0')}시</option>
+                  ))}
+                </select>
+              </div>
+              <span className="text-sm text-slate-500 block mt-1 break-keep">
+                이 시간대에는 클릭 알림을 보내지 않습니다. 견적문의 접수는 예외로 항상 옵니다.
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 pt-1">
+            <button
+              onClick={saveSettings}
+              disabled={busy !== null || !settingsChanged}
+              className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50"
+            >
+              {busy === 'save' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+              설정 저장
+            </button>
+            {settingsChanged && <span className="text-sm text-amber-700">저장하지 않은 변경이 있습니다.</span>}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

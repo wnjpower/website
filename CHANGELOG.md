@@ -9,6 +9,66 @@
 
 ---
 
+## 2026-07-31 — 실시간 알림: CTA 버튼 클릭 → 사장님 휴대폰·PC 팝업
+
+방문자가 사이트의 **CTA 버튼(전화·카카오톡·견적문의 등)을 누르는 순간** 사장님 기기에
+알림 팝업이 뜬다. 브라우저 표준 웹 푸시(VAPID)라 **추가 비용이 없고**, 사이트를 닫아 둔
+상태·화면이 꺼진 상태에서도 도착한다. 운영 방법은
+[`docs/어드민_사용법.md`](docs/어드민_사용법.md) 7번에 정리했다.
+
+> ⚠️ **적용 전 필수**: `supabase/push-schema.sql` 실행 + 환경변수 3개
+> (`NEXT_PUBLIC_VAPID_PUBLIC_KEY` · `VAPID_PRIVATE_KEY` · `SUPABASE_SERVICE_ROLE_KEY`).
+> 셋 중 하나라도 없으면 **알림만 조용히 꺼지고 사이트·견적 접수는 그대로 동작**한다.
+> 키 생성은 `npm run push:keys`.
+
+### 동작
+- 수집 경로에 얹었다. `/api/track`가 받는 클릭 이벤트(`cta_click`·`phone_click`·
+  `kakao_click`·`form_start`)와 `/api/quote`의 접수(`lead`)가 그대로 알림 트리거가 된다.
+  버튼 쪽 코드는 한 줄도 건드리지 않았다 — 이미 모든 CTA에 `data-cta-slot`이 붙어 있고
+  [`Tracker.tsx`](components/analytics/Tracker.tsx)가 클릭을 잡고 있었기 때문이다.
+- 견적문의 알림은 **`/api/quote`에서만** 보낸다. 거기엔 고객 이름·연락처가 있어 알림
+  하나로 판단이 끝난다. `/api/track`의 `lead`는 제외했다 — 안 그러면 한 건에 두 번 울린다.
+- 알림을 누르면 해당 화면이 열린다(문의는 `/admin/leads`, 클릭은 `/admin`).
+  이미 열린 어드민 창이 있으면 새 창을 띄우지 않고 그 창을 쓴다.
+
+### 알림 피로 방지 — 세 겹으로 거른다
+알림은 많을수록 좋은 게 아니다. 잦으면 며칠 안에 꺼버리고, 그러면 정작 견적문의도 놓친다.
+- **종류 선택** — 어드민에서 켠 이벤트만. '그 밖의 버튼 클릭'은 끄기 쉽게 따로 뒀다.
+- **반복 억제** — 같은 방문자·같은 종류는 설정 간격(기본 30분) 안에 한 번만.
+  판정은 `events` 테이블을 보는데, **INSERT 전에** 조회해야 방금 넣은 행이
+  "이미 알림" 으로 잡히지 않는다(`app/api/track/route.ts`의 순서를 바꾸지 말 것).
+- **방해금지 시간** — 설정 시간대에는 클릭 알림을 보내지 않는다.
+  **견적문의 접수만은 예외**로 항상 보낸다.
+
+### 어드민 (`/admin/notifications`)
+- 기기마다 [이 기기에서 알림 받기] 한 번. 휴대폰·PC 여러 대를 동시에 등록할 수 있다.
+- **[시험 알림 보내기]** — 이 기능은 "설정을 다 했는데 안 온다"가 가장 흔한 실패라,
+  권한·구독·키·푸시 서비스 중 어디가 막혔는지 즉시 확인할 수단을 화면에 뒀다.
+- 기기 목록에 마지막 도착 시각·연속 실패·오류 메시지를 그대로 노출한다.
+  브라우저가 구독을 폐기하면(404/410) 자동으로 목록에서 내리고 배지로 알린다.
+- 아이폰은 **홈 화면에 추가한 뒤**에만 알림이 가능하다(iOS 16.4+ 애플 정책).
+  아이폰에서 접속하면 그 안내가 화면에 뜨고, 이를 위해 [`app/manifest.ts`](app/manifest.ts)를 추가했다.
+
+### 보안 — service_role 키를 한 곳에만 도입
+- 알림을 보낼 시점의 요청 주체는 **로그인하지 않은 방문자**다. 그 요청에서 기기 목록을
+  읽어야 하는데, 익명(anon)에게 열면 사장님 기기의 푸시 주소가 공개된다. 그래서
+  **발송 경로에만** service_role을 쓴다([`lib/supabase-service.ts`](lib/supabase-service.ts) —
+  브라우저에서 import되면 예외를 던져 유출을 런타임에서 막는다).
+- 어드민 화면의 조회·저장은 종전대로 **로그인 JWT + RLS**로 나간다. 두 테이블 모두
+  익명 권한 0, 관리자만 접근하는 정책이다.
+- 서비스워커([`public/sw.js`](public/sw.js))에는 **fetch 핸들러를 두지 않았다.**
+  캐싱까지 하면 사장님이 [발행]한 내용이 방문자에게 옛 화면으로 남는 사고가 난다.
+
+### 변경 파일
+- 신규: `supabase/push-schema.sql` · `lib/push/{config,send,dispatch}.ts` ·
+  `lib/supabase-service.ts` · `public/sw.js` · `app/manifest.ts` ·
+  `app/api/push/{route,subscribe,test,key}` · `app/admin/(dashboard)/notifications/page.tsx` ·
+  `components/admin/PushManager.tsx` · `scripts/generate-vapid-keys.mjs`
+- 수정: `app/api/track/route.ts`(알림 트리거) · `app/api/quote/route.ts`(접수 알림) ·
+  `components/admin/AdminNav.tsx`(메뉴) · `.env.example` · `package.json`(`web-push`)
+
+---
+
 ## 2026-07-31 — 관리형 전환: 어드민 CMS · 실시간 분석 · CTA 실험 · 게시판 · 자동 색인
 
 개발자 없이 마케팅을 운영할 수 있도록 사이트를 **관리형 구조로 전환**했다.

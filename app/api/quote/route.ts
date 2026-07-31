@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 import { QuoteSchema, CategoryLabels, CustomerTypeLabels } from '@/lib/validators';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { sendAlimtalk } from '@/lib/kakao-alimtalk';
+import { notifyLead } from '@/lib/push/dispatch';
 import { parseAttribution, CHANNEL_LABELS, type Channel } from '@/lib/analytics/attribution';
 
 export const runtime = 'nodejs';
@@ -299,6 +300,18 @@ export async function POST(req: NextRequest) {
     timestamp,
   }).catch(() => false);
 
+  // 4) 사장님 기기 알림(웹 푸시) — 등록된 기기에 즉시 팝업이 뜬다.
+  //    메일은 확인이 늦어질 수 있어서, 접수 사실만이라도 바로 알리는 경로를 둔다.
+  //    키·기기가 없으면 조용히 false를 돌려주고 접수 흐름에는 영향을 주지 않는다.
+  const pushSent = await notifyLead({
+    name:          data.name,
+    phone:         data.phone,
+    companyName:   data.companyName || null,
+    categoryLabel,
+    region:        data.region || null,
+    channel:       attribution?.channel ?? 'direct',
+  });
+
   // DB 저장·메일·알림톡이 전부 실패하면 리드가 완전히 유실된다.
   // 이때까지 성공(200)으로 응답하면 고객은 접수된 줄 알고 기다리고,
   // 사장님은 문의가 온 사실조차 모른다. 그래서 이 경우에만 실패로 응답해
@@ -317,7 +330,7 @@ export async function POST(req: NextRequest) {
   // 경로별 성공 여부를 응답에 실어 둔다. 셋 중 하나라도 실패하면 화면은 정상으로
   // 보이지만 리드 전달에 구멍이 생기는데, 로그를 열지 않고도 바로 확인할 수 있다.
   return NextResponse.json(
-    { ok: true, savedToDb, emailSent, alimtalkSent },
+    { ok: true, savedToDb, emailSent, alimtalkSent, pushSent },
     { status: 200 },
   );
 }
