@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Bell, BellOff, Send, Trash2, Loader2, Check, AlertCircle,
-  Smartphone, Monitor, Tablet, Share, PlusSquare,
+  Smartphone, Monitor, Tablet, Share, PlusSquare, Moon, RotateCcw,
 } from 'lucide-react';
 import {
   NOTIFY_TYPES, NOTIFY_TYPE_LABELS, NOTIFY_TYPE_HINTS, DEFAULT_SETTINGS,
@@ -32,6 +32,8 @@ interface PushState {
 }
 
 type Banner = { ok: boolean; text: string } | null;
+
+type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 const cardClass = 'rounded-xl border border-slate-200 bg-white overflow-hidden';
 const sectionHeadClass = 'px-4 sm:px-5 py-3.5 border-b border-slate-200 bg-slate-50';
@@ -68,6 +70,102 @@ function DeviceIcon({ device }: { device: string | null }) {
   return <Monitor className={cls} />;
 }
 
+/**
+ * 스위치 한 줄.
+ *
+ * 줄 전체가 버튼이다. 작은 체크박스는 폰에서 누르기 어렵고, 사장님이 실제로 쓰는
+ * 환경이 폰이다. 스위치 모양만 두고 색으로만 상태를 알리면 색 구분이 어려운 분에게
+ * 아무 정보가 없으므로 «켜짐/꺼짐» 글자를 함께 붙인다.
+ */
+function ToggleRow({
+  checked, onChange, disabled = false, title, hint, icon, emphasis = false,
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  disabled?: boolean;
+  title: string;
+  hint?: string;
+  icon?: React.ReactNode;
+  /** 대표 스위치(알림 전체 켜기) — 더 크고 눈에 띄게 */
+  emphasis?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`w-full flex items-center gap-3 text-left transition-colors ${
+        emphasis ? 'px-4 sm:px-5 py-4' : 'px-4 sm:px-5 py-3.5'
+      } ${disabled ? 'opacity-45 cursor-not-allowed' : 'hover:bg-slate-50 active:bg-slate-100'} ${
+        emphasis && checked ? 'bg-brand-tint hover:bg-brand-tint' : ''
+      } focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/50`}
+    >
+      {icon && <span className="flex-shrink-0">{icon}</span>}
+
+      <span className="flex-1 min-w-0">
+        <span className={`block text-ink ${emphasis ? 'font-bold text-[1.0625rem]' : 'font-semibold'}`}>
+          {title}
+        </span>
+        {hint && <span className="block text-sm text-slate-500 break-keep mt-0.5">{hint}</span>}
+      </span>
+
+      <span className="flex flex-col items-center gap-1 flex-shrink-0">
+        {/* 시각 요소일 뿐이다. 상태는 바깥 button의 role=switch/aria-checked가 알린다 */}
+        <span
+          aria-hidden
+          className={`relative block rounded-full transition-colors duration-150 ${
+            emphasis ? 'w-[3.25rem] h-[1.75rem]' : 'w-[3rem] h-[1.625rem]'
+          } ${checked ? 'bg-brand' : 'bg-slate-300'}`}
+        >
+          <span
+            className={`absolute top-[0.125rem] left-[0.125rem] block rounded-full bg-white shadow transition-transform duration-150 ${
+              emphasis ? 'w-[1.5rem] h-[1.5rem]' : 'w-[1.375rem] h-[1.375rem]'
+            } ${
+              checked
+                ? emphasis ? 'translate-x-[1.5rem]' : 'translate-x-[1.375rem]'
+                : 'translate-x-0'
+            }`}
+          />
+        </span>
+        <span className={`text-[0.6875rem] font-bold ${checked ? 'text-brand' : 'text-slate-400'}`}>
+          {checked ? '켜짐' : '꺼짐'}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/** 자동 저장 상태 표시 — 저장 버튼을 없앤 대신 지금 무슨 일이 일어났는지 항상 보인다 */
+function SaveStatus({ state, onRetry }: { state: SaveState; onRetry: () => void }) {
+  if (state === 'saving') {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-sm text-slate-500">
+        <Loader2 className="w-3.5 h-3.5 animate-spin" /> 저장 중…
+      </span>
+    );
+  }
+  if (state === 'saved') {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-sm text-green-700 font-semibold">
+        <Check className="w-3.5 h-3.5" /> 저장됨
+      </span>
+    );
+  }
+  if (state === 'error') {
+    return (
+      <button
+        onClick={onRetry}
+        className="inline-flex items-center gap-1.5 text-sm text-red-700 font-semibold hover:underline"
+      >
+        <RotateCcw className="w-3.5 h-3.5" /> 저장 실패 — 다시 시도
+      </button>
+    );
+  }
+  return <span className="text-sm text-slate-400">변경하면 자동 저장됩니다</span>;
+}
+
 function formatDateTime(iso: string | null): string {
   if (!iso) return '아직 없음';
   return new Date(iso).toLocaleString('ko-KR', {
@@ -81,7 +179,7 @@ export default function PushManager() {
   const [tableMissing, setTableMissing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [banner, setBanner] = useState<Banner>(null);
-  const [busy, setBusy] = useState<'enable' | 'disable' | 'test' | 'save' | null>(null);
+  const [busy, setBusy] = useState<'enable' | 'disable' | 'test' | null>(null);
 
   // 브라우저 쪽 상태
   const [supported, setSupported] = useState(true);
@@ -89,8 +187,64 @@ export default function PushManager() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [myEndpointTail, setMyEndpointTail] = useState<string | null>(null);
 
-  // 설정 폼 (저장 전 임시 상태)
+  /*
+   * 설정은 «자동 저장»한다.
+   *
+   * 저장 버튼을 두면 스위치만 넘기고 나가는 실수가 반드시 나온다. 그러면 사장님은
+   * 껐다고 믿는데 알림은 계속 오고, 원인을 찾을 방법이 없다. 스위치를 넘긴 것이
+   * 곧 의사표시이므로 그대로 저장하고, 대신 «저장 중 / 저장됨 / 실패»를 항상 보여준다.
+   */
   const [form, setForm] = useState<NotificationSettings>(DEFAULT_SETTINGS);
+  const [saveState, setSaveState] = useState<SaveState>('idle');
+  const pendingRef = useRef<NotificationSettings | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flushSave = useCallback(async () => {
+    const payload = pendingRef.current;
+    if (!payload) return;
+    setSaveState('saving');
+    try {
+      const res = await fetch('/api/push', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      // 저장에 성공한 값만 «서버가 가진 값»으로 승격한다
+      pendingRef.current = null;
+      setState((s) => (s ? { ...s, settings: payload } : s));
+      setSaveState('saved');
+    } catch {
+      setSaveState('error');
+    }
+  }, []);
+
+  /** 스위치·선택 변경 → 화면은 즉시 바꾸고 저장은 짧게 묶어서 보낸다 */
+  const update = useCallback((patch: Partial<NotificationSettings>) => {
+    setForm((prev) => {
+      const next = { ...prev, ...patch };
+      pendingRef.current = next;
+      return next;
+    });
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => { void flushSave(); }, 600);
+  }, [flushSave]);
+
+  // 저장이 예약된 채 화면을 떠나면 변경이 사라진다. 떠나기 전에 흘려보낸다.
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === 'hidden' && pendingRef.current) {
+        if (timerRef.current) clearTimeout(timerRef.current);
+        void flushSave();
+      }
+    };
+    document.addEventListener('visibilitychange', onHide);
+    return () => {
+      document.removeEventListener('visibilitychange', onHide);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (pendingRef.current) void flushSave();
+    };
+  }, [flushSave]);
 
   const loadState = useCallback(async () => {
     try {
@@ -275,33 +429,19 @@ export default function PushManager() {
     }
   }
 
-  async function saveSettings() {
-    setBusy('save');
-    setBanner(null);
-    try {
-      const res = await fetch('/api/push', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) {
-        setBanner({ ok: false, text: '설정을 저장하지 못했습니다.' });
-        return;
-      }
-      await loadState();
-      setBanner({ ok: true, text: '설정을 저장했습니다.' });
-    } catch {
-      setBanner({ ok: false, text: '설정을 저장하지 못했습니다.' });
-    } finally {
-      setBusy(null);
-    }
+  function toggleType(type: NotifyType, next: boolean) {
+    update({
+      types: next ? [...form.types, type] : form.types.filter((t) => t !== type),
+    });
   }
 
-  function toggleType(type: NotifyType) {
-    setForm((f) => ({
-      ...f,
-      types: f.types.includes(type) ? f.types.filter((t) => t !== type) : [...f.types, type],
-    }));
+  /** 방해금지 켜기 — 처음 켤 때는 흔한 시간대(22시~07시)를 미리 넣어준다 */
+  function toggleQuiet(next: boolean) {
+    update(
+      next
+        ? { quietStart: form.quietStart ?? 22, quietEnd: form.quietEnd ?? 7 }
+        : { quietStart: null, quietEnd: null },
+    );
   }
 
   if (loading) {
@@ -326,7 +466,7 @@ export default function PushManager() {
     );
   }
 
-  const settingsChanged = JSON.stringify(form) !== JSON.stringify(state?.settings ?? DEFAULT_SETTINGS);
+  const quietOn = form.quietStart !== null && form.quietEnd !== null;
 
   return (
     <div className="space-y-4">
@@ -503,110 +643,127 @@ export default function PushManager() {
 
       {/* ── ③ 무엇을 알릴지 ── */}
       <section className={cardClass}>
-        <div className={sectionHeadClass}>
-          <h2 className="font-bold text-ink">어떤 클릭에 알릴까요</h2>
-          <p className="text-sm text-slate-500 break-keep">
-            알림이 너무 잦으면 정작 중요한 문의를 놓칩니다. 필요 없는 항목은 꺼 두세요.
-          </p>
+        <div className={`${sectionHeadClass} flex flex-wrap items-center justify-between gap-2`}>
+          <div className="min-w-0">
+            <h2 className="font-bold text-ink">무엇을 알릴까요</h2>
+            <p className="text-sm text-slate-500 break-keep">
+              알림이 너무 잦으면 정작 중요한 문의를 놓칩니다. 필요 없는 항목은 꺼 두세요.
+            </p>
+          </div>
+          <SaveStatus state={saveState} onRetry={() => { void flushSave(); }} />
         </div>
 
-        <div className="p-4 sm:p-5 space-y-5">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={form.enabled}
-              onChange={(e) => setForm((f) => ({ ...f, enabled: e.target.checked }))}
-              className="mt-1 w-4 h-4 accent-brand"
-            />
-            <span>
-              <span className="font-semibold text-ink block">알림 사용</span>
-              <span className="text-sm text-slate-500 break-keep">
-                끄면 등록된 기기를 지우지 않고도 모든 알림이 멈춥니다.
-              </span>
-            </span>
-          </label>
+        {/* 대표 스위치 — 이것만 끄면 기기를 지우지 않고도 전부 멈춘다 */}
+        <ToggleRow
+          emphasis
+          checked={form.enabled}
+          onChange={(next) => update({ enabled: next })}
+          title="알림 받기"
+          hint={
+            form.enabled
+              ? '아래에서 켜 둔 항목의 알림이 등록된 기기로 갑니다.'
+              : '모든 알림이 멈춰 있습니다. 등록된 기기는 그대로 남아 있습니다.'
+          }
+          icon={
+            form.enabled
+              ? <Bell className="w-5 h-5 text-brand" />
+              : <BellOff className="w-5 h-5 text-slate-400" />
+          }
+        />
 
-          <fieldset className="space-y-2.5" disabled={!form.enabled}>
-            <legend className="sr-only">알릴 이벤트 종류</legend>
+        <div className="border-t border-slate-200">
+          <p className="px-4 sm:px-5 pt-4 pb-1 text-xs font-bold tracking-wide text-slate-400">
+            알림 종류
+          </p>
+          <ul className="divide-y divide-slate-100">
             {NOTIFY_TYPES.map((type) => (
-              <label
-                key={type}
-                className={`flex items-start gap-3 cursor-pointer ${form.enabled ? '' : 'opacity-50'}`}
-              >
-                <input
-                  type="checkbox"
+              <li key={type}>
+                <ToggleRow
                   checked={form.types.includes(type)}
-                  onChange={() => toggleType(type)}
-                  className="mt-1 w-4 h-4 accent-brand"
+                  disabled={!form.enabled}
+                  onChange={(next) => toggleType(type, next)}
+                  title={NOTIFY_TYPE_LABELS[type]}
+                  hint={NOTIFY_TYPE_HINTS[type]}
                 />
-                <span>
-                  <span className="font-semibold text-ink block">{NOTIFY_TYPE_LABELS[type]}</span>
-                  <span className="text-sm text-slate-500 break-keep">{NOTIFY_TYPE_HINTS[type]}</span>
-                </span>
-              </label>
+              </li>
             ))}
-          </fieldset>
+          </ul>
+        </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+        <div className="border-t border-slate-200">
+          <p className="px-4 sm:px-5 pt-4 pb-1 text-xs font-bold tracking-wide text-slate-400">
+            알림 빈도
+          </p>
+
+          <div className={`px-4 sm:px-5 py-3.5 ${form.enabled ? '' : 'opacity-45'}`}>
             <label className="block">
-              <span className="font-semibold text-ink block mb-1.5">같은 방문자 반복 알림 억제</span>
+              <span className="font-semibold text-ink block">같은 사람이 여러 번 눌렀을 때</span>
+              <span className="text-sm text-slate-500 block mb-2 break-keep">
+                한 방문자가 버튼을 반복해 눌러도 이 간격 안에는 한 번만 알립니다.
+              </span>
               <select
                 value={form.minIntervalMinutes}
-                onChange={(e) => setForm((f) => ({ ...f, minIntervalMinutes: Number(e.target.value) }))}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+                disabled={!form.enabled}
+                onChange={(e) => update({ minIntervalMinutes: Number(e.target.value) })}
+                className="w-full sm:max-w-xs rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand disabled:bg-slate-50"
               >
-                <option value={0}>억제 안 함 (누를 때마다)</option>
-                <option value={10}>10분에 한 번</option>
-                <option value={30}>30분에 한 번</option>
-                <option value={60}>1시간에 한 번</option>
-                <option value={180}>3시간에 한 번</option>
+                <option value={0}>누를 때마다 알림</option>
+                <option value={10}>10분에 한 번만</option>
+                <option value={30}>30분에 한 번만 (권장)</option>
+                <option value={60}>1시간에 한 번만</option>
+                <option value={180}>3시간에 한 번만</option>
               </select>
-              <span className="text-sm text-slate-500 block mt-1 break-keep">
-                한 사람이 버튼을 여러 번 눌러도 이 간격 안에는 한 번만 알립니다.
-              </span>
             </label>
-
-            <div>
-              <span className="font-semibold text-ink block mb-1.5">방해금지 시간</span>
-              <div className="flex items-center gap-2">
-                <select
-                  value={form.quietStart ?? ''}
-                  onChange={(e) => setForm((f) => ({ ...f, quietStart: e.target.value === '' ? null : Number(e.target.value) }))}
-                  className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
-                >
-                  <option value="">설정 안 함</option>
-                  {Array.from({ length: 24 }, (_, h) => (
-                    <option key={h} value={h}>{String(h).padStart(2, '0')}시</option>
-                  ))}
-                </select>
-                <span className="text-slate-400">~</span>
-                <select
-                  value={form.quietEnd ?? ''}
-                  onChange={(e) => setForm((f) => ({ ...f, quietEnd: e.target.value === '' ? null : Number(e.target.value) }))}
-                  className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
-                >
-                  <option value="">설정 안 함</option>
-                  {Array.from({ length: 24 }, (_, h) => (
-                    <option key={h} value={h}>{String(h).padStart(2, '0')}시</option>
-                  ))}
-                </select>
-              </div>
-              <span className="text-sm text-slate-500 block mt-1 break-keep">
-                이 시간대에는 클릭 알림을 보내지 않습니다. 견적문의 접수는 예외로 항상 옵니다.
-              </span>
-            </div>
           </div>
 
-          <div className="flex items-center gap-3 pt-1">
-            <button
-              onClick={saveSettings}
-              disabled={busy !== null || !settingsChanged}
-              className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50"
-            >
-              {busy === 'save' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-              설정 저장
-            </button>
-            {settingsChanged && <span className="text-sm text-amber-700">저장하지 않은 변경이 있습니다.</span>}
+          <div className="border-t border-slate-100">
+            <ToggleRow
+              checked={quietOn}
+              disabled={!form.enabled}
+              onChange={toggleQuiet}
+              title="방해금지 시간"
+              hint={
+                quietOn
+                  ? '이 시간대에는 클릭 알림을 보내지 않습니다. 견적문의 접수는 예외로 항상 옵니다.'
+                  : '밤에 알림을 받고 싶지 않으면 켜세요. 견적문의 접수는 예외로 항상 옵니다.'
+              }
+              icon={<Moon className={`w-5 h-5 ${quietOn ? 'text-brand' : 'text-slate-400'}`} />}
+            />
+
+            {quietOn && (
+              <div className={`px-4 sm:px-5 pb-4 -mt-1 ${form.enabled ? '' : 'opacity-45'}`}>
+                <div className="flex items-center gap-2 max-w-sm">
+                  <select
+                    aria-label="방해금지 시작 시각"
+                    value={form.quietStart ?? 22}
+                    disabled={!form.enabled}
+                    onChange={(e) => update({ quietStart: Number(e.target.value) })}
+                    className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand disabled:bg-slate-50"
+                  >
+                    {Array.from({ length: 24 }, (_, h) => (
+                      <option key={h} value={h}>{String(h).padStart(2, '0')}시부터</option>
+                    ))}
+                  </select>
+                  <span className="text-slate-400 flex-shrink-0">~</span>
+                  <select
+                    aria-label="방해금지 종료 시각"
+                    value={form.quietEnd ?? 7}
+                    disabled={!form.enabled}
+                    onChange={(e) => update({ quietEnd: Number(e.target.value) })}
+                    className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand disabled:bg-slate-50"
+                  >
+                    {Array.from({ length: 24 }, (_, h) => (
+                      <option key={h} value={h}>{String(h).padStart(2, '0')}시까지</option>
+                    ))}
+                  </select>
+                </div>
+                {form.quietStart === form.quietEnd && (
+                  <p className="text-sm text-amber-700 mt-2 break-keep">
+                    시작과 종료가 같으면 방해금지가 걸리지 않습니다. 다른 시각을 골라 주세요.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>
