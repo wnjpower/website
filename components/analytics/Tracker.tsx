@@ -61,9 +61,21 @@ export function track(event: QueuedEvent) {
   if (!timer) timer = setTimeout(() => flush(), FLUSH_DELAY);
 }
 
+/**
+ * 어드민 화면은 집계 대상이 아니다.
+ *
+ * Tracker는 루트 레이아웃에 있어 /admin 하위에서도 함께 실행된다. 그대로 두면
+ * 사장님이 관리자 화면을 열어볼수록 방문자 수가 늘고 전환율(문의÷방문자)이
+ * 실제보다 낮게 보인다. 즉 성과를 판단하는 숫자가 스스로를 오염시킨다.
+ */
+function isExcludedPath(pathname: string | null): boolean {
+  return Boolean(pathname && pathname.startsWith('/admin'));
+}
+
 export default function Tracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const excluded = isExcludedPath(pathname);
   const lastPath = useRef<string | null>(null);
   const seenImpressions = useRef<Set<string>>(new Set());
   const scrollMarks = useRef<Set<number>>(new Set());
@@ -71,6 +83,7 @@ export default function Tracker() {
 
   // ── 페이지뷰 ──
   useEffect(() => {
+    if (excluded) return;
     const key = `${pathname}?${searchParams?.toString() ?? ''}`;
     if (lastPath.current === key) return;
     lastPath.current = key;
@@ -80,10 +93,12 @@ export default function Tracker() {
     // 새 페이지에서는 스크롤·노출 집계를 초기화한다
     scrollMarks.current = new Set();
     formStarted.current = false;
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, excluded]);
 
   // ── 클릭 (CTA·전화·카카오) ──
   useEffect(() => {
+    if (excluded) return;
+
     const onClick = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
@@ -125,10 +140,11 @@ export default function Tracker() {
 
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
-  }, []);
+  }, [excluded]);
 
   // ── CTA 노출 (A/B 전환율의 분모) ──
   useEffect(() => {
+    if (excluded) return;
     if (typeof IntersectionObserver === 'undefined') return;
 
     const observer = new IntersectionObserver(
@@ -158,10 +174,12 @@ export default function Tracker() {
     const raf = requestAnimationFrame(scan);
 
     return () => { cancelAnimationFrame(raf); observer.disconnect(); };
-  }, [pathname]);
+  }, [pathname, excluded]);
 
   // ── 스크롤 깊이 ──
   useEffect(() => {
+    if (excluded) return;
+
     const onScroll = () => {
       const doc = document.documentElement;
       const scrollable = doc.scrollHeight - window.innerHeight;
@@ -177,10 +195,12 @@ export default function Tracker() {
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [pathname]);
+  }, [pathname, excluded]);
 
   // ── 폼 작성 시작 (폼 이탈률 파악용) ──
   useEffect(() => {
+    if (excluded) return;
+
     const onFocus = (event: FocusEvent) => {
       if (formStarted.current) return;
       const target = event.target;
@@ -194,7 +214,7 @@ export default function Tracker() {
     };
     document.addEventListener('focusin', onFocus);
     return () => document.removeEventListener('focusin', onFocus);
-  }, [pathname]);
+  }, [pathname, excluded]);
 
   // ── 이탈 시 잔여 큐 전송 ──
   useEffect(() => {

@@ -72,11 +72,18 @@ export async function POST(req: NextRequest) {
     parseAttribution(req.cookies.get('wnj_attr')?.value) ?? EMPTY_ATTRIBUTION;
   const { device, browser, os } = parseUserAgent(req.headers.get('user-agent') ?? '');
 
+  // 어드민 화면은 집계 대상이 아니다.
+  // 클라이언트(Tracker)에서 이미 막지만, 큐에 남아 있던 이벤트가 뒤늦게 넘어오거나
+  // 누군가 직접 호출하는 경우가 있어 서버에서도 한 번 더 거른다. 이 숫자가 오염되면
+  // 전환율 판단이 통째로 틀어지므로 방어를 두 겹 둔다.
+  const isAdminPath = (p: string | null) => Boolean(p && p.startsWith('/admin'));
+
   const rows = list
     .slice(0, MAX_BATCH)
     .map((e) => {
       const type = str(e.type, 30);
       if (!type || !ALLOWED_TYPES.has(type)) return null;
+      if (isAdminPath(str(e.path, 300))) return null;
 
       const ctaId = str(e.ctaId, 64);
       const value = typeof e.value === 'number' && Number.isFinite(e.value) ? e.value : null;
