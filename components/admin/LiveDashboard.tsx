@@ -6,6 +6,7 @@ import {
   Users, Eye, Phone, Inbox, TrendingUp, AlertCircle, Loader2, RefreshCw, ExternalLink,
 } from 'lucide-react';
 import BarChart, { InlineBar, CHART_COLORS } from './BarChart';
+import { StaffExclusionToggle } from './StaffExclusion';
 import { CHANNEL_LABELS, PAID_CHANNELS, type Channel } from '@/lib/analytics/attribution';
 import { CTA_SLOT_LABELS, type CtaSlot } from '@/lib/cta/schema';
 
@@ -109,7 +110,8 @@ export default function LiveDashboard() {
           ))}
         </div>
 
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex items-center gap-2 sm:gap-3 text-sm">
+          <StaffExclusionToggle />
           <span className="inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 px-3 py-1.5">
             <span className="relative flex h-2 w-2" aria-hidden>
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />

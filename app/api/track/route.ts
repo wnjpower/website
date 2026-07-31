@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { parseAttribution, parseUserAgent, EMPTY_ATTRIBUTION } from '@/lib/analytics/attribution';
+import { STAFF_COOKIE } from '@/lib/analytics/staff';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -64,6 +65,11 @@ export async function POST(req: NextRequest) {
       : [payload as IncomingEvent];
 
   if (list.length === 0) return noContent;
+
+  // 내부 인원(관리자) 방문은 집계하지 않는다.
+  // 사장님이 사이트를 확인할수록 방문자 수가 늘고 전환율이 낮게 보이는데,
+  // 트래픽이 적은 초기일수록 이 왜곡이 크다.
+  if (req.cookies.get(STAFF_COOKIE)?.value === '1') return noContent;
 
   const sessionId = req.cookies.get('wnj_sid')?.value;
   if (!sessionId || !/^[a-f0-9]{32}$/.test(sessionId)) return noContent;

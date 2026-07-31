@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { gtagEvent } from '@/components/GoogleAnalytics';
+import { isStaffCookieSet } from '@/lib/analytics/staff';
 
 /**
  * 자체 분석 수집기 (+ GA4 동시 전송).
@@ -62,20 +63,32 @@ export function track(event: QueuedEvent) {
 }
 
 /**
- * 어드민 화면은 집계 대상이 아니다.
+ * 집계 제외 대상 판정. 두 가지를 본다.
  *
- * Tracker는 루트 레이아웃에 있어 /admin 하위에서도 함께 실행된다. 그대로 두면
- * 사장님이 관리자 화면을 열어볼수록 방문자 수가 늘고 전환율(문의÷방문자)이
- * 실제보다 낮게 보인다. 즉 성과를 판단하는 숫자가 스스로를 오염시킨다.
+ *  1) 어드민 화면 — Tracker는 루트 레이아웃에 있어 /admin 하위에서도 함께 실행된다.
+ *  2) 내부 인원 표식 — 관리자가 공개 사이트를 둘러보는 경우.
+ *
+ * 둘 다 막지 않으면 사장님이 사이트를 확인할수록 방문자 수가 늘고
+ * 전환율(문의÷방문자)이 실제보다 낮게 보인다. 성과를 판단하는 숫자가
+ * 스스로를 오염시키는 셈이다.
  */
-function isExcludedPath(pathname: string | null): boolean {
-  return Boolean(pathname && pathname.startsWith('/admin'));
+function isExcluded(pathname: string | null): boolean {
+  if (pathname && pathname.startsWith('/admin')) return true;
+  return isStaffCookieSet();
 }
 
 export default function Tracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const excluded = isExcludedPath(pathname);
+
+  /*
+   * 표식은 어드민에서 켜고 끌 수 있으므로 페이지가 바뀔 때마다 다시 읽는다.
+   * 첫 렌더에는 false로 두어 서버·클라이언트 렌더를 일치시킨다(document 접근 불가).
+   */
+  const [excluded, setExcluded] = useState(false);
+  useEffect(() => {
+    setExcluded(isExcluded(pathname));
+  }, [pathname]);
   const lastPath = useRef<string | null>(null);
   const seenImpressions = useRef<Set<string>>(new Set());
   const scrollMarks = useRef<Set<number>>(new Set());

@@ -1,6 +1,7 @@
 import { getAdminUser } from '@/lib/supabase-server';
 import AdminNav from '@/components/admin/AdminNav';
 import NotAdmin from '@/components/admin/NotAdmin';
+import { StaffCookieSetter } from '@/components/admin/StaffExclusion';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   /*
@@ -14,6 +15,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-slate-100 text-ink">
+      {/* 여기 도달했다는 것 자체가 관리자임을 증명한다 — 그 시점에 표식을 심는다 */}
+      <StaffCookieSetter />
       <AdminNav userName={user.name ?? user.email} />
       <div className="lg:pl-60">
         <main className="px-4 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-10 max-w-[1400px] mx-auto">
