@@ -4,6 +4,7 @@ import {
   buildAttribution,
   serializeAttribution,
 } from '@/lib/analytics/attribution';
+import { STAFF_COOKIE, STAFF_EXCLUDED, STAFF_MAX_AGE } from '@/lib/analytics/staff';
 
 /**
  * 미들웨어가 맡는 일은 두 가지다.
@@ -129,6 +130,35 @@ async function handleAdmin(request: NextRequest): Promise<NextResponse> {
 
   // 이 호출이 만료된 액세스 토큰을 갱신하고 위 setAll로 쿠키를 다시 심는다.
   const { data: { user } } = await supabase.auth.getUser();
+
+  /*
+   * 관리자 방문 표식.
+   *
+   * 어드민 요청이 반드시 지나가는 길목이라, 화면이 그려지든 리다이렉트되든 확실히 심힌다
+   * (클라이언트 useEffect로 심었더니 새로고침 순서에 따라 누락됐다).
+   * admins 조회를 한 번 더 하지만 어드민 페이지 요청에서만 일어나므로 방문자에게는
+   * 아무 비용이 없다.
+   *
+   * 쿠키가 이미 있으면 건드리지 않는다 — 사장님이 "내 방문도 집계"를 켠 상태('0')를
+   * 다음 어드민 방문에 원상복구시키면 안 되기 때문이다.
+   */
+  if (user && !request.cookies.get(STAFF_COOKIE)) {
+    const { data: admin } = await supabase
+      .from('admins')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (admin) {
+      response.cookies.set(STAFF_COOKIE, STAFF_EXCLUDED, {
+        maxAge: STAFF_MAX_AGE,
+        path: '/',
+        sameSite: 'lax',
+        httpOnly: false, // 어드민 화면이 상태를 읽고 토글해야 한다
+        secure: request.nextUrl.protocol === 'https:',
+      });
+    }
+  }
 
   if (!user && !isPublicAdminRoute) {
     const loginUrl = request.nextUrl.clone();

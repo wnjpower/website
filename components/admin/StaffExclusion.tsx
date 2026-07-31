@@ -2,46 +2,35 @@
 
 import { useEffect, useState } from 'react';
 import { EyeOff, Eye } from 'lucide-react';
-import { isStaffCookieSet, setStaffCookie, clearStaffCookie } from '@/lib/analytics/staff';
+import { isStaffExcluded, excludeMyVisits, includeMyVisits } from '@/lib/analytics/staff';
 
 /**
- * 관리자 표식을 심는다 (화면에 아무것도 그리지 않음).
+ * 제외 상태 표시 + 토글.
  *
- * 어드민 레이아웃에서만 렌더된다. 그 레이아웃은 admins 화이트리스트를 통과한
- * 사용자에게만 도달하므로, "여기까지 왔다 = 관리자다"가 이미 증명된 상태다.
- * 덕분에 표식을 심기 위해 권한을 다시 조회할 필요가 없다.
- */
-export function StaffCookieSetter() {
-  useEffect(() => {
-    setStaffCookie();
-  }, []);
-  return null;
-}
-
-/**
- * 제외 상태 표시 + 해제 토글.
+ * 표식을 심는 일은 미들웨어(서버)가 한다. 여기서는 현재 상태를 보여주고
+ * 직접 끄고 켜는 것만 담당한다.
  *
- * 통계에서 무엇이 빠지고 있는지 눈에 보이지 않으면, 나중에 "방문자가 왜 이렇게
- * 적지?"라고 의심하게 된다. 상태를 대시보드에 드러내고 직접 끌 수 있게 둔다.
+ * 무엇이 통계에서 빠지고 있는지 눈에 보이지 않으면 나중에 "방문자가 왜 이렇게
+ * 적지?"라고 의심하게 되고, 수집이 실제로 되는지 확인하고 싶을 때도 막힌다.
  */
 export function StaffExclusionToggle() {
-  // 서버와 클라이언트의 첫 렌더를 맞추기 위해 마운트 후에만 실제 상태를 읽는다
+  // 서버·클라이언트 첫 렌더를 맞추기 위해 마운트 후에만 실제 쿠키를 읽는다
   const [mounted, setMounted] = useState(false);
   const [excluded, setExcluded] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setExcluded(isStaffCookieSet());
+    setExcluded(isStaffExcluded());
   }, []);
 
   if (!mounted) return null;
 
   function toggle() {
     if (excluded) {
-      clearStaffCookie();
+      includeMyVisits();
       setExcluded(false);
     } else {
-      setStaffCookie();
+      excludeMyVisits();
       setExcluded(true);
     }
   }
