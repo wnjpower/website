@@ -209,14 +209,53 @@
   color: var(--color-bg);
 }
 
-/* 체크박스 — 기본 모양이 둥글어 사각형 규칙과 어긋난다 */
+/* 체크박스 — 기본 모양이 둥글어 사각형 규칙과 어긋나므로 직접 그린다.
+   appearance:none으로 네이티브 상자를 지우는 이상 눈에 보이는 테두리와
+   체크 표시를 여기서 반드시 다시 그려야 한다. 그리지 않으면 빈 자리만 남는다
+   (개인정보 동의 체크박스가 모바일에서 사라졌던 원인). */
 .blueprint-theme .bp-check {
-  width: 17px;
-  height: 17px;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
   flex: none;
-  margin-top: 2px;
-  accent-color: var(--color-accent);
+  margin: 1px 0 0;
+  padding: 0;
+  border: 1px solid var(--color-accent);
   border-radius: 0;
+  background: #fff;
+  display: inline-grid;
+  place-content: center;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.blueprint-theme .bp-check::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  transform: scale(0);
+  transition: transform 0.12s ease;
+  background: var(--color-bg);
+  /* 체크 표시. clip-path를 모르는 브라우저에서는 채워진 사각형으로 보이며,
+     그래도 체크 상태는 그대로 구분된다 */
+  clip-path: polygon(14% 44%, 0 65%, 40% 100%, 100% 16%, 82% 0, 37% 62%);
+}
+.blueprint-theme .bp-check:checked {
+  background: var(--color-accent);
+}
+.blueprint-theme .bp-check:checked::before { transform: scale(1); }
+.blueprint-theme .bp-check:focus-visible {
+  outline: 2px solid var(--color-accent-700);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .blueprint-theme .bp-check,
+  .blueprint-theme .bp-check::before { transition: none; }
+}
+/* 고대비·강제 색상 모드에서는 시스템이 색을 덮어쓰므로 테두리로만 판단된다 */
+@media (forced-colors: active) {
+  .blueprint-theme .bp-check { border-color: CanvasText; }
+  .blueprint-theme .bp-check::before { background: CanvasText; }
 }
 
 @keyframes bp-spin { to { transform: rotate(360deg); } }

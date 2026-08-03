@@ -166,8 +166,10 @@ textarea {
   font-size: max(16px, 1em);
 }
 
-/* iOS가 input·button에 입히는 기본 그림자·둥근 모서리를 걷어낸다 */
-input,
+/* iOS가 input·button에 입히는 기본 그림자·둥근 모서리를 걷어낸다.
+   체크박스·라디오는 반드시 제외한다 — 이들에게 appearance:none은 그림자만
+   걷어내는 게 아니라 상자 자체를 지워 화면에서 사라진다. */
+input:not([type='checkbox']):not([type='radio']),
 textarea {
   -webkit-appearance: none;
   appearance: none;
