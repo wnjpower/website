@@ -44,10 +44,32 @@
   프래그먼트에 있어 서버로 오지 않으므로 브라우저에서만 할 수 있는 판단이다.
   프래그먼트에 recovery 토큰이 있을 때만 동작하며 평소 방문자에게는 아무 일도 없다.
 
-### 남겨둔 것
-복구 메일 템플릿은 기본값 그대로 두었다. `{{ .TokenHash }}` 형식으로 바꾸면 **다른
-기기에서 열어도** 되지만, 지금은 «요청한 기기에서 링크 열기»로 충분해 범위에서 뺐다.
-사용법은 [`docs/어드민_사용법.md`](docs/어드민_사용법.md) 0-3에 적었다.
+### 이어서 — 메일 템플릿 교체 + Resend SMTP 연결
+기기 제약(«요청한 브라우저에서만 열림»)을 없애려고 복구 메일 템플릿을 `{{ .TokenHash }}`
+형식으로 바꾸려 했으나 Supabase가 거부했다.
+
+> Email template modification is not available for free tier projects
+> using the default email provider.
+
+무료 tier + 기본 발송기 조합에서는 템플릿을 못 바꾼다. 확인하는 김에 더 큰 문제가
+드러났다 — **`rate_limit_email_sent`가 시간당 2통**이었다. 기본 발송기는 개발용이라
+이렇게 묶여 있고, 재설정을 두어 번 재시도하면 그 시간 동안 메일이 아예 오지 않는다.
+
+이미 견적 알림에 쓰던 **Resend를 SMTP로 연결**해 셋을 한 번에 해결했다(추가 비용 없음).
+
+- SMTP: `smtp.resend.com:465` / user `resend` / pass = `RESEND_API_KEY`
+- 발신: `quote@wnjpower.com` (표시 이름 «우앤주전력»).
+  Resend 키가 **발송 전용 제한 키**라 도메인 목록을 조회할 수 없어, 추측 대신
+  프로덕션에서 배달이 검증된 이 주소를 그대로 썼다.
+- 시간당 발송 한도 2 → 30
+- 템플릿: 한국어 + `{{ .TokenHash }}` 링크. 원본을
+  [`supabase/email-templates/recovery.html`](supabase/email-templates/recovery.html)에
+  보관한다(템플릿은 저장소가 아니라 프로젝트 설정에 저장되므로 사본이 없으면 복구 불가).
+
+**검증**: `admin/generate_link`로 메일 발송 없이 실제 토큰만 발급받아
+`/admin/auth/callback?token_hash=…&type=recovery`를 호출 → 307로
+`/admin/auth/reset-password`로 이동하는 것을 확인했다. 즉 `verifyOtp` 경로가
+실제 Supabase 토큰을 받아들인다. 이제 **어느 기기에서 열어도 된다.**
 
 ---
 

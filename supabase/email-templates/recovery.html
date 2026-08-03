@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#EFF3F8;font-family:Arial,'Malgun Gothic','맑은 고딕',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#EFF3F8;padding:32px 16px;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+  <tr>
+    <td style="background:#0F2E4D;padding:28px 32px;">
+      <div style="color:#ffffff;font-size:20px;font-weight:bold;letter-spacing:-0.3px;">주식회사 우앤주전력</div>
+      <div style="color:rgba(255,255,255,0.65);font-size:13px;margin-top:5px;">홈페이지 관리자 · 비밀번호 재설정</div>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:28px 32px 8px;">
+      <p style="margin:0;font-size:15px;color:#0F172A;line-height:1.75;">
+        관리자 비밀번호 재설정을 요청하셨습니다.<br>
+        아래 버튼을 눌러 새 비밀번호를 정해 주세요.
+      </p>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:20px 32px 24px;">
+      <a href="{{ .SiteURL }}/admin/auth/callback?token_hash={{ .TokenHash }}&type=recovery&next=/admin/auth/reset-password"
+         style="display:inline-block;background:#0F2E4D;color:#ffffff;text-decoration:none;font-size:16px;font-weight:bold;padding:15px 34px;border-radius:8px;letter-spacing:-0.2px;">
+        새 비밀번호 설정하기
+      </a>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:0 32px 24px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;">
+        <tr><td style="padding:14px 16px;font-size:13px;color:#475569;line-height:1.9;">
+          · 이 링크는 <b>한 번만</b>, 그리고 <b>1시간 안에만</b> 쓸 수 있습니다.<br>
+          · 휴대폰·PC 어느 기기에서 열어도 됩니다.<br>
+          · 본인이 요청하지 않았다면 이 메일을 무시하세요. 비밀번호는 바뀌지 않습니다.
+        </td></tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:0 32px 28px;">
+      <p style="margin:0;font-size:12px;color:#94A3B8;line-height:1.7;">
+        버튼이 눌리지 않으면 아래 주소를 복사해 브라우저 주소창에 붙여넣으세요.
+      </p>
+      <p style="margin:6px 0 0;font-size:12px;color:#64748B;line-height:1.6;word-break:break-all;">
+        {{ .SiteURL }}/admin/auth/callback?token_hash={{ .TokenHash }}&type=recovery&next=/admin/auth/reset-password
+      </p>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="background:#F8FAFC;border-top:1px solid #E2E8F0;padding:18px 32px;text-align:center;">
+      <div style="font-size:12px;color:#64748B;line-height:1.8;">
+        주식회사 우앤주전력 · 대구광역시 서구 문화로63길 19, 1층 (평리동)<br>
+        053-525-0424 · <a href="https://www.wnjpower.com" style="color:#0F2E4D;text-decoration:none;">wnjpower.com</a>
+      </div>
+    </td>
+  </tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>
