@@ -74,7 +74,7 @@ export default async function OpengraphImage() {
                 {COMPANY.name}
               </span>
               <span style={{ fontSize: 19, color: '#94A3B8', letterSpacing: 5 }}>
-                WNJ ELECTRIC
+                WNJ POWER
               </span>
             </div>
           </div>
