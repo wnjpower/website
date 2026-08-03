@@ -146,11 +146,15 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 가로 스크롤 방지 — 인앱 브라우저는 뷰포트가 좁아 넘침이 잘 생긴다 */
+/* 가로 스크롤 방지 — 인앱 브라우저는 뷰포트가 좁아 넘침이 잘 생긴다.
+   clip을 쓰고 hidden은 절대 쓰지 않는다. overflow-x:hidden은 반대 축의
+   visible을 auto로 승격시켜 html/body를 스크롤 컨테이너로 만들고, 그러면
+   position:sticky 헤더가 붙을 기준을 잃어 동작하지 않는다.
+   clip은 반대 축을 건드리지 않아 스티키가 그대로 살아있다. */
 html,
 body {
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* 고정 헤더 높이만큼 앵커 스크롤 보정 (배너 + 상단 띠 + 헤더) */

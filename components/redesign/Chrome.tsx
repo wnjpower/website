@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Phone } from 'lucide-react';
+import MobileNav from '@/components/redesign/MobileNav';
 import { COMPANY } from '@/lib/site';
 import type { SiteContent } from '@/lib/content/schema';
 
@@ -121,6 +122,9 @@ export function BlueprintHeader({
           <CornerMarks />
           무료 현장 견적
         </Link>
+
+        {/* 900px 이하 전용 — 데스크톱 내비가 숨겨지는 구간의 유일한 이동 수단 */}
+        <MobileNav items={navItems} ctaHref={ctaHref} />
       </div>
     </header>
   );

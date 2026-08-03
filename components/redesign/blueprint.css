@@ -375,10 +375,16 @@
 .blueprint-theme .rail-node::after  { top: 5px; left: 0; width: 100%; height: 1px; }
 
 /* ── 반응형 (스펙 §6: 브레이크포인트 900px) ── */
+/* 햄버거 버튼과 그 패널은 좁은 화면 전용 */
+.blueprint-theme [data-mobile-nav],
+.blueprint-theme [data-mobile-nav-panel] { display: none; }
+
 @media (max-width: 900px) {
   .blueprint-theme [data-desktop-nav] { display: none !important; }
   .blueprint-theme [data-desktop-dock] { display: none !important; }
   .blueprint-theme [data-mobile-bar] { display: flex !important; }
+  .blueprint-theme [data-mobile-nav] { display: inline-flex !important; }
+  .blueprint-theme [data-mobile-nav-panel] { display: block !important; }
   /* 하단 고정 바 + 아이폰 홈 인디케이터 영역만큼 본문 여백 확보 */
   .blueprint-theme { padding-bottom: calc(54px + env(safe-area-inset-bottom, 0px)); }
   /* 실적 원장: 좁은 화면에서는 행이 상세 페이지로 이동하므로 옆 패널을 걷어낸다
