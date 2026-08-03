@@ -6,6 +6,7 @@ import SchemaOrg from "@/components/SchemaOrg";
 import { Toaster } from "@/components/ui/sonner";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import Tracker from "@/components/analytics/Tracker";
+import RecoveryLinkCatcher from "@/components/RecoveryLinkCatcher";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -113,6 +114,8 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <Tracker />
         </Suspense>
+        {/* 홈으로 떨어진 비밀번호 재설정 링크를 재설정 화면으로 넘긴다 */}
+        <RecoveryLinkCatcher />
         <SchemaOrg />
         {children}
         <Toaster position="top-center" richColors />
