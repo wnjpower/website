@@ -112,6 +112,9 @@ export default function Ledger({ items }: { items: PortfolioItem[] }) {
                     onClick={(e) => {
                       // 새 탭·다운로드 의도는 그대로 브라우저에 넘긴다
                       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                      // 좁은 화면에서는 상세 패널이 목록 아래로 내려가 화면 밖에 있다.
+                      // 패널만 바꾸면 눌러도 아무 일도 없는 것처럼 보이므로 상세 페이지로 보낸다.
+                      if (window.matchMedia('(max-width: 900px)').matches) return;
                       e.preventDefault();
                       setSelectedSlug(item.slug);
                     }}
@@ -162,6 +165,7 @@ export default function Ledger({ items }: { items: PortfolioItem[] }) {
 
         {/* ── 상세 ── */}
         <article
+          data-ledger-panel
           className="blueprint elev-md"
           style={{ position: 'relative', background: 'var(--color-bg)', padding: 'clamp(20px,2.5vw,30px)' }}
         >
