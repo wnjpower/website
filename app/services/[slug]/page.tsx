@@ -2,28 +2,24 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowRight, Phone } from 'lucide-react';
+import SubPageShell from '@/components/SubPageShell';
+import { CornerMarks, SectionHead } from '@/components/redesign/Chrome';
 import { servicePages, getServicePage } from '@/content/service-pages';
 import { COMPANY, SITE_URL } from '@/lib/site';
-import { blueprintFontClass } from '@/lib/fonts';
-import {
-  BlueprintHeader,
-  BlueprintFooter,
-  BlueprintMobileBar,
-  CornerMarks,
-} from '@/components/redesign/Chrome';
-import '@/components/redesign/blueprint.css';
 
 /*
- * 서비스 상세 — 1b 블루프린트 레이아웃
+ * 서비스 상세 — 1b 블루프린트
  * 디자인 원본: Claude Design `WNJ 서비스 상세 (1b).dc.html`
  * 이관 스펙:   docs/실코드-이관-스펙.md §4·§5
  *
  * [원본의 탭을 상태가 아니라 링크로 바꾼 이유]
- * 디자인 원본은 4개 공종을 한 페이지에서 state로 갈아끼운다(프리뷰 한 파일에
- * 네 화면을 담기 위한 장치다). 실제 사이트에서 그대로 하면 4개 URL이 1개로
- * 합쳐지면서 '1 키워드 클러스터 = 1 페이지' 구조가 무너진다 — 이관 스펙 §4가
- * `/services/[slug]` 유지를 명시한 이유이기도 하다. 그래서 탭은 각 슬러그로
- * 가는 링크로 구현하고, 현재 페이지만 채움 처리한다. 보이는 결과는 동일하다.
+ * 원본은 4개 공종을 한 페이지에서 state로 갈아끼운다(프리뷰 한 파일에 네 화면을
+ * 담기 위한 장치다). 그대로 하면 4개 URL이 1개로 합쳐지면서 '1 키워드 클러스터 =
+ * 1 페이지' 구조가 무너진다 — 스펙 §4가 `/services/[slug]` 유지를 명시한 이유다.
+ * 탭은 각 슬러그로 가는 링크로 만들고 현재 페이지만 채움 처리한다. 결과는 동일하다.
+ *
+ * 골격(헤더·견적폼·오시는 길·푸터)은 SubPageShell이 담당한다. 덕분에 이 페이지에도
+ * 견적폼이 다시 붙어, 공종별 리드가 `service_{slug}`로 구분돼 접수된다.
  */
 
 export function generateStaticParams() {
@@ -48,16 +44,22 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-const SHELL = { maxWidth: 1280, margin: '0 auto', padding: '0 clamp(16px,4vw,48px)' } as const;
+// 인테리어만 일반 고객 대상이라 견적폼 고객유형을 다르게 잡는다
+const CUSTOMER_TYPE_BY_SLUG: Record<string, string> = {
+  factory: 'industrial',
+  power: 'industrial',
+  panel: 'industrial',
+  interior: 'interior',
+};
+
+const SHELL = { maxWidth: 1280, margin: '0 auto' } as const;
 const SECTION_PAD = 'clamp(40px,5vw,64px) clamp(16px,4vw,48px)';
+const HAIRLINE = '1px solid var(--color-divider)';
 
 export default function ServiceDetailPage({ params }: { params: { slug: string } }) {
   const page = getServicePage(params.slug);
   if (!page) notFound();
 
-  // 스펙 §8 — 서비스 상세 CTA는 공종별로 나눠 집계한다.
-  // 이 페이지에는 견적폼이 없으므로, 어느 공종 페이지가 문의를 만들어냈는지는
-  // 이 클릭 지표로만 확인할 수 있다.
   const ctaSlot = `service_cta_${page.slug}`;
 
   const serviceJsonLd = {
@@ -76,8 +78,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
     url: `${SITE_URL}/services/${page.slug}`,
   };
 
-  // 스펙 §7-1 — 노출형 FAQ + FAQPage 스키마. 질문은 페이지별로 분리 배정돼 있어
-  // 홈(/faq)과 중복되지 않는다.
+  // 스펙 §7-1 — 노출형 FAQ + FAQPage 스키마. 질문이 페이지별로 분리 배정돼 홈과 겹치지 않는다.
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -89,7 +90,11 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
   };
 
   return (
-    <div className={`blueprint-theme ${blueprintFontClass}`}>
+    <SubPageShell
+      quoteSource={`service_${page.slug}`}
+      initialCategory={page.slug}
+      initialCustomerType={CUSTOMER_TYPE_BY_SLUG[page.slug]}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
@@ -99,11 +104,9 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
-      <BlueprintHeader />
-
       {/* ── 브레드크럼 + 공종 탭 ── */}
-      <div className="grid-field" style={{ borderBottom: '1px solid var(--color-divider)' }}>
-        <div style={{ ...SHELL, paddingTop: 'clamp(24px,3vw,36px)' }}>
+      <div className="grid-field" style={{ borderBottom: HAIRLINE }}>
+        <div style={{ ...SHELL, padding: 'clamp(24px,3vw,36px) clamp(16px,4vw,48px) 0' }}>
           <nav aria-label="위치" className="text-muted" style={{ fontSize: 12.5, marginBottom: 18 }}>
             <Link href="/">홈</Link>
             {' / '}
@@ -112,7 +115,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <span style={{ color: 'var(--color-text)' }}>{page.crumb}</span>
           </nav>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap' }} role="tablist" aria-label="공종 선택">
+          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
             {servicePages.map((tab) => {
               const active = tab.slug === page.slug;
               return (
@@ -124,7 +127,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                   style={{
                     fontSize: 15,
                     padding: '12px 20px',
-                    border: '1px solid var(--color-divider)',
+                    border: HAIRLINE,
                     borderBottom: 'none',
                     marginRight: -1,
                     background: active ? 'var(--color-accent)' : 'transparent',
@@ -140,21 +143,10 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
       </div>
 
       {/* ── 서비스 히어로 ── */}
-      <section style={{ borderBottom: '1px solid var(--color-divider)' }}>
+      <section style={{ borderBottom: HAIRLINE }}>
         <div style={{ ...SHELL, padding: 'clamp(36px,5vw,60px) clamp(16px,4vw,48px)' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'baseline',
-              gap: 18,
-              flexWrap: 'wrap',
-              marginBottom: 16,
-            }}
-          >
-            <span
-              className="display"
-              style={{ fontSize: 15, letterSpacing: '.14em', color: 'var(--color-accent-700)' }}
-            >
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 18, flexWrap: 'wrap', marginBottom: 16 }}>
+            <span className="display" style={{ fontSize: 15, letterSpacing: '.14em', color: 'var(--color-accent-700)' }}>
               {page.code}
             </span>
             <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', lineHeight: 1.08 }}>{page.h1}</h1>
@@ -164,36 +156,19 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             {page.lead}
           </p>
 
-          <ul
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 6,
-              margin: '0 0 26px',
-              padding: 0,
-              listStyle: 'none',
-            }}
-          >
+          <ul style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '0 0 26px', padding: 0, listStyle: 'none' }}>
             {page.keywords.map((kw) => (
-              <li key={kw} className="tag">
-                {kw}
-              </li>
+              <li key={kw} className="tag">{kw}</li>
             ))}
           </ul>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
             <Link
-              href="#svc-quote"
+              href="#quote"
               className="display blueprint btn-solid is-solid"
               data-cta-slot={ctaSlot}
               data-cta-variant="A"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 10,
-                fontSize: 17,
-                padding: '13px 26px',
-              }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontSize: 17, padding: '13px 26px' }}
             >
               <CornerMarks />이 공사 무료 견적 신청
               <ArrowRight size={16} strokeWidth={1.5} />
@@ -201,13 +176,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <a
               href={`tel:${COMPANY.mobile}`}
               className="display btn-outline mono-num"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 9,
-                fontSize: 16,
-                padding: '13px 22px',
-              }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 9, fontSize: 16, padding: '13px 22px' }}
             >
               <Phone size={15} strokeWidth={1.5} />
               {COMPANY.mobile}
@@ -220,15 +189,9 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
       <section>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
           <SectionHead no="01" title="시공 범위" />
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))',
-              gap: '0 56px',
-            }}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: '0 56px' }}>
             {page.scope.map((item) => (
-              <div key={item.title} style={{ padding: '20px 0', borderTop: '1px solid var(--color-divider)' }}>
+              <div key={item.title} style={{ padding: '20px 0', borderTop: HAIRLINE }}>
                 <h3 style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: 15.5, marginBottom: 6, letterSpacing: 0 }}>
                   {item.title}
                 </h3>
@@ -240,14 +203,14 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
       </section>
 
       {/* ── 02 진행 절차 ── */}
-      <section style={{ borderTop: '1px solid var(--color-divider)' }}>
+      <section style={{ borderTop: HAIRLINE }}>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
           <SectionHead no="02" title="진행 절차" note="현장 조사부터 준공 인계까지" />
           <ol
             style={{
               display: 'flex',
               flexDirection: 'column',
-              borderLeft: '1px solid var(--color-divider)',
+              borderLeft: HAIRLINE,
               marginLeft: 6,
               maxWidth: 880,
               padding: 0,
@@ -273,31 +236,20 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
       </section>
 
       {/* ── 03 비용·기간을 좌우하는 변수 ── */}
-      <section style={{ borderTop: '1px solid var(--color-divider)' }}>
+      <section style={{ borderTop: HAIRLINE }}>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
           <SectionHead
             no="03"
             title="비용·기간을 좌우하는 변수"
             note="이 항목들을 미리 알려주시면 견적 정확도가 올라갑니다"
           />
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))',
-              gap: 24,
-            }}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 24 }}>
             {page.considerations.map((item, i) => (
               <div key={item.title} className="blueprint" style={{ padding: 20 }}>
                 <CornerMarks />
                 <p
                   className="display"
-                  style={{
-                    fontSize: 14,
-                    letterSpacing: '.1em',
-                    color: 'var(--color-accent-700)',
-                    margin: '0 0 8px',
-                  }}
+                  style={{ fontSize: 14, letterSpacing: '.1em', color: 'var(--color-accent-700)', margin: '0 0 8px' }}
                 >
                   V{i + 1}
                 </p>
@@ -312,22 +264,14 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
       </section>
 
       {/* ── 04 FAQ ── */}
-      <section style={{ borderTop: '1px solid var(--color-divider)' }}>
+      <section style={{ borderTop: HAIRLINE }}>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
           <SectionHead no="04" title="이 공사에 대한 질문" />
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))',
-              gap: '0 56px',
-            }}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: '0 56px' }}>
             {page.faqs.map((faq) => (
-              <div key={faq.question} style={{ padding: '20px 0', borderTop: '1px solid var(--color-divider)' }}>
+              <div key={faq.question} style={{ padding: '20px 0', borderTop: HAIRLINE }}>
                 <h3 style={{ fontFamily: 'inherit', fontWeight: 700, fontSize: 15, marginBottom: 6, letterSpacing: 0 }}>
-                  <span className="display" style={{ color: 'var(--color-accent-700)', marginRight: 8 }}>
-                    Q
-                  </span>
+                  <span className="display" style={{ color: 'var(--color-accent-700)', marginRight: 8 }}>Q</span>
                   {faq.question}
                 </h3>
                 <p style={{ fontSize: 13.5, lineHeight: 1.7, margin: 0, opacity: 0.8 }}>{faq.answer}</p>
@@ -337,8 +281,8 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
         </div>
       </section>
 
-      {/* ── CTA 플레이트 ── */}
-      <section id="svc-quote" className="grid-field" style={{ borderTop: '1px solid var(--color-divider)' }}>
+      {/* ── CTA 플레이트 — 바로 아래 견적폼으로 보낸다 ── */}
+      <section className="grid-field" style={{ borderTop: HAIRLINE }}>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
           <div
             className="blueprint elev-md"
@@ -363,30 +307,19 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
               <Link
-                href="/#quote"
+                href="#quote"
                 className="display blueprint btn-solid is-solid"
                 data-cta-slot={ctaSlot}
                 data-cta-variant="A"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  fontSize: 17,
-                  padding: '14px 28px',
-                }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontSize: 17, padding: '14px 28px' }}
               >
                 <CornerMarks />
-                무료 현장 견적 신청
+                아래 폼으로 견적 신청
               </Link>
               <a
                 href={`tel:${COMPANY.mobile}`}
                 className="display btn-outline mono-num"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  fontSize: 16,
-                  padding: '14px 22px',
-                }}
+                style={{ display: 'inline-flex', alignItems: 'center', fontSize: 16, padding: '14px 22px' }}
               >
                 {COMPANY.mobile}
               </a>
@@ -394,40 +327,6 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
           </div>
         </div>
       </section>
-
-      <BlueprintFooter />
-      <BlueprintMobileBar quoteHref="/#quote" ctaSlot={ctaSlot} />
-    </div>
-  );
-}
-
-/**
- * 섹션 머리 — 번호 + 제목 + 보조 설명, 좌측 정렬.
- * 스펙 §5가 지적한 P5(중앙 정렬 SectionHeading)를 대체한다.
- */
-function SectionHead({ no, title, note }: { no: string; title: string; note?: string }) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'baseline',
-        gap: 18,
-        flexWrap: 'wrap',
-        marginBottom: 30,
-      }}
-    >
-      <span
-        className="display"
-        style={{ fontSize: 15, letterSpacing: '.14em', color: 'var(--color-accent-700)' }}
-      >
-        {no}
-      </span>
-      <h2 style={{ fontSize: 'clamp(24px,2.6vw,32px)' }}>{title}</h2>
-      {note && (
-        <span className="text-muted" style={{ fontSize: 13 }}>
-          {note}
-        </span>
-      )}
-    </div>
+    </SubPageShell>
   );
 }

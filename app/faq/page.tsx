@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import SubPageShell from '@/components/SubPageShell';
 import PageHero from '@/components/PageHero';
-import Faq from '@/components/sections/Faq';
+import HomeFaq from '@/components/redesign/home/HomeFaq';
+import FaqSchema from '@/components/FaqSchema';
 import { getSiteContent } from '@/lib/content/get';
 
 export const metadata: Metadata = {
@@ -30,8 +31,13 @@ export default async function FaqPage() {
         crumbs={[{ label: '자주 묻는 질문' }]}
       />
 
-      {/* FAQPage 구조화 데이터의 정본 페이지 */}
-      <Faq content={content.faq} withSchema />
+      {/*
+        FAQPage 구조화 데이터의 정본 페이지.
+        홈과 같은 노출형 FAQ를 쓴다 — 아코디언을 접어두면 AI 검색·스니펫 인용에
+        불리하고, 이 페이지는 애초에 답을 읽으러 오는 페이지다(P8).
+      */}
+      <FaqSchema items={content.faq.items} />
+      <HomeFaq content={content.faq} />
     </SubPageShell>
   );
 }

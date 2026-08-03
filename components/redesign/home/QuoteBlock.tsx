@@ -42,19 +42,42 @@ function formatPhone(raw: string): string {
   return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
 }
 
+/**
+ * 서브페이지에서 넘어오는 공종 식별자를 견적폼 카테고리로 옮긴다.
+ * `/services/panel`에서 들어온 사람에게 '공장 신축'이 선택돼 있으면
+ * 직접 바꿔야 하고, 그만큼 이탈 지점이 하나 늘어난다.
+ */
+const CATEGORY_BY_SERVICE: Record<string, QuoteInput['category']> = {
+  factory: 'factory_new',
+  power: 'power_receiving',
+  panel: 'switchboard',
+  interior: 'interior_store',
+};
+
 export default function QuoteBlock({
   content,
   ctas,
   source = 'main_form',
+  initialCategory,
+  initialCustomerType,
 }: {
   content: SiteContent['quote'];
   ctas: Record<CtaSlot, Cta>;
   source?: string;
+  /** 서비스/사례 페이지의 공종 (factory·power·panel·interior) */
+  initialCategory?: string;
+  initialCustomerType?: string;
 }) {
   const loadedAt = useRef(Date.now());
   const [submitted, setSubmitted] = useState(false);
   const [alimtalkSent, setAlimtalkSent] = useState(false);
   const submitCta = ctas.quote_submit;
+
+  const startCategory: QuoteInput['category'] =
+    (initialCategory ? CATEGORY_BY_SERVICE[initialCategory] : undefined) ?? 'factory_new';
+  const startCustomerType: QuoteInput['customerType'] =
+    (initialCustomerType as QuoteInput['customerType'] | undefined) ??
+    (initialCategory === 'interior' ? 'interior' : 'industrial');
 
   const {
     register,
@@ -65,8 +88,8 @@ export default function QuoteBlock({
   } = useForm<QuoteInput>({
     resolver: zodResolver(QuoteSchema),
     defaultValues: {
-      customerType: 'industrial',
-      category: 'factory_new',
+      customerType: startCustomerType,
+      category: startCategory,
       source,
       loadedAt: loadedAt.current,
     },
