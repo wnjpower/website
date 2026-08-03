@@ -9,6 +9,48 @@
 
 ---
 
+## 2026-08-03 — 비밀번호 재설정이 아예 동작하지 않던 문제
+
+재설정 메일의 링크를 열면 `localhost` 연결 거부로 끝났다. 원인이 둘이었고 **둘 다**
+고쳐야 했다.
+
+### 원인 1 — Supabase Site URL이 기본값 그대로 (프로젝트 설정)
+`site_url`이 프로젝트 생성 이후 한 번도 바뀌지 않은 `http://localhost:3000`이었다.
+대시보드에서 보내는 복구 메일은 이 값을 기준으로 되돌아올 주소를 만든다.
+`uri_allow_list`는 아예 비어 있어서, 앱이 `redirectTo`를 지정해도 무시됐을 것이다.
+
+- `site_url` → `https://www.wnjpower.com`
+- `uri_allow_list` → `https://www.wnjpower.com/**,https://wnjpower.com/**,http://localhost:3000/**`
+  (apex도 넣는다 — www로 308 리다이렉트되지만 허용목록 검사는 그 전에 일어난다)
+
+### 원인 2 — 링크가 도착할 라우트가 없었다 (코드)
+[`middleware.ts`](middleware.ts)가 예전부터 `/admin/auth`를 비로그인 통과 경로로 열어
+두었는데 정작 그 라우트를 만든 적이 없었다. **Site URL만 고쳐도 해결되지 않는다** —
+링크는 홈으로 떨어지고 아무 일도 일어나지 않는다. 비밀번호 찾기 UI도 없었다.
+
+- [`app/admin/auth/callback/route.ts`](app/admin/auth/callback/route.ts) — 이메일 링크를
+  세션으로 바꾼다. 형식 세 가지를 모두 받는다: `token_hash`(기기 무관) / `code`(PKCE,
+  요청한 브라우저에서만) / 프래그먼트(서버로 오지 않아 아래 화면이 처리).
+  `next`는 `/admin` 하위로만 허용해 오픈 리다이렉트를 막는다. Vercel 프록시 뒤라
+  `x-forwarded-host`로 공개 도메인을 계산한다(내부 주소로 되돌리면 링크가 죽는다).
+- [`app/admin/auth/reset-password/page.tsx`](app/admin/auth/reset-password/page.tsx) —
+  새 비밀번호 설정. 프래그먼트로 온 토큰을 세션으로 바꾸고 **주소창에서 토큰을 지운다**.
+  세션이 없으면 조용히 실패하지 않고 «링크 만료»를 분명히 알리고 재발송 버튼을 준다.
+- [`app/admin/login/page.tsx`](app/admin/login/page.tsx) — «비밀번호를 잊으셨나요?» 추가.
+  발송 결과는 성공/실패를 구분하지 않는다 — 구분하면 가입된 이메일을 캐낼 수 있다.
+- [`components/RecoveryLinkCatcher.tsx`](components/RecoveryLinkCatcher.tsx) — 대시보드에서
+  보낸 메일은 되돌아올 주소로 Site URL을 그대로 쓴다(우리 콜백을 지정할 방법이 없다).
+  그래서 홈에 토큰만 매달린 채 떨어지는데, 이를 재설정 화면으로 넘긴다. 토큰이
+  프래그먼트에 있어 서버로 오지 않으므로 브라우저에서만 할 수 있는 판단이다.
+  프래그먼트에 recovery 토큰이 있을 때만 동작하며 평소 방문자에게는 아무 일도 없다.
+
+### 남겨둔 것
+복구 메일 템플릿은 기본값 그대로 두었다. `{{ .TokenHash }}` 형식으로 바꾸면 **다른
+기기에서 열어도** 되지만, 지금은 «요청한 기기에서 링크 열기»로 충분해 범위에서 뺐다.
+사용법은 [`docs/어드민_사용법.md`](docs/어드민_사용법.md) 0-3에 적었다.
+
+---
+
 ## 2026-07-31 — 실시간 알림: CTA 버튼 클릭 → 사장님 휴대폰·PC 팝업
 
 방문자가 사이트의 **CTA 버튼(전화·카카오톡·견적문의 등)을 누르는 순간** 사장님 기기에
