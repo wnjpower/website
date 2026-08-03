@@ -1,38 +1,50 @@
 import type { Metadata } from 'next';
-import Header from '@/components/Header';
 import Banner, { BANNER_HEIGHT, bannerIsOn } from '@/components/Banner';
-import Hero from '@/components/sections/Hero';
-import Services from '@/components/sections/Services';
-import WhyUs from '@/components/sections/WhyUs';
-import Process from '@/components/sections/Process';
-import Portfolio from '@/components/sections/Portfolio';
-import Pricing from '@/components/sections/Pricing';
-import Faq from '@/components/sections/Faq';
-import QuoteSection from '@/components/sections/QuoteSection';
-import Contact from '@/components/sections/Contact';
-import Footer from '@/components/sections/Footer';
-import FloatingCta from '@/components/FloatingCta';
 import ScrollReveal from '@/components/ScrollReveal';
-import { QuotePrefillProvider } from '@/components/QuotePrefill';
+import FaqSchema from '@/components/FaqSchema';
+import {
+  BlueprintHeader,
+  BlueprintFooter,
+  BlueprintMobileBar,
+  BlueprintDesktopDock,
+} from '@/components/redesign/Chrome';
+import Hero from '@/components/redesign/home/Hero';
+import QuickQuoteBar from '@/components/redesign/home/QuickQuoteBar';
+import HomeFaq from '@/components/redesign/home/HomeFaq';
+import QuoteBlock from '@/components/redesign/home/QuoteBlock';
+import {
+  Services,
+  Process,
+  PortfolioLedger,
+  Credentials,
+  Pricing,
+  Contact,
+} from '@/components/redesign/home/Sections';
 import { getSiteContent } from '@/lib/content/get';
 import { resolveCtas } from '@/lib/cta/get';
+import { blueprintFontClass } from '@/lib/fonts';
+import '@/components/redesign/blueprint.css';
 
 /*
- * 원페이지 정보구조 — 방문자의 질문 하나씩만 담당하도록 정리했다.
- *   Hero        무엇을 하는 회사인가 / 어떻게 연락하나
- *   Services    구체적으로 어떤 공사를 하나
- *   WhyUs       믿을 수 있나 (차별점 + 조회 가능한 자격)
- *   Process     어떻게 진행되나
- *   Portfolio   해본 적 있나 (실적 원장)
- *   Pricing     얼마인가
- *   Faq         자주 묻는 것들
- *   Quote       문의하기 (전환)
- *   Contact     찾아가기·연락
+ * 홈 — 1b 블루프린트 원페이지
+ * 디자인 원본: Claude Design `WNJ 홈페이지 (1b).dc.html`
+ * 이관 스펙:   docs/실코드-이관-스펙.md §4 (9단계 중 3~5단계)
  *
- * 모든 문구는 어드민(/admin/content)에서 편집되며 발행 즉시 반영된다.
+ * 정보구조 — 방문자의 질문을 순서대로 하나씩 답한다.
+ *   Hero        무엇을 하는 회사인가 (정의문 한 문장 + 조회 가능한 지표)
+ *   QuickForm   지금 바로 접수하려면 (연락처만)
+ *   01 사업영역  구체적으로 어떤 공사를 하나
+ *   02 진행 절차 어떻게 진행되나
+ *   03 시공 실적 해본 적 있나 (공사 원장)
+ *   04 자격      믿을 수 있나 (공공기관 조회)
+ *   05 비용 기준 얼마인가 → 무엇이 금액을 정하는가
+ *   06 FAQ      남은 질문
+ *   07 견적폼    전환
+ *   오시는 길
+ *
+ * 문구는 모두 어드민(홈페이지 편집)에서 나온다. 발행 즉시 반영된다.
  */
 
-/** 홈 메타데이터도 어드민에서 편집한다 (검색 결과에 그대로 노출되는 제목·설명). */
 export async function generateMetadata(): Promise<Metadata> {
   const { seo } = await getSiteContent();
   return {
@@ -50,25 +62,42 @@ export default async function Home() {
   const bannerOn = bannerIsOn(content.banner);
 
   return (
-    <QuotePrefillProvider>
+    <>
       <Banner content={content.banner} />
-      <main
-        style={{ ['--banner-h' as string]: bannerOn ? BANNER_HEIGHT : '0px', paddingTop: bannerOn ? BANNER_HEIGHT : undefined }}
+      <div
+        className={`blueprint-theme ${blueprintFontClass}`}
+        style={{
+          ['--banner-h' as string]: bannerOn ? BANNER_HEIGHT : '0px',
+          paddingTop: bannerOn ? BANNER_HEIGHT : undefined,
+        }}
       >
+        {/*
+          노출형 FAQ에 FAQPage 스키마를 함께 낸다 — 스펙 §7-1.
+          답변이 화면에 그대로 있고 스키마가 같은 내용을 가리키므로
+          AI 검색·구글 스니펫이 인용할 근거가 된다.
+        */}
+        <FaqSchema items={content.faq.items} />
+
         <ScrollReveal />
-        <Header content={content.header} ctas={ctas} />
-        <Hero content={content.hero} ctas={ctas} />
-        <Services content={content.services} />
-        <WhyUs content={content.whyus} />
-        <Process content={content.process} />
-        <Portfolio />
-        <Pricing content={content.pricing} ctas={ctas} />
-        <Faq content={content.faq} />
-        <QuoteSection source="main_form" content={content.quote} ctas={ctas} />
-        <Contact content={content.contact} />
-        <Footer content={content.footer} />
-        <FloatingCta ctas={ctas} />
-      </main>
-    </QuotePrefillProvider>
+        <BlueprintHeader content={content.header} ctaHref="#quote" />
+
+        <main>
+          <Hero content={content.hero} ctas={ctas} />
+          <QuickQuoteBar content={content.quickForm} />
+          <Services content={content.services} />
+          <Process content={content.process} />
+          <PortfolioLedger />
+          <Credentials content={content.whyus} />
+          <Pricing content={content.pricing} />
+          <HomeFaq content={content.faq} />
+          <QuoteBlock content={content.quote} ctas={ctas} source="main_form" />
+          <Contact content={content.contact} />
+        </main>
+
+        <BlueprintFooter />
+        <BlueprintDesktopDock quoteHref="#quote" />
+        <BlueprintMobileBar quoteHref="#quote" ctaSlot="floating_quote" />
+      </div>
+    </>
   );
 }

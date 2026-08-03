@@ -91,10 +91,25 @@
       디자인 토큰·유틸리티는 `components/redesign/blueprint.css`에 있고 `.blueprint-theme`
       스코프 안에 갇혀 있다. Next가 이 CSS를 라우트 청크로 분리해서 **다른 페이지에는
       아예 로드되지 않는다**(확인: `/services/[slug]/page.css`, `:root` 오염 0건).
-- [ ] **나머지 페이지 이관** — 지금은 `/services/*`만 새 디자인이고 홈·실적·FAQ는 기존
-      네이비 디자인이다. **헤더·푸터가 페이지마다 다르게 보이는 상태**이므로 오래 두지 말 것.
-      스펙 순서: 1) 토큰·폰트를 globals.css `:root`로 승격 → 2) Header/Footer/FloatingCta →
-      3) Hero+퀵폼 → 4) 본문 섹션 6종 → 5) QuoteSection → 7) JSON-LD·어드민 문구 키
+- [x] ~~**홈 `/`**~~ ✅ 완료 (2026-08-03, 스펙 3~5단계)
+      히어로(단선결선도)·퀵폼·사업영역·진행절차·실적 원장표·자격(다크)·비용 기준·
+      노출형 FAQ·견적폼·오시는 길. 어드민 편집·CTA A/B·`/api/quote`·알림톡은 그대로다.
+      - 신규 CTA 슬롯: `quick_bar_submit`, `service_card_{slug}` (스펙 §8)
+      - 히어로 CTA 위계를 뒤집었다 — 견적(채움) > 전화(테두리). 이전엔 전화가 주 버튼이라
+        근무 중 전화가 어려운 발주 담당자에게 막다른 길이었다
+      - 퀵폼은 `source='quick_bar'`로 접수돼 어드민 실시간 현황에서 본폼과 전환율 비교 가능
+- [ ] **나머지 페이지 이관** — 지금은 `/`와 `/services/*`가 새 디자인이고 `/portfolio`·`/faq`·
+      `/about`·`/blog`는 기존 네이비 디자인이다(SubPageShell). **헤더·푸터가 페이지마다
+      다르게 보이는 상태**이므로 오래 두지 말 것. 남은 순서:
+      `WNJ 시공실적 (1b)` 이관 → SubPageShell을 블루프린트 골격으로 교체 →
+      토큰을 globals.css `:root`로 승격(그 시점에 `components/redesign/blueprint.css`의
+      `.blueprint-theme` 스코프를 풀면 된다)
+- [ ] **구 컴포넌트 정리** — 홈이 새 섹션으로 갈아타면서 아래가 서브페이지에서만 쓰인다.
+      전체 이관이 끝나면 삭제 대상: `components/sections/Hero·Services·WhyUs·Process·
+      Pricing·Faq·QuoteSection·QuoteForm·CallbackForm·Contact·Footer`, `components/Header.tsx`,
+      `components/FloatingCta.tsx`
+- [ ] **콜백폼 폐지 판단** — 퀵폼이 대체하지만 스펙 §5는 2주 병행 후 지표로 결정하라고 한다.
+      현재 콜백폼은 서브페이지(SubPageShell)에만 남아 있다. `source`별 전환율로 비교할 것
 - [ ] **서비스 상세에서 빠진 것** (원본 디자인·스펙이 의도적으로 뺀 항목. 되살릴지 판단 필요)
       - **페이지 내 견적폼** — 기존에는 `SubPageShell`이 폼을 심어 `source='service_{slug}'`로
         접수됐다. 새 디자인은 홈(`/#quote`)으로 보낸다. 공종별 리드 귀속이 끊기므로
@@ -104,6 +119,12 @@
       - **다른 사업영역 카드** — 상단 공종 탭이 같은 역할을 하므로 중복 제거됨.
 - [ ] **한글 서체** — 스펙은 IBM Plex Sans KR을 지정하지만, 이미 전역으로 싣는 Pretendard를
       한글 폴백으로 썼다(한글 웹폰트 2벌 = 모바일 첫 화면 지연). 디자이너 확인 필요.
+- [ ] **어드민에서 안 쓰이게 된 필드** — 저장된 값을 잃지 않으려고 기본값에는 남겼지만
+      화면에는 나오지 않고 편집 화면에서도 뺐다: `header.topBar*`(상단 유틸 띠 삭제 — P3),
+      `whyus.reasons`·`verifyTitle`(차별점 4가지 → 자격 카드로 통합 — P3),
+      `hero.segments`(고객 유형 안내 링크). 전체 이관이 끝나면 기본값에서도 지울지 결정.
+- [ ] **홈 모바일(900px 미만) 실기기 확인** — 미디어쿼리·하단바·safe-area가 배포물에 들어간
+      것은 확인했으나, 브라우저 창 리사이즈가 먹지 않아 눈으로 보지는 못했다.
 - [ ] **제도 수치 실무 검수** — 서비스 상세 본문의 계약전력 기준(저압 100kW), 시설부담금
       기본거리(공중 200m·지중 50m), 사용전점검/검사 구분(75kW·100kW), 감소 후 3년 내 재증설
       면제 등. 원본 `content/service-pages.ts` 주석과 스펙 §10이 모두 검수를 요청하고 있다.

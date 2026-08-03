@@ -73,13 +73,20 @@ export const CTA_DEFAULTS: Record<CtaSlot, Omit<Cta, 'id'>> = {
     slot: 'header_phone', variant: 'A', label: COMPANY.mobile, sublabel: null,
     href: `tel:${COMPANY.mobile}`, style: 'signal', icon: 'Phone', weight: 100, active: true,
   },
+  /*
+   * 1b 재구축에서 히어로 CTA 위계를 뒤집었다 — 견적(채움) > 전화(테두리).
+   *
+   * 이전에는 전화가 주 버튼이었다. 공사 사양이 복잡할수록 통화 전환율이 높다는
+   * 판단이었는데, 근무 중에 전화를 걸기 어려운 발주 담당자에게는 막다른 길이었다.
+   * 견적폼을 주 경로로 두고 전화는 나란히 두어 둘 다 한 번에 보이게 한다.
+   */
   hero_primary: {
-    slot: 'hero_primary', variant: 'A', label: `${COMPANY.mobile} 전화상담`, sublabel: '지금 바로 연결',
-    href: `tel:${COMPANY.mobile}`, style: 'signal', icon: 'Phone', weight: 100, active: true,
+    slot: 'hero_primary', variant: 'A', label: '무료 현장 견적 신청', sublabel: null,
+    href: '#quote', style: 'primary', icon: null, weight: 100, active: true,
   },
   hero_secondary: {
-    slot: 'hero_secondary', variant: 'A', label: '견적문의 남기기', sublabel: null,
-    href: '#quote', style: 'ghost', icon: null, weight: 100, active: true,
+    slot: 'hero_secondary', variant: 'A', label: COMPANY.mobile, sublabel: null,
+    href: `tel:${COMPANY.mobile}`, style: 'outline', icon: 'Phone', weight: 100, active: true,
   },
   pricing_cta: {
     slot: 'pricing_cta', variant: 'A', label: '무료 견적 받아보기', sublabel: null,

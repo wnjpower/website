@@ -43,21 +43,44 @@ export const CONTENT_DEFAULTS = {
   },
 
   hero: {
-    eyebrow: '대구·경북 공장·산업 전기공사 전문',
-    title: '공장 전기공사, 설계부터 시공까지\n한 팀이 직접 맡습니다',
-    lead: '공장 신축·증축·증설부터 수전설비·계약전력 증설·동력설비까지 — 하도급 없이 전기공사업 등록 법인이 직접 시공합니다. 현장 방문 견적은 출장비 없이 무료입니다.',
-    leadHighlight: '전기공사업 등록 법인이 직접 시공',
+    eyebrow: `대구·경북 공장·산업 전기공사 — 등록번호 ${COMPANY.license}`,
+    title: '도면에서 준공까지,\n한 팀이 직접 시공합니다',
+    /**
+     * 답변엔진(AI 검색)이 그대로 인용할 수 있는 정의문 한 문장으로 시작한다 — 스펙 §7-3.
+     * "무엇을 하는 회사인가"가 첫 문장에서 끝나야 인용 대상이 된다.
+     */
+    lead: '주식회사 우앤주전력은 전기공사업 등록 법인으로, 공장 신축·증축, 수전설비·계약전력 증설, 배전반 설계·설치를 하도급 없이 직접 수행합니다.',
+    leadHighlight: '전기공사업 등록 법인',
+    note: '현장 방문 견적 무료 · 출장비 없음 · 1영업일 내 회신',
     backgroundImage: '',
     segments: [
       { label: '공장·산업 전기공사', sub: '신축·증축·수전·배전반', href: '#services' },
       { label: '인테리어·일반 전기', sub: '상가·병원·주택', href: '#services' },
     ],
+    /**
+     * 신뢰 지표 4칸. label이 크게, sub가 그 아래 설명으로 나온다.
+     * 형용사가 아니라 조회 가능한 번호·기간을 넣는 것이 이 자리의 원칙이다.
+     */
     trustStats: [
-      { icon: 'ShieldCheck',   label: '전기공사업 등록',    sub: COMPANY.license,  mono: true },
-      { icon: 'CalendarClock', label: '대표 현장경력 20년+', sub: '2023년 법인 설립', mono: false },
-      { icon: 'Layers',        label: '원스톱 직접 시공',    sub: '설계 검토→준공',   mono: false },
-      { icon: 'Wrench',        label: 'A/S 당일 출동',      sub: '준공 후 1년 보증',  mono: false },
+      { icon: 'ShieldCheck',   label: COMPANY.license, sub: '전기공사업 등록번호',            mono: true  },
+      { icon: 'CalendarClock', label: '20년+',         sub: '대표 현장경력 · 2023 법인 설립', mono: false },
+      { icon: 'Layers',        label: '직접 시공',      sub: '하도급 없음 · 설계 검토→준공',   mono: false },
+      { icon: 'Wrench',        label: '당일 출동',      sub: 'A/S · 준공 후 1년 보증',        mono: false },
     ],
+  },
+
+  /**
+   * 히어로 직하 퀵폼 — 본 견적폼(입력 9개)이 부담스러운 이탈층을 회수한다.
+   * 연락처만 필수라 30초면 접수된다. 접수는 /api/quote를 그대로 타고
+   * source='quick_bar'로 구분되어, 어드민 실시간 현황에서 본폼과 전환율을 비교할 수 있다.
+   */
+  quickForm: {
+    enabled: true,
+    title: '빠른 견적 접수',
+    note: '1영업일 내 담당자가 직접 연락드립니다',
+    consentNote: '접수 시 연락처 수집·이용(보유 1년)에 동의한 것으로 봅니다',
+    successTitle: '접수되었습니다 — 1영업일 내 연락드립니다',
+    successNote: '급하시면 010-8552-9994로 바로 전화 주세요.',
   },
 
   services: {
@@ -112,10 +135,18 @@ export const CONTENT_DEFAULTS = {
     ],
   },
 
+  /**
+   * 자격 — "믿을 수 있나"에 답하는 다크 필드.
+   *
+   * 1b 재구축에서 기존 '차별점 4가지'(reasons)는 뺐다. 같은 주장이 히어로 신뢰 지표와
+   * 사업영역 카드에 이미 두 번 나와 세 번째 반복이었기 때문이다(P3).
+   * 이 자리는 조회 가능한 등록번호 3종과 회사 개요 사실 표만 담당한다.
+   * reasons·verifyTitle은 저장된 값을 잃지 않도록 남겨두되 화면에는 쓰이지 않는다.
+   */
   whyus: {
-    eyebrow: '왜 우앤주전력인가',
-    title: '면허·직접시공·원스톱, 그리고 직접 확인 가능한 자격',
-    lead: '말이 아니라 조회로 검증되는 전기공사 법인입니다.',
+    eyebrow: '검증 가능한 자격',
+    title: '검증 가능한 자격',
+    lead: '말이 아니라 공공기관 조회로 확인하세요',
     verifyTitle: '공적 자격, 직접 확인하세요',
     reasons: [
       {
@@ -139,7 +170,9 @@ export const CONTENT_DEFAULTS = {
         desc: '대구·경북 지역 전담으로 문제 발생 시 당일 출동을 원칙으로 합니다. 준공 후 1년간 사후관리를 책임집니다.',
       },
     ],
-    corpNote: '대표 현장경력 20년+ · 2023년 법인 설립',
+    corpNote: '2023년 3월 법인 설립 · 대표 현장경력 20년+ · 계약 시 면허증 사본 제공',
+    /** 회사 개요 사실 표 — LocalBusiness JSON-LD와 1:1로 맞춘다 (스펙 §7-2) */
+    industry: '전기공사업 (공장·산업 전기 전문)',
   },
 
   process: {
@@ -154,20 +187,34 @@ export const CONTENT_DEFAULTS = {
     ],
   },
 
+  /**
+   * 비용 — "얼마인가"에 답할 수 없으면 "무엇이 금액을 정하는가"에 답한다.
+   *
+   * 기존 '표준 작업 항목표'는 비용 열이 전부 "협의 후 견적"이라 정보가 0이었다(P6).
+   * 변수 3개를 먼저 공개하고, 표는 항목별 '산정 기준'을 밝히는 쪽으로 바꿨다.
+   */
   pricing: {
-    eyebrow: '비용 안내',
-    title: '비용이 궁금하신가요?',
-    lead: '대표적인 작업 항목입니다. 현장 여건에 따라 달라지므로 정확한 금액은 무료 현장 견적으로 확인하세요.',
+    eyebrow: '비용 기준',
+    title: '비용은 이렇게 정해집니다',
+    lead: '전기공사는 규격 상품이 아니라 현장마다 사양이 다른 공사입니다. 일률 정찰가 대신, 무엇이 비용을 결정하는지 공개합니다.',
+    leadHighlight: '현장마다 사양이 다른 공사',
     tableTitle: '표준 작업 항목표',
-    footnote: '* 자재 사양·현장 여건·공사 범위에 따라 비용이 달라질 수 있습니다. 견적을 위한 현장 방문은 출장비 없이 무료입니다.',
+    footnote: '* 견적서에는 항목별 자재·노무 내역이 분리 기재됩니다.',
+    promise:
+      '현장 방문 견적은 무료이며, 견적서 확인 후 진행 여부는 고객이 결정합니다. 어떠한 강요도 없습니다.',
+    variables: [
+      { no: 'V1', title: '규모 — 면적·회로 수·계약전력(kW)', note: '공사 범위를 결정하는 1차 변수' },
+      { no: 'V2', title: '자재 사양 — 전선·차단기·반(盤) 등급', note: '견적서에 품명·규격 단위로 명기' },
+      { no: 'V3', title: '현장 여건 — 가동 중 여부·층고·거리', note: '정전 협의·야간작업 필요 시 반영' },
+    ],
     items: [
-      { work: '공장 신축·증축 옥내외 전기공사',       audience: '공장·산업시설', priceLabel: '현장 협의 후 견적' },
-      { work: '계약전력 증설·수전설비 공사',          audience: '공장·상업건물', priceLabel: '용량 산정 후 견적' },
-      { work: '동력설비(생산기계 전원) 배선·결선',    audience: '공장·산업시설', priceLabel: '현장 협의 후 견적' },
-      { work: '산업용·상업용 배전반 설계·설치',       audience: '공장·상업건물', priceLabel: '규격 협의 후 견적' },
-      { work: '분전함(두꺼비집) 교체·증설',           audience: '주택·상가',     priceLabel: '무료 견적으로 확인' },
-      { work: '상가·병원 인테리어 전기 (33㎡ 기준)',   audience: '상가·병원',     priceLabel: '무료 견적으로 확인' },
-      { work: '콘센트 추가·이동 / 조명 교체 (1개소)', audience: '주택·아파트',   priceLabel: '무료 견적으로 확인' },
+      { work: '공장 신축·증축 옥내외 전기공사',       audience: '공장·산업시설', priceLabel: '도면·면적·부하 기준 현장 산정' },
+      { work: '계약전력 증설·수전설비 공사',          audience: '공장·상업건물', priceLabel: '증설 용량(kW) 기준' },
+      { work: '동력설비(생산기계 전원) 배선·결선',    audience: '공장·산업시설', priceLabel: '설비 수·배선 거리 기준' },
+      { work: '배전반·분전반 설계·설치',              audience: '공장·상업건물', priceLabel: '회로 수·반 규격 기준' },
+      { work: '분전함(두꺼비집) 교체·증설',           audience: '주택·상가',     priceLabel: '회로 수 기준' },
+      { work: '상가·병원 인테리어 전기',              audience: '상가·병원',     priceLabel: '면적(㎡)·조명 수 기준' },
+      { work: '콘센트 추가·이동 / 조명 교체',         audience: '주택·아파트',   priceLabel: '개소 수 기준' },
     ],
   },
 
@@ -195,11 +242,19 @@ export const CONTENT_DEFAULTS = {
 
   quote: {
     eyebrow: '견적 문의',
-    title: '무료 현장 견적, 지금 신청하세요',
-    lead: '연락처만 남겨주셔도 1영업일 안에 담당자가 직접 연락드립니다.',
+    title: '무료 현장 견적 신청',
+    lead: '필수 입력 3개 — 30초면 접수됩니다',
     privacyNote: '개인정보 수집·이용에 동의합니다. (수집 항목: 성함·연락처·문의 내용 / 보유 기간: 문의 처리 후 1년)',
     successTitle: '견적문의가 접수되었습니다',
     successBody: '1영업일 이내에 담당자가 직접 연락드리겠습니다. 급하시면 010-8552-9994로 전화 주세요.',
+    /** 폼 옆 레일 — 제출 후 무슨 일이 일어나는지 미리 보여줘 제출 부담을 낮춘다 */
+    afterTitle: '접수 후 이렇게 진행됩니다',
+    afterSteps: [
+      { no: '01', title: '1영업일 내 담당자 직접 연락', note: '접수 확인 후 통화로 공사 내용을 확인합니다' },
+      { no: '02', title: '현장 방문 견적 — 무료',        note: '출장비 없음 · 견적서 확인 후 결정' },
+      { no: '03', title: '시공 → 준공 후 1년 보증',      note: '대구·경북 A/S 당일 출동 원칙' },
+    ],
+    callNote: '폼 작성이 번거로우시면 바로 통화',
   },
 
   contact: {
@@ -315,12 +370,8 @@ export const SECTION_DEFS: SectionDef[] = [
     summary: '로고 옆 문구, 상단 띠 문구, 메뉴 항목을 바꿉니다.',
     fields: [
       { key: 'logoText',      label: '로고 옆 회사명', type: 'text', maxLength: 20 },
-      { key: 'logoSub',       label: '로고 아래 한 줄', type: 'text', maxLength: 30 },
-      { key: 'topBarEnabled', label: '상단 띠 표시',   type: 'boolean' },
-      { key: 'topBarTrust',   label: '상단 띠 — 신뢰 문구', type: 'text', maxLength: 30 },
-      { key: 'topBarRegion',  label: '상단 띠 — 지역',     type: 'text', maxLength: 30 },
-      { key: 'topBarHours',   label: '상단 띠 — 영업시간', type: 'text', maxLength: 40 },
-      { key: 'topBarFree',    label: '상단 띠 — 강조',     type: 'text', maxLength: 20 },
+      { key: 'logoSub',       label: '로고 아래 한 줄', type: 'text', maxLength: 30,
+        help: '현재 디자인에서는 로고 오른쪽에 영문 표기가 나오므로 화면에는 쓰이지 않습니다' },
       { key: 'showBlogLink',  label: '메뉴에 블로그 추가', type: 'boolean', help: '켜면 메뉴 끝에 "전기공사 정보"가 붙습니다' },
       {
         key: 'nav', label: '메뉴 항목', type: 'list', itemTitleKey: 'label', maxItems: 8,
@@ -340,9 +391,11 @@ export const SECTION_DEFS: SectionDef[] = [
     fields: [
       { key: 'eyebrow', label: '작은 머리말', type: 'text', maxLength: 40 },
       { key: 'title',   label: '큰 제목',     type: 'richtext', maxLength: 120, help: '줄을 나누려면 Enter를 누르세요' },
-      { key: 'lead',    label: '설명 문구',   type: 'textarea', maxLength: 400 },
-      { key: 'leadHighlight', label: '설명 중 강조할 부분', type: 'text', maxLength: 60, help: '설명 문구 안에 이 글자가 있으면 흰색 굵게 표시됩니다' },
-      { key: 'backgroundImage', label: '배경 사진', type: 'image', help: '비우면 현재의 도면 패턴 배경이 유지됩니다' },
+      { key: 'lead',    label: '설명 문구',   type: 'textarea', maxLength: 400,
+        help: '"우앤주전력은 ○○입니다" 형태의 정의문으로 시작하세요. AI 검색이 이 문장을 그대로 인용합니다' },
+      { key: 'leadHighlight', label: '설명 중 강조할 부분', type: 'text', maxLength: 60, help: '설명 문구 안에 이 글자가 있으면 굵게 표시됩니다' },
+      { key: 'note',    label: '설명 아래 한 줄', type: 'text', maxLength: 80, help: '예: 현장 방문 견적 무료 · 출장비 없음' },
+      { key: 'backgroundImage', label: '배경 사진', type: 'image', help: '비우면 단선결선도 도면이 표시됩니다' },
       {
         key: 'segments', label: '고객 유형 안내 링크', type: 'list', itemTitleKey: 'label', maxItems: 4,
         fields: [
@@ -353,14 +406,27 @@ export const SECTION_DEFS: SectionDef[] = [
       },
       {
         key: 'trustStats', label: '신뢰 지표 (4칸)', type: 'list', itemTitleKey: 'label', maxItems: 4,
-        help: '숫자가 있는 지표일수록 신뢰도가 올라갑니다',
+        help: '숫자·등록번호처럼 확인 가능한 값일수록 신뢰도가 올라갑니다',
         fields: [
-          { key: 'icon',  label: '아이콘', type: 'select', options: ICON_OPTIONS },
-          { key: 'label', label: '지표명', type: 'text', maxLength: 24 },
-          { key: 'sub',   label: '보조 설명', type: 'text', maxLength: 30 },
+          { key: 'icon',  label: '아이콘(현재 미사용)', type: 'select', options: ICON_OPTIONS },
+          { key: 'label', label: '큰 글씨 (값)',  type: 'text', maxLength: 24, help: '예: 대구-01425, 20년+, 당일 출동' },
+          { key: 'sub',   label: '아래 설명',     type: 'text', maxLength: 34, help: '예: 전기공사업 등록번호' },
           { key: 'mono',  label: '숫자 서체', type: 'boolean', help: '등록번호처럼 숫자를 또박또박 보여줄 때 켜세요' },
         ],
       },
+    ],
+  },
+  {
+    key: 'quickForm',
+    label: '빠른 견적 접수 (히어로 아래)',
+    summary: '연락처만 받는 짧은 폼. 본 견적폼이 부담스러운 방문자를 잡습니다.',
+    fields: [
+      { key: 'enabled',     label: '퀵폼 표시', type: 'boolean', help: '끄면 히어로 바로 아래 사업영역이 옵니다' },
+      { key: 'title',       label: '제목',      type: 'text', maxLength: 30 },
+      { key: 'note',        label: '부제',      type: 'text', maxLength: 60 },
+      { key: 'consentNote', label: '동의 안내 문구', type: 'text', maxLength: 120 },
+      { key: 'successTitle', label: '접수 완료 제목', type: 'text', maxLength: 60 },
+      { key: 'successNote',  label: '접수 완료 안내', type: 'text', maxLength: 120 },
     ],
   },
   {
@@ -388,21 +454,13 @@ export const SECTION_DEFS: SectionDef[] = [
   },
   {
     key: 'whyus',
-    label: '차별점·자격',
-    summary: '“믿을 수 있나?”에 답하는 영역.',
-    anchor: 'why-us',
+    label: '검증 가능한 자격',
+    summary: '등록번호 3종과 회사 개요 표. 번호 자체는 사업자 정보에서 자동으로 들어갑니다.',
+    anchor: 'credentials',
     fields: [
       ...HEADING_FIELDS,
-      { key: 'verifyTitle', label: '자격 블록 제목', type: 'text', maxLength: 40 },
-      { key: 'corpNote',    label: '법인 등록 설명', type: 'text', maxLength: 60 },
-      {
-        key: 'reasons', label: '차별점 (4개)', type: 'list', itemTitleKey: 'title', maxItems: 6,
-        fields: [
-          { key: 'icon',  label: '아이콘', type: 'select', options: ICON_OPTIONS },
-          { key: 'title', label: '제목',   type: 'text', maxLength: 30 },
-          { key: 'desc',  label: '설명',   type: 'textarea', maxLength: 300 },
-        ],
-      },
+      { key: 'corpNote', label: '법인 등록 카드 설명', type: 'text', maxLength: 80 },
+      { key: 'industry', label: '회사 개요 — 업종',    type: 'text', maxLength: 40 },
     ],
   },
   {
@@ -430,14 +488,25 @@ export const SECTION_DEFS: SectionDef[] = [
     anchor: 'pricing',
     fields: [
       ...HEADING_FIELDS,
-      { key: 'tableTitle', label: '표 제목',   type: 'text', maxLength: 30 },
-      { key: 'footnote',   label: '표 아래 주석', type: 'textarea', maxLength: 200 },
+      { key: 'leadHighlight', label: '설명 중 강조할 부분', type: 'text', maxLength: 40 },
       {
-        key: 'items', label: '작업 항목', type: 'list', itemTitleKey: 'work', maxItems: 20,
+        key: 'variables', label: '비용을 정하는 변수 (3개)', type: 'list', itemTitleKey: 'title', maxItems: 5,
+        help: '금액을 못 밝힐 때 신뢰를 주는 유일한 방법은 "무엇이 금액을 정하는가"를 밝히는 것입니다',
         fields: [
-          { key: 'work',       label: '작업 항목', type: 'text', maxLength: 60 },
-          { key: 'audience',   label: '대상',      type: 'text', maxLength: 20 },
-          { key: 'priceLabel', label: '비용',      type: 'text', maxLength: 30, help: '예: 15만원~ / 현장 협의 후 견적' },
+          { key: 'no',    label: '번호', type: 'text', maxLength: 4, help: '예: V1' },
+          { key: 'title', label: '변수', type: 'text', maxLength: 50 },
+          { key: 'note',  label: '한 줄 설명', type: 'text', maxLength: 60 },
+        ],
+      },
+      { key: 'promise',  label: '약속 문구',   type: 'textarea', maxLength: 200 },
+      { key: 'footnote', label: '표 아래 주석', type: 'textarea', maxLength: 200 },
+      {
+        key: 'items', label: '작업 항목표', type: 'list', itemTitleKey: 'work', maxItems: 20,
+        fields: [
+          { key: 'work',       label: '작업 항목',   type: 'text', maxLength: 60 },
+          { key: 'audience',   label: '대상',        type: 'text', maxLength: 20 },
+          { key: 'priceLabel', label: '비용 산정 기준', type: 'text', maxLength: 40,
+            help: '금액이 아니라 "무엇으로 계산하는지"를 씁니다. 예: 회로 수 기준 / 면적(㎡) 기준' },
         ],
       },
     ],
@@ -473,6 +542,17 @@ export const SECTION_DEFS: SectionDef[] = [
       { key: 'privacyNote',  label: '개인정보 동의 문구', type: 'textarea', maxLength: 300 },
       { key: 'successTitle', label: '접수 완료 제목',     type: 'text', maxLength: 40 },
       { key: 'successBody',  label: '접수 완료 안내',     type: 'textarea', maxLength: 200 },
+      { key: 'afterTitle',   label: '폼 옆 안내 제목',    type: 'text', maxLength: 40 },
+      {
+        key: 'afterSteps', label: '접수 후 진행 3단계', type: 'list', itemTitleKey: 'title', maxItems: 4,
+        help: '제출하면 무슨 일이 생기는지 미리 보여주면 폼 이탈이 줄어듭니다',
+        fields: [
+          { key: 'no',    label: '번호',      type: 'text', maxLength: 4 },
+          { key: 'title', label: '단계',      type: 'text', maxLength: 40 },
+          { key: 'note',  label: '한 줄 설명', type: 'text', maxLength: 60 },
+        ],
+      },
+      { key: 'callNote', label: '전화 안내 문구', type: 'text', maxLength: 40 },
     ],
   },
   {

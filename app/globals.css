@@ -193,28 +193,11 @@ textarea {
    자바스크립트 UA 판별이 아니라 @supports로 기능 자체를 검사하므로,
    브라우저가 새로 나와도 오탐이 없다.
    ========================================================= */
-.legacy-browser-notice {
-  display: none;
-}
-
-@supports not (color: color-mix(in oklab, red 50%, blue)) {
-  .legacy-browser-notice {
-    display: block;
-    position: relative;
-    z-index: 100;
-    background: #7c2d12;
-    color: #ffffff;
-    padding: 12px 16px;
-    font-size: 14px;
-    line-height: 1.6;
-    text-align: center;
-  }
-  .legacy-browser-notice a {
-    color: #ffffff;
-    font-weight: bold;
-    text-decoration: underline;
-  }
-}
+/* ⚠️ 이 안내의 CSS는 여기 두면 안 된다 — app/layout.tsx의 <style>에 인라인으로 있다.
+   package.json의 browserslist(chrome>=111 등)를 Lightning CSS가 타깃으로 삼기 때문에,
+   "타깃 브라우저가 전부 지원하는 기능"에 대한 @supports not (...) 블록을 항상 거짓으로
+   판정해 통째로 제거해 버린다. 즉 구형 브라우저용 폴백을 빌드가 지워 없앤다.
+   컴파일러를 거치지 않는 인라인 <style>로 옮겨 이 문제를 피했다. */
 
 /* =========================================================
    기술 배경(사진 대신) — 어두운 네이비 면에 얹는 미세 도면 격자.

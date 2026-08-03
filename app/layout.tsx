@@ -92,6 +92,25 @@ export default function RootLayout({
         <noscript>
           <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
         </noscript>
+
+        {/*
+          구형 브라우저 안내의 스타일 — globals.css가 아니라 여기 인라인으로 둔다.
+          package.json의 browserslist를 Lightning CSS가 타깃으로 삼기 때문에,
+          타깃이 전부 지원하는 기능에 대한 @supports not (...) 은 항상 거짓으로
+          판정돼 블록째 제거된다. 구형 브라우저용 폴백을 빌드가 지워 버리는 것이다.
+          인라인 <style>은 그 변환을 거치지 않아 조건이 브라우저에서 그대로 평가된다.
+        */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html:
+              '.legacy-browser-notice{display:none}' +
+              '@supports not (color: color-mix(in oklab, red 50%, blue)){' +
+              '.legacy-browser-notice{display:block;position:relative;z-index:100;' +
+              'background:#7c2d12;color:#fff;padding:12px 16px;font-size:14px;' +
+              'line-height:1.6;text-align:center}' +
+              '.legacy-browser-notice a{color:#fff;font-weight:bold;text-decoration:underline}}',
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col antialiased">
         {/*

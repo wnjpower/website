@@ -96,6 +96,10 @@
 /* 액센트로 채운 CTA 위에서는 정합 마크가 배경에 묻힌다. 밝게 뒤집는다. */
 .blueprint-theme .is-solid > .corner { color: rgba(242, 242, 243, 0.75); }
 
+/* 다크 필드(자격 섹션) 위의 프레임 — 어두운 선은 배경에 묻혀 보이지 않는다 */
+.blueprint-theme .bp-on-dark { border-color: rgba(242, 242, 243, 0.25); }
+.blueprint-theme .bp-on-dark > .corner { color: rgba(242, 242, 243, 0.55); }
+
 /* ── 도면 격자 배경 ── 히어로 상단 띠와 CTA 섹션에만 쓴다 */
 .blueprint-theme .grid-field {
   background-image:
@@ -146,6 +150,123 @@
 .blueprint-theme .nav-link { transition: color 0.15s ease; }
 .blueprint-theme .nav-link:hover { color: var(--color-accent-700); }
 
+/* ── 폼 요소 ──
+   전 컴포넌트 사각형(radius 0)이 이 시스템의 규칙이다.
+   입력 글꼴은 16px 이상 — iOS Safari가 그보다 작으면 포커스 시 화면을 확대해
+   되돌아오지 않는다. globals.css의 전역 보정과 같은 이유다. */
+.blueprint-theme .bp-label {
+  display: block;
+  font-size: 11.5px;
+  color: rgba(29, 31, 32, 0.6);
+  margin-bottom: 4px;
+}
+
+.blueprint-theme .bp-input {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: max(16px, 1em);
+  color: var(--color-text);
+  caret-color: var(--color-accent);
+  background: var(--color-bg);
+  border: 1px solid var(--color-divider);
+  border-radius: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.blueprint-theme .bp-input:hover { border-color: rgba(29, 31, 32, 0.45); }
+.blueprint-theme .bp-input:focus-visible {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.blueprint-theme textarea.bp-input { min-height: 92px; resize: vertical; }
+
+/* 분절 선택(세그먼트) — 라디오 대신 버튼으로 만들어 터치 영역을 넓힌다 */
+.blueprint-theme .bp-seg {
+  display: inline-flex;
+  border: 1px solid var(--color-divider);
+  overflow: hidden;
+}
+.blueprint-theme .bp-seg-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  font: inherit;
+  font-size: 13.5px;
+  background: transparent;
+  color: var(--color-text);
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.blueprint-theme .bp-seg-opt + .bp-seg-opt { border-left: 1px solid var(--color-divider); }
+.blueprint-theme .bp-seg-opt:hover { background: rgba(29, 31, 32, 0.07); }
+.blueprint-theme .bp-seg-opt[data-active] {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+/* 체크박스 — 기본 모양이 둥글어 사각형 규칙과 어긋난다 */
+.blueprint-theme .bp-check {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  margin-top: 2px;
+  accent-color: var(--color-accent);
+  border-radius: 0;
+}
+
+@keyframes bp-spin { to { transform: rotate(360deg); } }
+.blueprint-theme .bp-spin { animation: bp-spin 0.8s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .blueprint-theme .bp-spin { animation-duration: 2.4s; }
+}
+
+/* 허니팟 — 봇만 채우는 필드. display:none은 일부 봇이 걸러내므로 화면 밖으로 밀어낸다 */
+.blueprint-theme .bp-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 사진은 액센트 단색조로 덮어 도면 톤과 어긋나지 않게 한다 (스펙 §3) */
+.blueprint-theme .duotone-img {
+  filter: grayscale(1) contrast(1.05);
+  mix-blend-mode: multiply;
+}
+
+/* ── 표 ── */
+.blueprint-theme .bp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.blueprint-theme .bp-table th {
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(29, 31, 32, 0.6);
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--color-divider);
+  white-space: nowrap;
+}
+.blueprint-theme .bp-table td {
+  padding: 11px 8px;
+  border-bottom: 1px solid rgba(29, 31, 32, 0.08);
+  vertical-align: top;
+}
+.blueprint-theme .bp-table tbody tr:hover { background: rgba(29, 31, 32, 0.04); }
+
+/* 좁은 화면에서 표는 가로 스크롤로 처리한다. 축소하면 글자가 읽히지 않는다. */
+.blueprint-theme .bp-table-scroll { overflow-x: auto; }
+
 /* ── 진행 절차 레일의 "+" 노드 ── */
 .blueprint-theme .rail-node {
   position: absolute;
@@ -167,6 +288,7 @@
 /* ── 반응형 (스펙 §6: 브레이크포인트 900px) ── */
 @media (max-width: 900px) {
   .blueprint-theme [data-desktop-nav] { display: none !important; }
+  .blueprint-theme [data-desktop-dock] { display: none !important; }
   .blueprint-theme [data-mobile-bar] { display: flex !important; }
   /* 하단 고정 바 + 아이폰 홈 인디케이터 영역만큼 본문 여백 확보 */
   .blueprint-theme { padding-bottom: calc(54px + env(safe-area-inset-bottom, 0px)); }
