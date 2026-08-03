@@ -7,7 +7,11 @@ import PageHero from '@/components/PageHero';
 import { portfolioItems, getPortfolioItem } from '@/content/portfolio';
 import { services } from '@/content/services';
 import { PostArticle } from '@/components/PostViews';
+import { CornerMarks, SectionHead } from '@/components/redesign/Chrome';
 import { getPublishedPost, getPublishedPosts, postSummary, formatPostDate } from '@/lib/posts';
+
+const SECTION_PAD = 'clamp(36px,5vw,60px) clamp(16px,4vw,48px)';
+const HAIRLINE = '1px solid var(--color-divider)';
 
 export async function generateStaticParams() {
   const posts = await getPublishedPosts('portfolio');
@@ -79,13 +83,18 @@ export default async function PortfolioDetailPage({ params }: { params: { slug: 
   const relatedService = services.find((svc) => svc.id === item.category);
   const otherItems = portfolioItems.filter((i) => i.slug !== item.slug).slice(0, 3);
 
-  const overview: { label: string; value: string }[] = [
+  /*
+   * 현장 수치는 확정값만 쓴다. 미확인 항목은 '확인 중'으로 흐리게 두어
+   * 확정값과 눈으로 구분되게 한다 — 발주처가 사실로 받아들이는 정보라
+   * 추정치를 채워 넣으면 안 된다.
+   */
+  const overview: { label: string; value?: string }[] = [
     { label: '위치', value: `${item.region} ${item.location}` },
     { label: '시설 유형', value: item.facility },
     { label: '공사 구분', value: item.categoryLabel },
-    { label: '계약전력·용량', value: item.specs?.contractPower ?? '확인 중' },
-    { label: '공사 기간', value: item.specs?.duration ?? '확인 중' },
-    { label: '연면적', value: item.specs?.area ?? '확인 중' },
+    { label: '계약전력·용량', value: item.specs?.contractPower },
+    { label: '공사 기간', value: item.specs?.duration },
+    { label: '연면적', value: item.specs?.area },
   ];
 
   return (
@@ -97,98 +106,177 @@ export default async function PortfolioDetailPage({ params }: { params: { slug: 
         crumbs={[{ label: '시공 실적', href: '/portfolio' }, { label: item.title }]}
       />
 
-      <article className="py-16 sm:py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8">
+      <article>
+        <div style={{ maxWidth: 1000, margin: '0 auto', padding: SECTION_PAD }}>
           {/* 공사 개요 */}
-          <section data-reveal className="mb-12">
-            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-5">공사 개요</h2>
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">
+          <section data-reveal style={{ marginBottom: 44 }}>
+            <SectionHead no="01" title="공사 개요" />
+            <dl
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))',
+                border: HAIRLINE,
+                margin: 0,
+              }}
+            >
               {overview.map((row) => (
-                <div key={row.label} className="bg-white px-5 py-4">
-                  <dt className="text-sm text-gray-400 font-medium mb-1">{row.label}</dt>
+                <div key={row.label} style={{ padding: '14px 18px', borderRight: HAIRLINE, borderBottom: HAIRLINE }}>
+                  <dt className="text-muted" style={{ fontSize: 12, marginBottom: 3 }}>{row.label}</dt>
                   <dd
-                    className={`text-base font-semibold ${
-                      row.value === '확인 중' ? 'text-gray-300' : 'text-[#0F172A]'
-                    }`}
+                    className="display"
+                    style={{
+                      fontSize: 16,
+                      margin: 0,
+                      color: row.value ? 'var(--color-text)' : 'rgba(29,31,32,0.4)',
+                    }}
                   >
-                    {row.value}
+                    {row.value ?? '확인 중'}
                   </dd>
                 </div>
               ))}
             </dl>
-            <p className="mt-3 flex items-start gap-2 text-sm text-gray-400">
-              <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              계약전력·공기 등 상세 수치는 확인 후 업데이트할 예정입니다.
+            <p
+              className="text-muted"
+              style={{ display: 'flex', gap: 7, alignItems: 'flex-start', fontSize: 12, margin: '10px 0 0' }}
+            >
+              <Info size={14} strokeWidth={1.5} style={{ flex: 'none', marginTop: 1 }} />
+              계약전력·공기 등 현장 수치는 발주처 확인 후 기재합니다 — 추정치를 쓰지 않습니다.
             </p>
           </section>
 
           {/* 공사 범위 */}
-          <section data-reveal className="mb-12">
-            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-5">공사 범위</h2>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+          <section data-reveal style={{ marginBottom: 44 }}>
+            <SectionHead no="02" title="공사 범위" />
+            <ul
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))',
+                gap: '0 48px',
+                listStyle: 'none',
+                margin: 0,
+                padding: 0,
+              }}
+            >
               {item.scopeItems.map((scope) => (
-                <li key={scope} className="flex items-start gap-2.5 text-base text-gray-700">
-                  <CheckCircle2 className="w-5 h-5 text-[#0F2E4D] mt-0.5 flex-shrink-0" />
+                <li
+                  key={scope}
+                  style={{ display: 'flex', gap: 10, padding: '13px 0', borderTop: HAIRLINE, fontSize: 14 }}
+                >
+                  <CheckCircle2
+                    size={16}
+                    strokeWidth={1.5}
+                    style={{ color: 'var(--color-accent-700)', flex: 'none', marginTop: 2 }}
+                  />
                   {scope}
                 </li>
               ))}
             </ul>
           </section>
 
-          {/* 현장 과제 */}
-          <section data-reveal className="mb-12">
-            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-4">
-              이 공사에서 중요한 것
-            </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">{item.challenge}</p>
+          {/* 이 공사에서 중요한 것 */}
+          <section data-reveal style={{ marginBottom: 44 }}>
+            <SectionHead no="03" title="이 공사에서 중요한 것" />
+            <p
+              style={{
+                fontSize: 15,
+                lineHeight: 1.75,
+                margin: 0,
+                borderLeft: '2px solid var(--color-accent)',
+                paddingLeft: 18,
+              }}
+            >
+              {item.challenge}
+            </p>
           </section>
 
-          {/* 시공 내용 */}
-          <section data-reveal className="mb-12">
-            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-5">시공 진행</h2>
-            <ol className="space-y-4">
+          {/* 시공 진행 */}
+          <section data-reveal style={{ marginBottom: 44 }}>
+            <SectionHead no="04" title="시공 진행" />
+            <ol
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                borderLeft: HAIRLINE,
+                marginLeft: 6,
+                padding: 0,
+                listStyle: 'none',
+              }}
+            >
               {item.work.map((step, i) => (
-                <li key={step} className="flex items-start gap-4">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-md bg-[#0F2E4D] text-white font-bold text-sm flex items-center justify-center tabular-nums">
-                    {i + 1}
-                  </span>
-                  <span className="text-base text-gray-700 leading-relaxed pt-1">{step}</span>
+                <li key={step} style={{ position: 'relative', padding: '0 0 20px 26px' }}>
+                  <span className="rail-node" aria-hidden />
+                  <p style={{ fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                    <span className="display" style={{ color: 'var(--color-accent-700)', marginRight: 10 }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    {step}
+                  </p>
                 </li>
               ))}
             </ol>
           </section>
 
-          {/* 관련 서비스 */}
+          {/* 관련 사업영역 */}
           {relatedService && (
-            <section data-reveal className="mb-12 rounded-lg border border-gray-200 bg-[#F8FAFC] p-6">
-              <p className="text-sm font-bold text-gray-400 mb-2">관련 서비스</p>
-              <h2 className="text-xl font-bold text-[#0F172A] mb-2">{relatedService.title}</h2>
-              <p className="text-base text-gray-600 leading-relaxed mb-4">{relatedService.detail}</p>
+            <section
+              data-reveal
+              className="blueprint"
+              style={{ position: 'relative', padding: 24, marginBottom: 44 }}
+            >
+              <CornerMarks />
+              <p
+                className="text-muted display"
+                style={{ fontSize: 12, letterSpacing: '.14em', textTransform: 'uppercase', margin: '0 0 8px' }}
+              >
+                관련 사업영역
+              </p>
+              <h2 style={{ fontSize: 22, margin: '0 0 8px' }}>{relatedService.title}</h2>
+              <p style={{ fontSize: 14, lineHeight: 1.7, margin: '0 0 14px', opacity: 0.85 }}>
+                {relatedService.detail}
+              </p>
               <Link
                 href={`/services/${relatedService.id}`}
-                className="inline-flex items-center gap-1.5 text-base font-bold text-[#0F2E4D] hover:underline"
+                className="display"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  fontSize: 15,
+                  color: 'var(--color-accent-700)',
+                }}
               >
                 시공 범위·절차 자세히 보기
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight size={15} strokeWidth={1.5} />
               </Link>
             </section>
           )}
 
           {/* 다른 사례 */}
           <section data-reveal>
-            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-5">다른 시공 사례</h2>
-            <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <SectionHead no="05" title="다른 시공 사례" />
+            <ul
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))',
+                gap: 20,
+                listStyle: 'none',
+                margin: 0,
+                padding: 0,
+              }}
+            >
               {otherItems.map((other) => (
                 <li key={other.slug}>
                   <Link
                     href={`/portfolio/${other.slug}`}
-                    className="block h-full rounded-lg border border-gray-200 p-4 hover:border-[#0F2E4D]/40 hover:shadow-sm transition-all"
+                    className="blueprint post-card"
+                    style={{ position: 'relative', display: 'block', padding: 18, height: '100%' }}
                   >
-                    <p className="text-xs font-semibold text-gray-400 mb-1">{other.categoryLabel}</p>
-                    <p className="font-bold text-[#0F172A] text-sm leading-snug mb-1">
+                    <CornerMarks />
+                    <span className="tag" style={{ fontSize: 10.5 }}>{other.categoryLabel}</span>
+                    <p style={{ fontWeight: 700, fontSize: 14.5, lineHeight: 1.4, margin: '10px 0 4px' }}>
                       {other.title}
                     </p>
-                    <p className="text-xs text-gray-400">{other.location}</p>
+                    <p className="text-muted" style={{ fontSize: 12, margin: 0 }}>{other.location}</p>
                   </Link>
                 </li>
               ))}

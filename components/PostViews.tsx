@@ -2,50 +2,81 @@ import Link from 'next/link';
 import { ArrowRight, Calendar } from 'lucide-react';
 import { renderMarkdown, postSummary, formatPostDate, postPath, type Post } from '@/lib/posts';
 import { SITE_URL, COMPANY } from '@/lib/site';
+import { CornerMarks } from '@/components/redesign/Chrome';
 
-/** 게시판 목록 카드 그리드. 블로그·공지·시공실적이 같은 모양을 쓴다. */
+/**
+ * 게시판 목록 카드 — 1b 블루프린트.
+ * 사각형 + 헤어라인 + 정합 마크. 블로그·공지·시공실적이 같은 모양을 쓴다.
+ */
 export function PostList({ posts, emptyMessage }: { posts: Post[]; emptyMessage: string }) {
   if (posts.length === 0) {
     return (
-      <div className="py-20 text-center">
-        <p className="text-slate-500 break-keep px-6">{emptyMessage}</p>
+      <div style={{ padding: '64px 0', textAlign: 'center' }}>
+        <p className="text-muted" style={{ margin: 0 }}>{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))',
+        gap: 28,
+      }}
+    >
       {posts.map((post) => (
         <Link
           key={post.id}
           href={postPath(post.type, post.slug)}
-          className="group rounded-xl border border-slate-200 bg-white overflow-hidden hover:border-brand/30 hover:shadow-lg hover:shadow-slate-200/70 transition-all flex flex-col"
+          className="blueprint post-card"
+          style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}
         >
+          <CornerMarks />
           {post.coverImage && (
-            // 외부(Storage) 이미지라 next/image 도메인 설정 없이 쓸 수 있도록 img를 쓴다
+            // Storage에 올린 외부 URL이라 next/image 도메인 등록 없이 쓸 수 있도록 img를 쓴다
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={post.coverImage}
               alt={post.coverAlt ?? post.title}
               loading="lazy"
               decoding="async"
-              className="w-full aspect-[16/10] object-cover"
+              className="duotone-img"
+              style={{ width: '100%', aspectRatio: '16 / 10', objectFit: 'cover', display: 'block' }}
             />
           )}
-          <div className="p-6 flex flex-col flex-1">
-            <p className="flex items-center gap-1.5 text-xs text-slate-400 mb-2">
-              <Calendar className="w-3.5 h-3.5" />
+          <div style={{ padding: 22, display: 'flex', flexDirection: 'column', flex: 1 }}>
+            <p
+              className="text-muted display"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 12,
+                letterSpacing: '.06em',
+                margin: '0 0 10px',
+              }}
+            >
+              <Calendar size={13} strokeWidth={1.5} />
               <time dateTime={post.publishedAt ?? undefined}>{formatPostDate(post.publishedAt)}</time>
             </p>
-            <h2 className="font-bold text-ink text-lg leading-snug mb-2 group-hover:text-brand transition-colors break-keep">
-              {post.title}
-            </h2>
-            <p className="text-[0.9375rem] text-slate-600 leading-relaxed flex-1 break-keep">
+            <h3 style={{ fontSize: 20, lineHeight: 1.25, margin: '0 0 8px' }}>{post.title}</h3>
+            <p style={{ fontSize: 13.5, lineHeight: 1.65, flex: 1, margin: 0, opacity: 0.8 }}>
               {postSummary(post)}
             </p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-brand group-hover:gap-2.5 transition-all">
+            <span
+              className="display"
+              style={{
+                marginTop: 18,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 14.5,
+                color: 'var(--color-accent-700)',
+              }}
+            >
               자세히 보기
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight size={14} strokeWidth={1.5} />
             </span>
           </div>
         </Link>
@@ -77,19 +108,29 @@ export function PostArticle({ post }: { post: Post }) {
   };
 
   return (
-    <article className="py-14 sm:py-20 bg-white">
+    <article>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
-      <div className="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8">
+      <div
+        style={{
+          maxWidth: 820,
+          margin: '0 auto',
+          padding: 'clamp(36px,5vw,60px) clamp(16px,4vw,48px)',
+        }}
+      >
         {post.coverImage && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={post.coverImage}
-            alt={post.coverAlt ?? post.title}
-            className="w-full rounded-xl border border-slate-200 mb-8 object-cover"
-          />
+          <figure className="blueprint" style={{ position: 'relative', padding: 12, margin: '0 0 32px' }}>
+            <CornerMarks />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={post.coverImage}
+              alt={post.coverAlt ?? post.title}
+              className="duotone-img"
+              style={{ width: '100%', display: 'block' }}
+            />
+          </figure>
         )}
         <div className="prose-wnj" dangerouslySetInnerHTML={{ __html: html }} />
       </div>

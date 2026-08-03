@@ -25,6 +25,9 @@ import '@/components/redesign/blueprint.css';
  * 어느 페이지가 만든 리드인지 구분되고, initialCategory가 있으면 그 공종이
  * 미리 선택된 상태로 열린다.
  *
+ * 예외는 hideQuote — 개인정보처리방침처럼 폼의 동의 문구가 가리키는 문서에는
+ * 폼을 다시 놓지 않는다(순환이고, 법적 고지 페이지를 영업면으로 만들지 않는다).
+ *
  * 콘텐츠와 CTA는 여기서 한 번만 읽어 내려준다. 섹션마다 조회하면 같은 데이터를
  * 여러 번 가져오게 된다.
  */
@@ -33,14 +36,18 @@ export default async function SubPageShell({
   quoteSource,
   initialCategory,
   initialCustomerType,
+  hideQuote = false,
 }: {
   children: ReactNode;
   quoteSource?: string;
   initialCategory?: string;
   initialCustomerType?: string;
+  hideQuote?: boolean;
 }) {
   const [content, ctas] = await Promise.all([getSiteContent(), resolveCtas()]);
   const bannerOn = bannerIsOn(content.banner);
+  // 폼을 감춘 페이지에서는 #quote 앵커가 없으므로 홈의 폼으로 보낸다
+  const quoteHref = hideQuote ? '/#quote' : '#quote';
 
   return (
     <>
@@ -53,23 +60,25 @@ export default async function SubPageShell({
         }}
       >
         <ScrollReveal />
-        <BlueprintHeader content={content.header} ctaHref="#quote" />
+        <BlueprintHeader content={content.header} ctaHref={quoteHref} />
 
         <main>
           {children}
-          <QuoteBlock
-            content={content.quote}
-            ctas={ctas}
-            source={quoteSource}
-            initialCategory={initialCategory}
-            initialCustomerType={initialCustomerType}
-          />
+          {!hideQuote && (
+            <QuoteBlock
+              content={content.quote}
+              ctas={ctas}
+              source={quoteSource}
+              initialCategory={initialCategory}
+              initialCustomerType={initialCustomerType}
+            />
+          )}
           <Contact content={content.contact} />
         </main>
 
         <BlueprintFooter />
-        <BlueprintDesktopDock quoteHref="#quote" />
-        <BlueprintMobileBar quoteHref="#quote" ctaSlot="floating_quote" />
+        <BlueprintDesktopDock quoteHref={quoteHref} />
+        <BlueprintMobileBar quoteHref={quoteHref} ctaSlot="floating_quote" />
       </div>
     </>
   );

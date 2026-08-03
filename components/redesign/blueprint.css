@@ -241,6 +241,56 @@
   mix-blend-mode: multiply;
 }
 
+/* ── 게시판 카드 ── */
+.blueprint-theme .post-card {
+  color: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.blueprint-theme .post-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── 게시글 본문(마크다운) ──
+   .prose-wnj 의 기본 정의는 globals.css에 있고 구 브랜드 토큰(네이비·앰버)을 쓴다.
+   블루프린트 안에서는 그 색이 그대로 뜨면 두 팔레트가 한 화면에 섞이므로,
+   색과 모서리만 이 시스템 값으로 덮는다. 여백·자간은 그대로 둔다. */
+.blueprint-theme .prose-wnj { color: #334155; }
+.blueprint-theme .prose-wnj h2,
+.blueprint-theme .prose-wnj h3,
+.blueprint-theme .prose-wnj strong { color: var(--color-text); }
+.blueprint-theme .prose-wnj h2 { border-top-color: var(--color-divider); }
+.blueprint-theme .prose-wnj a { color: var(--color-accent-700); }
+.blueprint-theme .prose-wnj a:hover { color: var(--color-accent-800); }
+.blueprint-theme .prose-wnj li::marker { color: var(--color-accent-600); }
+.blueprint-theme .prose-wnj blockquote {
+  border-left-color: var(--color-accent);
+  background: rgba(89, 128, 166, 0.06);
+  color: #475569;
+}
+.blueprint-theme .prose-wnj img,
+.blueprint-theme .prose-wnj pre { border-radius: 0; }
+.blueprint-theme .prose-wnj img { border-color: var(--color-divider); }
+.blueprint-theme .prose-wnj code {
+  background: var(--color-surface);
+  border-radius: 0;
+}
+.blueprint-theme .prose-wnj pre { background: var(--color-accent-900); }
+.blueprint-theme .prose-wnj th,
+.blueprint-theme .prose-wnj td { border-color: var(--color-divider); }
+.blueprint-theme .prose-wnj th {
+  background: rgba(89, 128, 166, 0.06);
+  color: var(--color-text);
+}
+.blueprint-theme .prose-wnj hr { border-top-color: var(--color-divider); }
+
+/* ── 실적 원장 행 ── */
+.blueprint-theme .ledger-row {
+  color: inherit;
+  transition: background 0.12s ease;
+}
+.blueprint-theme .ledger-row:hover { background: rgba(89, 128, 166, 0.08) !important; }
+
 /* ── 표 ── */
 .blueprint-theme .bp-table {
   width: 100%;

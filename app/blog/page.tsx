@@ -24,8 +24,14 @@ export default async function BlogIndexPage() {
         crumbs={[{ label: '전기공사 정보' }]}
       />
 
-      <section className="py-16 sm:py-20 bg-slate-50">
-        <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8">
+      <section>
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: '0 auto',
+            padding: 'clamp(36px,5vw,60px) clamp(16px,4vw,48px)',
+          }}
+        >
           <PostList
             posts={posts}
             emptyMessage="아직 등록된 글이 없습니다. 곧 전기공사 비용·절차에 대한 안내를 올릴 예정입니다."
