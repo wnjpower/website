@@ -129,6 +129,27 @@
       기본거리(공중 200m·지중 50m), 사용전점검/검사 구분(75kW·100kW), 감소 후 3년 내 재증설
       면제 등. 원본 `content/service-pages.ts` 주석과 스펙 §10이 모두 검수를 요청하고 있다.
 
+## 🟠 외부 플랫폼 정합성 점검 결과 (2026-08-03)
+
+프로덕션 접수 API 실호출 응답 `{savedToDb:true, emailSent:true, alimtalkSent:false, pushSent:true}`로
+Supabase·Resend·푸시 3경로가 모두 살아 있음을 확인했다(점검용 행은 삭제).
+
+- [ ] **🔴 Supabase 유출 비밀번호 차단(Leaked Password Protection) 켜기**
+      현재 꺼져 있다. 관리자 계정 하나가 견적문의 DB 전체의 유일한 관문인데,
+      HaveIBeenPwned에 올라온 비밀번호도 그대로 통과된다.
+      Supabase → Authentication → Policies → "Leaked password protection" 활성화. 클릭 한 번.
+- [ ] **로컬 `.env.local`의 `NEXT_PUBLIC_SITE_URL`이 `http://localhost:3210`**
+      프로덕션(Vercel)은 정상(`https://www.wnjpower.com` canonical 확인)이라 사이트에는 영향이 없다.
+      다만 이 값으로 로컬에서 발행/색인 제출을 실행하면 localhost 주소가 IndexNow에 올라가
+      거부된다. 로컬에서 발행 테스트를 할 일이 있으면 이 값을 먼저 확인할 것.
+- [ ] **Vercel MCP 재인증** — `wnjpower-erp` 팀 스코프 권한이 없어 배포 목록·환경변수를
+      도구로 읽지 못한다(403). 환경변수 자체는 위 실호출로 정상 동작이 확인됐으므로
+      급하지 않지만, 배포 실패를 도구로 진단하려면 재인증이 필요하다.
+- [x] ~~환경변수 문서화 정합성~~ ✅ 코드가 읽는 19개 변수가 모두 `.env.example`에 있고,
+      문서에만 있는 것은 Turnstile 2개뿐(미도입 선택 항목이라 의도된 상태)
+- [x] ~~DB 스키마 ↔ 코드 정합성~~ ✅ 코드가 읽고 쓰는 전 컬럼(quotes·events·site_content·
+      site_drafts·ctas·posts·index_pings·admins)과 RPC 12종이 모두 존재함을 대조 확인
+
 ## 🟡 카카오 알림톡 연동 (추후) — 코드 완료, 외부 설정만 남음
 
 > 리드 알림의 **기본 경로(이메일)는 이미 라이브**다. 알림톡은 그 위에 얹는 **선택 강화**이며
