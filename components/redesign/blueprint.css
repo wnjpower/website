@@ -1,0 +1,176 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Industry 디자인 시스템 — "1b 블루프린트 라이트"
+   출처: Claude Design 프로젝트 `WnjPower 웹사이트 UX/UI 개선안`
+        _ds/industry-…/styles.css + docs/실코드-이관-스펙.md §1·§3
+
+   [범위를 .blueprint-theme 아래로 가둔 이유]
+   이관 스펙(§9)은 토큰 교체를 1단계로, 서브페이지 레이아웃을 6단계로 잡는다.
+   지금은 서비스 상세 한 장만 이관하는 시점이라, 토큰을 :root에 풀면 홈·실적·
+   어드민까지 색이 바뀌면서 레이아웃은 그대로인 반쪽 상태가 프로덕션에 나간다.
+   그래서 토큰과 유틸리티를 테마 루트 클래스 안에 가둔다. 나머지 페이지를
+   이관할 때 이 블록을 globals.css의 :root로 올리기만 하면 되도록,
+   클래스 이름(.blueprint/.corner)은 원본 디자인 시스템 그대로 유지했다.
+
+   [color-mix 대신 rgba를 쓴 곳]
+   원본은 divider를 color-mix로 만든다. 결과값이 고정이라 rgba로 미리 계산해
+   두면 구형 브라우저에서도 선이 사라지지 않는다. 계산식이 필요한 곳(hover 틴트)
+   에만 color-mix를 남겼다.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.blueprint-theme {
+  --color-bg: #f2f2f3;
+  --color-surface: #e9e9ea;
+  --color-text: #1d1f20;
+  --color-accent: #5980a6;
+  --color-accent-600: #597ea3;
+  --color-accent-700: #416180;
+  --color-accent-800: #2c455d;
+  --color-accent-900: #1d2d3d;
+  --color-neutral-100: #f5f5f8;
+  --color-neutral-800: #424244;
+  --color-divider: rgba(29, 31, 32, 0.16);
+  --color-grid: rgba(89, 128, 166, 0.07);
+
+  --shadow-md: 0 3px 10px rgba(43, 43, 45, 0.16);
+
+  /* 헤딩은 Barlow Condensed, 한글은 Pretendard로 떨어진다.
+     원본은 한글 폴백으로 IBM Plex Sans KR을 쓰지만, 이 사이트는 이미
+     Pretendard를 전역으로 싣고 있어 한글 웹폰트를 하나 더 받게 하지 않았다. */
+  --font-display: var(--font-barlow-condensed), 'Pretendard Variable', Pretendard,
+    -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: var(--font-barlow), 'Pretendard Variable', Pretendard,
+    -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.blueprint-theme h1,
+.blueprint-theme h2,
+.blueprint-theme h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.12;
+  margin: 0;
+}
+
+/* 고정 헤더(64px)에 제목이 가리지 않도록 */
+.blueprint-theme section[id] {
+  scroll-margin-top: 76px;
+}
+
+/* ── 도면 프레임 ─────────────────────────────────────────────────────
+   카드·figure·주 CTA는 사각형 + 1px 헤어라인 + 네 모서리 "+" 정합 마크.
+   정합 마크는 상자 바깥(-6px)에 그려지므로 부모가 overflow:hidden이면
+   잘린다. 프레임을 쓰는 컨테이너에는 overflow를 걸지 않는다. */
+.blueprint-theme .blueprint {
+  position: relative;
+  border: 1px solid var(--color-divider);
+  border-radius: 0;
+}
+
+.blueprint-theme .corner {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  color: rgba(29, 31, 32, 0.55);
+  pointer-events: none;
+}
+.blueprint-theme .corner::before,
+.blueprint-theme .corner::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+.blueprint-theme .corner::before { left: 5px; top: 0; width: 1px; height: 100%; }
+.blueprint-theme .corner::after  { top: 5px; left: 0; width: 100%; height: 1px; }
+.blueprint-theme .corner.tl { top: -6px; left: -6px; }
+.blueprint-theme .corner.tr { top: -6px; right: -6px; }
+.blueprint-theme .corner.bl { bottom: -6px; left: -6px; }
+.blueprint-theme .corner.br { bottom: -6px; right: -6px; }
+
+/* 액센트로 채운 CTA 위에서는 정합 마크가 배경에 묻힌다. 밝게 뒤집는다. */
+.blueprint-theme .is-solid > .corner { color: rgba(242, 242, 243, 0.75); }
+
+/* ── 도면 격자 배경 ── 히어로 상단 띠와 CTA 섹션에만 쓴다 */
+.blueprint-theme .grid-field {
+  background-image:
+    linear-gradient(var(--color-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+/* ── 타이포 유틸 ── */
+.blueprint-theme .text-muted { color: rgba(29, 31, 32, 0.55); }
+.blueprint-theme .display { font-family: var(--font-display); font-weight: 600; }
+.blueprint-theme .mono-num {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 태그 ── */
+.blueprint-theme .tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: 0;
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-800);
+}
+
+.blueprint-theme .elev-md { box-shadow: var(--shadow-md); }
+
+/* ── 링크·버튼 ── */
+.blueprint-theme a { color: inherit; text-decoration: none; }
+
+.blueprint-theme .btn-solid {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  transition: background 0.15s ease;
+}
+.blueprint-theme .btn-solid:hover { background: var(--color-accent-600); }
+
+.blueprint-theme .btn-outline {
+  border: 1px solid var(--color-divider);
+  transition: background 0.15s ease;
+}
+.blueprint-theme .btn-outline:hover { background: rgba(29, 31, 32, 0.07); }
+
+.blueprint-theme .nav-link { transition: color 0.15s ease; }
+.blueprint-theme .nav-link:hover { color: var(--color-accent-700); }
+
+/* ── 진행 절차 레일의 "+" 노드 ── */
+.blueprint-theme .rail-node {
+  position: absolute;
+  left: -6px;
+  top: 4px;
+  width: 11px;
+  height: 11px;
+  color: var(--color-accent-700);
+}
+.blueprint-theme .rail-node::before,
+.blueprint-theme .rail-node::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+}
+.blueprint-theme .rail-node::before { left: 5px; top: 0; width: 1px; height: 100%; }
+.blueprint-theme .rail-node::after  { top: 5px; left: 0; width: 100%; height: 1px; }
+
+/* ── 반응형 (스펙 §6: 브레이크포인트 900px) ── */
+@media (max-width: 900px) {
+  .blueprint-theme [data-desktop-nav] { display: none !important; }
+  .blueprint-theme [data-mobile-bar] { display: flex !important; }
+  /* 하단 고정 바 + 아이폰 홈 인디케이터 영역만큼 본문 여백 확보 */
+  .blueprint-theme { padding-bottom: calc(54px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (min-width: 901px) {
+  .blueprint-theme [data-mobile-bar] { display: none !important; }
+}

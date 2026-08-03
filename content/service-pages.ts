@@ -12,6 +12,14 @@ import type { ServiceCategory } from './services';
  */
 export interface ServicePage {
   slug: ServiceCategory;
+  /** 도면 도번 표기 (A-01 …). 히어로에서 H1 왼쪽에 붙는다 */
+  code: string;
+  /** 상단 탭 라벨. 폭이 좁아 h1보다 짧게 줄인 표기 */
+  tab: string;
+  /** 브레드크럼 마지막 항목 */
+  crumb: string;
+  /** 하단 CTA 플레이트 제목 — 그 공사의 진입 장벽을 낮추는 한 문장 */
+  ctaTitle: string;
   metaTitle: string;
   metaDescription: string;
   h1: string;
@@ -26,6 +34,10 @@ export interface ServicePage {
 export const servicePages: ServicePage[] = [
   {
     slug: 'factory',
+    code: 'A-01',
+    tab: '공장·산업 전기',
+    crumb: '공장·산업 전기공사',
+    ctaTitle: '공장 전기공사, 도면·설비 목록만 있으면 시작됩니다',
     metaTitle: '대구 공장 전기공사 | 신축·증설 동력설비 | 우앤주전력',
     metaDescription:
       '대구·경북 공장 전기공사. 신축·증축 옥내외 배선, 동력설비 전원 결선, 생산라인 증설 공사를 전기공사업 등록 법인이 직접 시공합니다.',
@@ -143,6 +155,10 @@ export const servicePages: ServicePage[] = [
 
   {
     slug: 'power',
+    code: 'A-02',
+    tab: '수전·계약전력 증설',
+    crumb: '계약전력 증설·수전설비',
+    ctaTitle: '차단기가 자꾸 떨어진다면, 부하 산정부터 무료로',
     metaTitle: '계약전력 증설·수전설비 공사 | 대구 전기 증설 | 우앤주전력',
     metaDescription:
       '한국전력 계약전력 증설 신청 대행부터 수전설비·인입 공사, 검사·송전까지. 대구·경북 공장·상가의 전기 증설을 부하 산정부터 처리합니다.',
@@ -257,6 +273,10 @@ export const servicePages: ServicePage[] = [
 
   {
     slug: 'interior',
+    code: 'A-03',
+    tab: '인테리어·일반 전기',
+    crumb: '인테리어·상가 전기',
+    ctaTitle: '인테리어 일정에 맞춘 전기 — 평면도만 보내주세요',
     metaTitle: '대구 인테리어 전기공사 | 상가·카페 전기 | 우앤주전력',
     metaDescription:
       '대구 상가·카페·병원 인테리어 전기공사. 조명·콘센트 배치, 노후 배선 교체, 분전함 용량 점검까지 인테리어 일정에 맞춰 시공합니다.',
@@ -371,6 +391,10 @@ export const servicePages: ServicePage[] = [
 
   {
     slug: 'panel',
+    code: 'A-04',
+    tab: '배전반·분전반',
+    crumb: '배전반·분전반 설계·설치',
+    ctaTitle: '도면이 없어도 됩니다 — 실측부터 저희가 합니다',
     metaTitle: '배전반·분전반 설계·설치 | 대구 전기공사 | 우앤주전력',
     metaDescription:
       '대구 배전반·분전반 설계·설치. 현장 실측 후 규격에 맞춰 설계하고, 제작은 협력 제작소, 반입·설치·결선·시운전은 직접. 노후 분전함 교체·차단기 증설까지 처리합니다.',
