@@ -147,8 +147,69 @@
 }
 .blueprint-theme .btn-outline:hover { background: rgba(29, 31, 32, 0.07); }
 
-.blueprint-theme .nav-link { transition: color 0.15s ease; }
+/* ── 스티키 헤더 ── */
+.blueprint-theme .bp-header {
+  background: var(--color-bg);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+/* 내려가면 한 겹 위에 뜬 판이 된다. 맨 위에서는 히어로 격자와 같은 면으로 둔다.
+   backdrop-filter를 모르는 브라우저는 위의 불투명 배경을 그대로 쓴다. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .blueprint-theme .bp-header[data-scrolled] {
+    background: rgba(242, 242, 243, 0.82);
+    -webkit-backdrop-filter: blur(10px) saturate(1.4);
+    backdrop-filter: blur(10px) saturate(1.4);
+  }
+}
+.blueprint-theme .bp-header[data-scrolled] { box-shadow: var(--shadow-md); }
+
+/* 하단 테두리이자 읽기 진행 게이지. 선을 하나 더 얹지 않고 원래 있던 헤어라인을 쓴다. */
+.blueprint-theme .bp-header-gauge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--color-divider);
+}
+.blueprint-theme .bp-header-gauge > span {
+  display: block;
+  height: 100%;
+  background: var(--color-accent);
+  transform-origin: left center;
+  transition: transform 0.1s linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .blueprint-theme .bp-header,
+  .blueprint-theme .bp-header-gauge > span { transition: none; }
+}
+
+/* ── 내비 링크 ── */
+.blueprint-theme .nav-link {
+  position: relative;
+  padding: 6px 0;
+  transition: color 0.15s ease;
+}
+/* 밑줄은 왼쪽에서 자란다. hover/현재 위치 모두 같은 선을 쓴다. */
+.blueprint-theme .nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.18s ease;
+}
 .blueprint-theme .nav-link:hover { color: var(--color-accent-700); }
+.blueprint-theme .nav-link:hover::after { transform: scaleX(1); }
+.blueprint-theme .nav-link[data-active] { color: var(--color-accent-800); }
+.blueprint-theme .nav-link[data-active]::after { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  .blueprint-theme .nav-link::after { transition: none; }
+}
 
 /* ── 폼 요소 ──
    전 컴포넌트 사각형(radius 0)이 이 시스템의 규칙이다.

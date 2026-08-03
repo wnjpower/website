@@ -58,10 +58,13 @@ export default function MobileNav({
           height: 44,
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'transparent',
-          color: 'var(--color-text)',
+          // 열려 있으면 채운다 — 어느 상태인지 아이콘 하나로만 판단하지 않게 한다
+          background: open ? 'var(--color-accent)' : 'transparent',
+          borderColor: open ? 'var(--color-accent)' : undefined,
+          color: open ? 'var(--color-bg)' : 'var(--color-text)',
           cursor: 'pointer',
           padding: 0,
+          transition: 'background 0.15s ease, color 0.15s ease',
         }}
       >
         {open ? <X size={21} strokeWidth={1.5} /> : <Menu size={21} strokeWidth={1.5} />}

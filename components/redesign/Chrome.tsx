@@ -1,9 +1,11 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Phone } from 'lucide-react';
-import MobileNav from '@/components/redesign/MobileNav';
+import HeaderBar from '@/components/redesign/HeaderBar';
+import { CornerMarks } from '@/components/redesign/CornerMarks';
 import { COMPANY } from '@/lib/site';
 import type { SiteContent } from '@/lib/content/schema';
+
+export { CornerMarks };
 
 /**
  * 1b 블루프린트 페이지 골격 — 헤더 / 푸터 / 모바일 하단 바.
@@ -39,95 +41,9 @@ export function BlueprintHeader({
     ? [...nav, { label: '전기공사 정보', href: '/blog' }]
     : nav;
 
-  return (
-    <header
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 60,
-        background: 'var(--color-bg)',
-        borderBottom: '1px solid var(--color-divider)',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1280,
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 26,
-          height: 64,
-          padding: '0 clamp(16px,4vw,48px)',
-        }}
-      >
-        <Link
-          href="/"
-          style={{ display: 'flex', alignItems: 'center', gap: 10, marginRight: 'auto' }}
-        >
-          {/* alt는 비워 둔다 — 바로 옆 한글 상호가 이미 링크 이름을 만든다.
-              둘 다 읽히면 스크린리더에서 상호가 두 번 나온다. */}
-          <Image
-            src="/images/logo-mark.png"
-            alt=""
-            width={219}
-            height={128}
-            priority
-            style={{ height: 36, width: 'auto' }}
-          />
-          <span className="display" style={{ fontSize: 21, letterSpacing: '-.01em' }}>
-            {logoText}
-          </span>
-        </Link>
-
-        <nav data-desktop-nav style={{ display: 'flex', alignItems: 'center', gap: 26 }}>
-          {navItems.map((item) => (
-            <Link
-              key={`${item.href}-${item.label}`}
-              href={item.href}
-              className="nav-link"
-              style={{ fontSize: 14 }}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <a
-          href={`tel:${COMPANY.mobile}`}
-          data-desktop-nav
-          className="display btn-outline mono-num"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 7,
-            fontSize: 15,
-            padding: '8px 14px',
-          }}
-        >
-          <Phone size={15} strokeWidth={1.5} />
-          {COMPANY.mobile}
-        </a>
-
-        <Link
-          href={ctaHref}
-          data-desktop-nav
-          className="display blueprint btn-solid is-solid"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            fontSize: 15,
-            padding: '9px 18px',
-          }}
-        >
-          <CornerMarks />
-          무료 현장 견적
-        </Link>
-
-        {/* 900px 이하 전용 — 데스크톱 내비가 숨겨지는 구간의 유일한 이동 수단 */}
-        <MobileNav items={navItems} ctaHref={ctaHref} />
-      </div>
-    </header>
-  );
+  // 표시는 HeaderBar(클라이언트)가 맡는다 — 스크롤 상태·현재 위치 표시에
+  // 브라우저 상태가 필요하다. 여기서는 편집된 콘텐츠를 정리해 넘기기만 한다.
+  return <HeaderBar logoText={logoText} navItems={navItems} ctaHref={ctaHref} />;
 }
 
 export function BlueprintFooter() {
@@ -360,14 +276,3 @@ export function SectionHead({
   );
 }
 
-/** 도면 정합 마크 네 개. .blueprint 를 쓴 요소의 첫 자식으로 넣는다. */
-export function CornerMarks() {
-  return (
-    <>
-      <i className="corner tl" aria-hidden />
-      <i className="corner tr" aria-hidden />
-      <i className="corner bl" aria-hidden />
-      <i className="corner br" aria-hidden />
-    </>
-  );
-}
