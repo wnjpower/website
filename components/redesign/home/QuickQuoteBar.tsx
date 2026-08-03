@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ArrowRight, CheckCircle2, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { gtagEvent } from '@/components/GoogleAnalytics';
 import { track } from '@/components/analytics/Tracker';
@@ -26,17 +26,45 @@ const TYPES = [
   { key: 'interior',   label: '인테리어·일반', category: 'interior_store' },
 ] as const;
 
+/** 접수 안내가 저절로 닫히기까지의 시간(초) — 본 견적폼과 같은 값을 쓴다. */
+const AUTO_CLOSE_SEC = 20;
+
 export default function QuickQuoteBar({ content }: { content: SiteContent['quickForm'] }) {
   const [typeKey, setTypeKey] = useState<string>(TYPES[0].key);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  // 자동 닫힘까지 남은 초. null이면 멈춘 상태(사용자가 안내를 만졌을 때).
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const loadedAt = useRef(0);
 
   useEffect(() => {
     loadedAt.current = Date.now();
   }, []);
+
+  /** 접수 안내를 닫고 빈 폼으로 되돌린다. loadedAt을 새로 찍어 봇 검사(3초)를 유지한다. */
+  const closeDone = useCallback(() => {
+    loadedAt.current = Date.now();
+    setDone(false);
+    setSecondsLeft(null);
+    setName('');
+    setPhone('');
+  }, []);
+
+  useEffect(() => {
+    if (done) setSecondsLeft(AUTO_CLOSE_SEC);
+  }, [done]);
+
+  useEffect(() => {
+    if (!done || secondsLeft === null) return;
+    if (secondsLeft <= 0) {
+      closeDone();
+      return;
+    }
+    const timer = setTimeout(() => setSecondsLeft((s) => (s === null ? null : s - 1)), 1000);
+    return () => clearTimeout(timer);
+  }, [done, secondsLeft, closeDone]);
 
   if (!content.enabled) return null;
 
@@ -109,9 +137,16 @@ export default function QuickQuoteBar({ content }: { content: SiteContent['quick
           <CornerMarks />
 
           {done ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '6px 0' }}>
+            <div
+              role="status"
+              aria-live="polite"
+              // 읽는 중에 안내가 사라지지 않도록, 만지면 카운트다운을 멈춘다
+              onPointerDown={() => setSecondsLeft(null)}
+              onFocusCapture={() => setSecondsLeft(null)}
+              style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '6px 0' }}
+            >
               <CheckCircle2 size={28} strokeWidth={1.5} style={{ color: 'var(--color-accent-700)', flex: 'none' }} />
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <p className="display" style={{ fontSize: 19, margin: 0 }}>
                   {content.successTitle}
                 </p>
@@ -119,6 +154,28 @@ export default function QuickQuoteBar({ content }: { content: SiteContent['quick
                   {content.successNote}
                 </p>
               </div>
+              <button
+                type="button"
+                onClick={closeDone}
+                aria-label="접수 안내 닫기"
+                className="btn-outline display"
+                style={{
+                  flex: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  padding: '9px 14px',
+                  fontSize: 14,
+                  background: 'transparent',
+                  color: 'var(--color-text)',
+                  cursor: 'pointer',
+                }}
+              >
+                <X size={15} strokeWidth={1.5} />
+                {secondsLeft !== null && (
+                  <span className="text-muted mono-num" style={{ fontSize: 13 }}>{secondsLeft}</span>
+                )}
+              </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} noValidate>

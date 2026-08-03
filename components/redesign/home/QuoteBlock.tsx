@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { ArrowRight, CheckCircle2, Loader2, Phone } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Loader2, Phone, X } from 'lucide-react';
 import {
   QuoteSchema,
   type QuoteInput,
@@ -54,6 +54,9 @@ const CATEGORY_BY_SERVICE: Record<string, QuoteInput['category']> = {
   interior: 'interior_store',
 };
 
+/** 접수 안내가 저절로 닫히기까지의 시간(초). 읽고 전화번호를 누를 여유는 준다. */
+const AUTO_CLOSE_SEC = 20;
+
 export default function QuoteBlock({
   content,
   ctas,
@@ -71,6 +74,8 @@ export default function QuoteBlock({
   const loadedAt = useRef(Date.now());
   const [submitted, setSubmitted] = useState(false);
   const [alimtalkSent, setAlimtalkSent] = useState(false);
+  // 자동 닫힘까지 남은 초. null이면 세지 않는다(사용자가 패널을 만졌을 때).
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const submitCta = ctas.quote_submit;
 
   const startCategory: QuoteInput['category'] =
@@ -84,6 +89,7 @@ export default function QuoteBlock({
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<QuoteInput>({
     resolver: zodResolver(QuoteSchema),
@@ -106,6 +112,40 @@ export default function QuoteBlock({
   }, [customerType, available, category, setValue]);
 
   const { onChange: phoneOnChange, ...phoneRest } = register('phone');
+
+  /**
+   * 접수 안내를 닫고 빈 폼으로 되돌린다.
+   * loadedAt을 새로 찍는 이유 — 서버가 "로드 후 3초 미만 제출"을 봇으로 보고
+   * 막는다. 첫 로드 시각을 그대로 두면 다음 문의가 그 검사를 우회하게 된다.
+   */
+  const closeSuccess = useCallback(() => {
+    loadedAt.current = Date.now();
+    setSubmitted(false);
+    setAlimtalkSent(false);
+    setSecondsLeft(null);
+    reset({
+      customerType: startCustomerType,
+      category: startCategory,
+      source,
+      loadedAt: loadedAt.current,
+    });
+  }, [reset, startCustomerType, startCategory, source]);
+
+  // 제출 직후 카운트다운 시작
+  useEffect(() => {
+    if (submitted) setSecondsLeft(AUTO_CLOSE_SEC);
+  }, [submitted]);
+
+  // 1초씩 줄이다 0이 되면 닫는다. secondsLeft가 null이면 멈춘 상태.
+  useEffect(() => {
+    if (!submitted || secondsLeft === null) return;
+    if (secondsLeft <= 0) {
+      closeSuccess();
+      return;
+    }
+    const timer = setTimeout(() => setSecondsLeft((s) => (s === null ? null : s - 1)), 1000);
+    return () => clearTimeout(timer);
+  }, [submitted, secondsLeft, closeSuccess]);
 
   async function onSubmit(data: QuoteInput) {
     try {
@@ -160,7 +200,38 @@ export default function QuoteBlock({
             <CornerMarks />
 
             {submitted ? (
-              <div style={{ textAlign: 'center', padding: '36px 12px' }}>
+              <div
+                role="status"
+                aria-live="polite"
+                // 읽거나 전화를 누르려는 중이면 카운트다운을 멈춘다.
+                // 눈앞에서 안내가 사라지는 것이 자동 닫힘의 유일한 위험이다.
+                onPointerDown={() => setSecondsLeft(null)}
+                onFocusCapture={() => setSecondsLeft(null)}
+                style={{ position: 'relative', textAlign: 'center', padding: '36px 12px 28px' }}
+              >
+                <button
+                  type="button"
+                  onClick={closeSuccess}
+                  aria-label="접수 안내 닫기"
+                  className="btn-outline"
+                  style={{
+                    position: 'absolute',
+                    top: -6,
+                    right: -6,
+                    width: 38,
+                    height: 38,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'transparent',
+                    color: 'var(--color-text)',
+                    cursor: 'pointer',
+                    padding: 0,
+                  }}
+                >
+                  <X size={18} strokeWidth={1.5} />
+                </button>
+
                 <CheckCircle2
                   size={44}
                   strokeWidth={1.5}
@@ -177,14 +248,48 @@ export default function QuoteBlock({
                     접수 확인 카카오 알림톡이 발송되었습니다.
                   </p>
                 )}
-                <a
-                  href={`tel:${COMPANY.mobile}`}
-                  className="display btn-outline mono-num"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 9, fontSize: 17, padding: '12px 22px', marginTop: 14 }}
+
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 10,
+                    justifyContent: 'center',
+                    marginTop: 14,
+                  }}
                 >
-                  <Phone size={16} strokeWidth={1.5} />
-                  {COMPANY.mobile}
-                </a>
+                  <a
+                    href={`tel:${COMPANY.mobile}`}
+                    className="display btn-outline mono-num"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 9, fontSize: 17, padding: '12px 22px' }}
+                  >
+                    <Phone size={16} strokeWidth={1.5} />
+                    {COMPANY.mobile}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={closeSuccess}
+                    className="display btn-outline"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      fontSize: 16,
+                      padding: '12px 20px',
+                      background: 'transparent',
+                      color: 'var(--color-text)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    닫기
+                    {/* 남은 시간을 숨기지 않는다 — 예고 없이 사라지는 편이 더 나쁘다 */}
+                    {secondsLeft !== null && (
+                      <span className="text-muted mono-num" style={{ fontSize: 14 }}>
+                        {secondsLeft}
+                      </span>
+                    )}
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} noValidate>

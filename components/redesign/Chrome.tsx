@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Phone } from 'lucide-react';
 import MobileNav from '@/components/redesign/MobileNav';
 import { COMPANY } from '@/lib/site';
@@ -61,21 +62,20 @@ export function BlueprintHeader({
       >
         <Link
           href="/"
-          style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginRight: 'auto' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, marginRight: 'auto' }}
         >
+          {/* alt는 비워 둔다 — 바로 옆 한글 상호가 이미 링크 이름을 만든다.
+              둘 다 읽히면 스크린리더에서 상호가 두 번 나온다. */}
+          <Image
+            src="/images/logo-mark.png"
+            alt=""
+            width={219}
+            height={128}
+            priority
+            style={{ height: 36, width: 'auto' }}
+          />
           <span className="display" style={{ fontSize: 21, letterSpacing: '-.01em' }}>
             {logoText}
-          </span>
-          <span
-            className="display"
-            style={{
-              fontSize: 12,
-              letterSpacing: '.14em',
-              color: 'var(--color-accent-700)',
-              textTransform: 'uppercase',
-            }}
-          >
-            WNJ Electric · Daegu
           </span>
         </Link>
 
