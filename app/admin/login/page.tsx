@@ -2,7 +2,8 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, LogIn, AlertCircle, MailCheck, ArrowLeft } from 'lucide-react';
+import { Loader2, LogIn, MailCheck, ArrowLeft } from 'lucide-react';
+import { Notice, Field, CornerMarks } from '@/components/admin/ui';
 import { createBrowserSupabase } from '@/lib/supabase-browser';
 
 /** 콜백 라우트가 실패를 넘겨줄 때 쓰는 문구 */
@@ -18,6 +19,27 @@ export default function LoginPage() {
     <Suspense fallback={null}>
       <LoginForm />
     </Suspense>
+  );
+}
+
+/** 로그인·재설정 화면 공통 껍데기 — 도면 격자 위에 놓인 한 장의 카드 */
+function AuthShell({ subtitle, children }: { subtitle: string; children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-5 py-12 grid-field">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-7">
+          <p className="display" style={{ fontSize: 26, letterSpacing: '-.01em' }}>우앤주전력</p>
+          <p className="display text-muted" style={{ fontSize: 12, letterSpacing: '.18em' }}>
+            ADMIN CONSOLE
+          </p>
+          <p className="text-muted mt-1.5" style={{ fontSize: 13 }}>{subtitle}</p>
+        </div>
+        <div className="a-panel" style={{ padding: 22 }}>
+          <CornerMarks />
+          {children}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -105,163 +127,116 @@ function LoginForm() {
   // ── 비밀번호 재설정 ──
   if (resetMode) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 px-5 py-12">
-        <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <p className="text-2xl font-bold text-brand tracking-tight">우앤주전력</p>
-            <p className="text-sm text-slate-500 mt-1">비밀번호 재설정</p>
-          </div>
-
-          {resetSent ? (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-              <p className="flex gap-2 items-start rounded-lg bg-green-50 border border-green-200 px-3.5 py-3 text-sm text-green-800 break-keep">
-                <MailCheck className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                가입된 계정이라면 재설정 메일을 보냈습니다. 메일함(스팸함 포함)을 확인해 주세요.
-              </p>
-              <p className="text-sm text-slate-500 break-keep">
-                링크는 한 번만, 짧은 시간 안에만 쓸 수 있습니다. 되도록 <b>이 기기에서</b> 링크를 열어 주세요.
-              </p>
-              <button
-                onClick={() => { setResetMode(false); setResetSent(false); setError(null); }}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 py-3 text-sm font-semibold text-slate-600 hover:border-brand hover:text-brand"
-              >
-                <ArrowLeft className="w-4 h-4" /> 로그인으로 돌아가기
-              </button>
-            </div>
-          ) : (
-            <form
-              onSubmit={onReset}
-              className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4"
+      <AuthShell subtitle="비밀번호 재설정">
+        {resetSent ? (
+          <div className="space-y-4">
+            <Notice tone="ok">
+              <span>가입된 계정이라면 재설정 메일을 보냈습니다. 메일함(스팸함 포함)을 확인해 주세요.</span>
+            </Notice>
+            <p className="text-muted break-keep" style={{ fontSize: 13, lineHeight: 1.65 }}>
+              링크는 한 번만, 짧은 시간 안에만 쓸 수 있습니다. 되도록 <b>이 기기에서</b> 링크를 열어 주세요.
+            </p>
+            <button
+              onClick={() => { setResetMode(false); setResetSent(false); setError(null); }}
+              className="a-btn a-btn--block"
             >
-              <p className="text-sm text-slate-500 break-keep">
-                가입한 이메일로 재설정 링크를 보내드립니다.
-              </p>
+              <ArrowLeft className="w-4 h-4" strokeWidth={1.5} /> 로그인으로 돌아가기
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={onReset} className="space-y-4">
+            <p className="text-muted break-keep" style={{ fontSize: 13 }}>
+              가입한 이메일로 재설정 링크를 보내드립니다.
+            </p>
 
-              <div>
-                <label htmlFor="reset-email" className="block text-sm font-semibold text-ink mb-1.5">
-                  이메일
-                </label>
-                <input
-                  id="reset-email"
-                  type="email"
-                  autoComplete="username"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand"
-                  placeholder="wnj-2023@naver.com"
-                />
-              </div>
+            <Field label="이메일" htmlFor="reset-email">
+              <input
+                id="reset-email"
+                type="email"
+                autoComplete="username"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bp-input"
+                placeholder="wnj-2023@naver.com"
+              />
+            </Field>
 
-              {error && (
-                <p className="flex gap-2 items-start rounded-lg bg-red-50 border border-red-200 px-3.5 py-3 text-sm text-red-700 break-keep">
-                  <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  {error}
-                </p>
-              )}
+            {error && <Notice tone="err"><span>{error}</span></Notice>}
 
-              <button
-                type="submit"
-                disabled={resetting}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-bold py-3.5 text-base transition-colors disabled:opacity-60"
-              >
-                {resetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <MailCheck className="w-5 h-5" />}
-                재설정 메일 받기
-              </button>
+            <button type="submit" disabled={resetting} className="a-btn a-btn--solid a-btn--block">
+              {resetting
+                ? <Loader2 className="w-5 h-5 bp-spin" strokeWidth={1.5} />
+                : <MailCheck className="w-5 h-5" strokeWidth={1.5} />}
+              재설정 메일 받기
+            </button>
 
-              <button
-                type="button"
-                onClick={() => { setResetMode(false); setError(null); }}
-                className="w-full inline-flex items-center justify-center gap-2 py-2 text-sm font-semibold text-slate-500 hover:text-brand"
-              >
-                <ArrowLeft className="w-4 h-4" /> 로그인으로 돌아가기
-              </button>
-            </form>
-          )}
-        </div>
-      </div>
+            <button
+              type="button"
+              onClick={() => { setResetMode(false); setError(null); }}
+              className="a-btn a-btn--ghost a-btn--block a-btn--sm"
+            >
+              <ArrowLeft className="w-4 h-4" strokeWidth={1.5} /> 로그인으로 돌아가기
+            </button>
+          </form>
+        )}
+      </AuthShell>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-5 py-12">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <p className="text-2xl font-bold text-brand tracking-tight">우앤주전력</p>
-          <p className="text-sm text-slate-500 mt-1">홈페이지 관리자</p>
-        </div>
+    <AuthShell subtitle="홈페이지 관리자">
+      <form onSubmit={onSubmit} className="space-y-4">
+        {!configured && (
+          <Notice tone="warn">
+            <span>Supabase 환경변수가 설정되지 않았습니다. 배포 환경에서 확인해 주세요.</span>
+          </Notice>
+        )}
 
-        <form
-          onSubmit={onSubmit}
-          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4"
+        <Field label="이메일" htmlFor="email">
+          <input
+            id="email"
+            type="email"
+            autoComplete="username"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="bp-input"
+            placeholder="wnj-2023@naver.com"
+          />
+        </Field>
+
+        <Field label="비밀번호" htmlFor="password">
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="bp-input"
+          />
+        </Field>
+
+        {error && <Notice tone="err"><span>{error}</span></Notice>}
+
+        <button type="submit" disabled={loading} className="a-btn a-btn--solid a-btn--block">
+          {loading
+            ? <Loader2 className="w-5 h-5 bp-spin" strokeWidth={1.5} />
+            : <LogIn className="w-5 h-5" strokeWidth={1.5} />}
+          로그인
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setResetMode(true); setError(null); }}
+          className="a-btn a-btn--ghost a-btn--block a-btn--sm"
         >
-          {!configured && (
-            <p className="flex gap-2 items-start rounded-lg bg-amber-50 border border-amber-200 px-3.5 py-3 text-sm text-amber-800">
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              Supabase 환경변수가 설정되지 않았습니다. 배포 환경에서 확인해 주세요.
-            </p>
-          )}
+          비밀번호를 잊으셨나요?
+        </button>
+      </form>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-semibold text-ink mb-1.5">
-              이메일
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="username"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand"
-              placeholder="wnj-2023@naver.com"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-semibold text-ink mb-1.5">
-              비밀번호
-            </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand"
-            />
-          </div>
-
-          {error && (
-            <p className="flex gap-2 items-start rounded-lg bg-red-50 border border-red-200 px-3.5 py-3 text-sm text-red-700">
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-bold py-3.5 text-base transition-colors disabled:opacity-60"
-          >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
-            로그인
-          </button>
-
-          <button
-            type="button"
-            onClick={() => { setResetMode(true); setError(null); }}
-            className="w-full py-1 text-sm font-semibold text-slate-500 hover:text-brand"
-          >
-            비밀번호를 잊으셨나요?
-          </button>
-        </form>
-
-        <p className="text-center text-xs text-slate-400 mt-6">
-          계정은 관리자만 발급할 수 있습니다.
-        </p>
-      </div>
-    </div>
+      <p className="a-help text-center mt-5">계정은 관리자만 발급할 수 있습니다.</p>
+    </AuthShell>
   );
 }

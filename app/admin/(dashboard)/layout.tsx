@@ -13,14 +13,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user) return <NotAdmin />;
 
   return (
-    <div className="min-h-screen bg-slate-100 text-ink">
+    <>
       {/* 관리자 방문 제외 표식은 middleware가 심는다 (화면 렌더 여부와 무관하게 확실히) */}
       <AdminNav userName={user.name ?? user.email} />
-      <div className="lg:pl-60">
-        <main className="px-4 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-10 max-w-[1400px] mx-auto">
-          {children}
-        </main>
+      <div className="a-body">
+        <main className="a-main">{children}</main>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,0 +1,503 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   어드민 — "1b 블루프린트" 적용 레이어
+
+   [왜 blueprint.css 위에 얹는가]
+   사이트 본문은 이미 1b 블루프린트로 이관됐는데 어드민만 옛 팔레트(네이비
+   #0F2E4D · 둥근 모서리 · 슬레이트)에 남아 있었다. 사장님은 "사이트 보기"와
+   어드민을 하루에도 여러 번 오가는데 두 화면이 서로 다른 제품처럼 보였다.
+   그래서 어드민도 같은 토큰·같은 프리미티브(.blueprint/.corner/.bp-table/
+   .bp-input/.display/.mono-num)를 그대로 쓴다. 이 파일은 그 위에 대시보드에만
+   필요한 것(사이드 레일·패널·버튼·칩·알림 상자)만 더한다.
+
+   [범위]
+   모든 규칙을 .admin-theme 아래에 가둔다. blueprint.css의 규칙이
+   `.blueprint-theme X`(0,1,1 이하)이므로 `.admin-theme .a-x`(0,2,0)로
+   항상 이긴다 — 로드 순서에 의존하지 않는다.
+
+   [모서리 규칙]
+   전 컴포넌트 radius 0. 이 시스템에서 둥근 모서리는 한 곳도 없다.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.admin-theme {
+  /* 패널은 흰 면으로 둔다. 페이지 배경(#f2f2f3)과 1px 헤어라인만으로는
+     폼이 여러 개 겹치는 화면에서 경계가 읽히지 않는다. */
+  --a-panel: #ffffff;
+  --a-rail: var(--color-accent-900);
+
+  /* 상태색 — 사이트와 같은 절제된 톤. 형광 그린/레드를 쓰지 않는다. */
+  --a-ok: #2c6146;
+  --a-ok-bg: rgba(44, 97, 70, 0.08);
+  --a-ok-line: rgba(44, 97, 70, 0.32);
+  --a-warn: #8a5a12;
+  --a-warn-bg: rgba(138, 90, 18, 0.09);
+  --a-warn-line: rgba(138, 90, 18, 0.34);
+  --a-err: #a3281c;
+  --a-err-bg: rgba(163, 40, 28, 0.07);
+  --a-err-line: rgba(163, 40, 28, 0.3);
+
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* blueprint.css는 좁은 화면에서 하단 고정 CTA 바 자리를 비운다.
+   어드민에는 그 바가 없으므로 빈 공간만 남는다. */
+@media (max-width: 900px) {
+  .blueprint-theme.admin-theme {
+    padding-bottom: 0;
+  }
+}
+/* globals.css의 모바일 하단 CTA 여백도 어드민에서는 불필요하다 */
+body:has(.admin-theme) {
+  padding-bottom: 0;
+}
+
+/* ── 골격 ───────────────────────────────────────────────────────────── */
+
+.admin-theme .a-body {
+  min-height: 100vh;
+}
+@media (min-width: 1024px) {
+  .admin-theme .a-body {
+    padding-left: 240px;
+  }
+}
+
+.admin-theme .a-main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 22px clamp(14px, 3vw, 32px) 72px;
+}
+
+/* ── 사이드 레일 ────────────────────────────────────────────────────── */
+
+.admin-theme .a-rail {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 240px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--a-rail);
+  color: #f2f2f3;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+}
+.admin-theme .a-rail[data-open] {
+  transform: none;
+}
+@media (min-width: 1024px) {
+  .admin-theme .a-rail {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-theme .a-rail {
+    transition: none;
+  }
+}
+
+.admin-theme .a-rail-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 64px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(242, 242, 243, 0.16);
+  color: #f2f2f3;
+}
+
+.admin-theme .a-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(29, 45, 61, 0.5);
+}
+
+/* 메뉴 한 줄 — 도면 색인처럼 번호를 앞에 둔다.
+   현재 위치는 왼쪽 굵은 선 + 액센트 면으로 표시한다(사이트 nav-link와 같은 언어). */
+.admin-theme .a-navlink {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 16px;
+  font-size: 14.5px;
+  color: rgba(242, 242, 243, 0.72);
+  border-left: 3px solid transparent;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.admin-theme .a-navlink:hover {
+  background: rgba(242, 242, 243, 0.08);
+  color: #f2f2f3;
+}
+.admin-theme .a-navlink[data-active] {
+  background: var(--color-accent);
+  border-left-color: #f2f2f3;
+  color: #ffffff;
+}
+.admin-theme .a-navlink-no {
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  opacity: 0.55;
+  flex: none;
+  width: 18px;
+}
+.admin-theme .a-navlink[data-active] .a-navlink-no {
+  opacity: 0.9;
+}
+
+/* ── 패널 ───────────────────────────────────────────────────────────── */
+
+.admin-theme .a-panel {
+  position: relative;
+  background: var(--a-panel);
+  border: 1px solid var(--color-divider);
+}
+
+.admin-theme .a-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 13px clamp(14px, 2vw, 18px);
+  border-bottom: 1px solid var(--color-divider);
+  background: rgba(89, 128, 166, 0.05);
+}
+.admin-theme .a-panel-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.admin-theme .a-panel-note {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: rgba(29, 31, 32, 0.55);
+  margin: 3px 0 0;
+}
+.admin-theme .a-panel-body {
+  padding: clamp(14px, 2vw, 18px);
+}
+
+/* 페이지 머리 — 사이트의 SectionHead와 같은 좌측 정렬 + 헤어라인.
+   space-between을 쓰지 않는다. 좁은 화면에서 줄이 접히면 «01»과 제목이 양 끝으로
+   벌어져 한 덩어리로 읽히지 않는다. 오른쪽으로 밀 것(액션)만 margin-left:auto로 민다. */
+.admin-theme .a-pagehead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px 18px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-divider);
+}
+.admin-theme .a-pagehead h1 {
+  font-size: clamp(23px, 2.4vw, 30px);
+}
+.admin-theme .a-pageno {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  color: var(--color-accent-700);
+}
+
+/* ── 버튼 ───────────────────────────────────────────────────────────── */
+
+.admin-theme .a-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  line-height: 1.2;
+  padding: 9px 16px;
+  border: 1px solid var(--color-divider);
+  border-radius: 0;
+  background: var(--a-panel);
+  color: var(--color-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.admin-theme .a-btn:hover:not(:disabled) {
+  background: rgba(29, 31, 32, 0.06);
+}
+.admin-theme .a-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.admin-theme .a-btn--solid {
+  position: relative;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #f2f2f3;
+}
+.admin-theme .a-btn--solid:hover:not(:disabled) {
+  background: var(--color-accent-600);
+  border-color: var(--color-accent-600);
+}
+.admin-theme .a-btn--dark {
+  background: var(--color-accent-900);
+  border-color: var(--color-accent-900);
+  color: #f2f2f3;
+}
+.admin-theme .a-btn--dark:hover:not(:disabled) {
+  background: var(--color-accent-800);
+  border-color: var(--color-accent-800);
+}
+.admin-theme .a-btn--danger:hover:not(:disabled) {
+  color: var(--a-err);
+  border-color: var(--a-err-line);
+  background: var(--a-err-bg);
+}
+.admin-theme .a-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: rgba(29, 31, 32, 0.6);
+}
+.admin-theme .a-btn--sm {
+  font-size: 13px;
+  padding: 6px 11px;
+}
+.admin-theme .a-btn--icon {
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  flex: none;
+}
+.admin-theme .a-btn--icon.a-btn--sm {
+  width: 30px;
+  height: 30px;
+}
+.admin-theme .a-btn--block {
+  width: 100%;
+}
+
+/* 텍스트 링크 — blueprint.css가 a { color: inherit }로 눌러 둔 것을 되살린다 */
+.admin-theme .a-link {
+  color: var(--color-accent-700);
+}
+.admin-theme .a-link:hover {
+  color: var(--color-accent-800);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── 칩·배지 ────────────────────────────────────────────────────────── */
+
+.admin-theme .a-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border: 1px solid var(--color-divider);
+  background: var(--a-panel);
+  color: rgba(29, 31, 32, 0.66);
+  white-space: nowrap;
+}
+.admin-theme .a-chip--accent {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #f2f2f3;
+}
+.admin-theme .a-chip--outline {
+  border-color: var(--color-accent);
+  color: var(--color-accent-700);
+}
+.admin-theme .a-chip--ok {
+  border-color: var(--a-ok-line);
+  background: var(--a-ok-bg);
+  color: var(--a-ok);
+}
+.admin-theme .a-chip--warn {
+  border-color: var(--a-warn-line);
+  background: var(--a-warn-bg);
+  color: var(--a-warn);
+}
+.admin-theme .a-chip--err {
+  border-color: var(--a-err-line);
+  background: var(--a-err-bg);
+  color: var(--a-err);
+}
+.admin-theme .a-chip--muted {
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-800);
+}
+
+/* ── 알림 상자 ──────────────────────────────────────────────────────── */
+
+.admin-theme .a-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-divider);
+  background: var(--a-panel);
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+.admin-theme .a-note--ok {
+  border-color: var(--a-ok-line);
+  background: var(--a-ok-bg);
+  color: var(--a-ok);
+}
+.admin-theme .a-note--warn {
+  border-color: var(--a-warn-line);
+  background: var(--a-warn-bg);
+  color: var(--a-warn);
+}
+.admin-theme .a-note--err {
+  border-color: var(--a-err-line);
+  background: var(--a-err-bg);
+  color: var(--a-err);
+}
+.admin-theme .a-note code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--color-divider);
+  padding: 1px 5px;
+}
+
+/* ── 수치 타일 ──────────────────────────────────────────────────────── */
+
+.admin-theme .a-stat {
+  position: relative;
+  background: var(--a-panel);
+  border: 1px solid var(--color-divider);
+  padding: 13px 15px 15px;
+}
+.admin-theme .a-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(29, 31, 32, 0.6);
+}
+.admin-theme .a-stat-value {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-size: 30px;
+  line-height: 1.04;
+  margin: 9px 0 0;
+}
+.admin-theme .a-stat-hint {
+  font-size: 11.5px;
+  color: rgba(29, 31, 32, 0.5);
+  margin: 5px 0 0;
+}
+
+/* ── 표 · 목록 ──────────────────────────────────────────────────────── */
+
+/* 목록 행 사이 헤어라인 (패널 안에서 divide 유틸 대신) */
+.admin-theme .a-rows > * + * {
+  border-top: 1px solid rgba(29, 31, 32, 0.09);
+}
+.admin-theme .a-row-hover:hover {
+  background: rgba(89, 128, 166, 0.06);
+}
+
+.admin-theme .a-empty {
+  padding: 52px 20px;
+  text-align: center;
+  font-size: 13.5px;
+  color: rgba(29, 31, 32, 0.5);
+}
+
+/* ── 폼 보강 ────────────────────────────────────────────────────────── */
+
+/* .bp-input은 appearance:none이라 select의 화살표까지 지운다. 다시 그린다. */
+.admin-theme select.bp-input {
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d1f20' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  background-size: 13px;
+}
+.admin-theme .bp-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+/* 흰 패널 위에서는 입력면을 페이지색으로 두어 "적을 곳"이 바로 보인다 */
+.admin-theme .a-panel .bp-input {
+  background-color: var(--color-bg);
+}
+
+.admin-theme .a-help {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: rgba(29, 31, 32, 0.55);
+}
+
+/* 스위치 — 사각형 규칙을 지키되 켜짐/꺼짐이 색 없이도 구분되게 글자를 붙인다 */
+.admin-theme .a-switch {
+  position: relative;
+  display: block;
+  width: 46px;
+  height: 24px;
+  flex: none;
+  border: 1px solid var(--color-divider);
+  background: var(--color-neutral-100);
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.admin-theme .a-switch[data-on] {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.admin-theme .a-switch > span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  transition: transform 0.12s ease;
+}
+.admin-theme .a-switch[data-on] > span {
+  transform: translateX(22px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-theme .a-switch,
+  .admin-theme .a-switch > span {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .admin-theme .a-switch > span {
+    background: CanvasText;
+  }
+}
+
+/* ── 실시간 표시 점 ─────────────────────────────────────────────────── */
+
+.admin-theme .a-live-dot {
+  position: relative;
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  flex: none;
+  background: var(--color-accent);
+}
+.admin-theme .a-live-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent);
+  animation: a-pulse 1.8s ease-out infinite;
+}
+@keyframes a-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-theme .a-live-dot::after {
+    animation: none;
+  }
+}

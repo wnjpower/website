@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import LeadTable, { type LeadRow } from '@/components/admin/LeadTable';
 import PageHeader from '@/components/admin/PageHeader';
+import { Notice } from '@/components/admin/ui';
 import { createServerSupabase } from '@/lib/supabase-server';
 import { LEAD_STATUS_LABELS } from '@/lib/leads';
 
@@ -34,8 +35,9 @@ export default async function LeadsPage({
   const newCount = rows.filter((r) => r.status === 'new').length;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PageHeader
+        no="02"
         title="견적문의"
         description={
           newCount > 0
@@ -44,16 +46,14 @@ export default async function LeadsPage({
         }
       />
 
-      <div className="flex flex-wrap gap-2">
+      {/* 상태 필터 — 분절 선택과 같은 모양이지만 링크라 뒤로가기가 동작한다 */}
+      <div className="bp-seg flex-wrap">
         {FILTERS.map((f) => (
           <Link
             key={f.value}
             href={f.value === 'all' ? '/admin/leads' : `/admin/leads?status=${f.value}`}
-            className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              status === f.value
-                ? 'bg-brand text-white'
-                : 'bg-white border border-slate-200 text-slate-600 hover:border-brand hover:text-brand'
-            }`}
+            className="bp-seg-opt display"
+            data-active={status === f.value ? '' : undefined}
           >
             {f.label}
           </Link>
@@ -61,13 +61,12 @@ export default async function LeadsPage({
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
-          문의 목록을 불러오지 못했습니다: {error.message}
-          <br />
-          <span className="text-xs">
-            supabase/admin-schema.sql의 quotes 관리자 정책이 적용되었는지 확인해 주세요.
-          </span>
-        </div>
+        <Notice tone="warn" title="문의 목록을 불러오지 못했습니다">
+          <p>{error.message}</p>
+          <p className="mt-1 opacity-80">
+            <code>supabase/admin-schema.sql</code>의 quotes 관리자 정책이 적용되었는지 확인해 주세요.
+          </p>
+        </Notice>
       ) : (
         <LeadTable rows={rows} />
       )}

@@ -4,17 +4,14 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ArrowLeft, Save, Rocket, Trash2, Loader2, Check, AlertCircle,
+  ArrowLeft, Save, Rocket, Trash2, Loader2,
   Bold, Italic, Heading2, List, Link2, ImagePlus, Eye, PenLine,
 } from 'lucide-react';
 import SeoPanel from './SeoPanel';
 import ImageUpload from './ImageUpload';
+import { Field, ResultNote, Switch, CornerMarks } from './ui';
 import { savePost, deletePost, suggestSlug, type PostInput } from '@/app/admin/post-actions';
 import { POST_TYPE_LABELS, POST_TYPES, postPath, type PostType } from '@/lib/posts-shared';
-
-const inputClass =
-  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base text-ink ' +
-  'focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand';
 
 export interface PostFormValue {
   id?: string;
@@ -80,91 +77,72 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
   return (
     <div className="space-y-4">
       {/* ── 상단 바 ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link
-            href="/admin/posts"
-            aria-label="목록으로"
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-brand hover:border-brand transition-colors flex-shrink-0"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div className="min-w-0">
-            <h1 className="text-xl font-bold text-ink truncate">
-              {form.id ? '글 수정' : '새 글 쓰기'}
-            </h1>
-            <p className="text-sm text-slate-500">
-              {form.status === 'published' ? '발행됨' : '임시 저장 상태'}
-            </p>
-          </div>
+      <div className="a-pagehead" style={{ alignItems: 'center' }}>
+        <Link href="/admin/posts" aria-label="목록으로" className="a-btn a-btn--icon">
+          <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+        </Link>
+        <div className="min-w-0">
+          <h1 className="truncate" style={{ fontSize: 24 }}>{form.id ? '글 수정' : '새 글 쓰기'}</h1>
+          <p className="text-muted" style={{ fontSize: 12.5 }}>
+            {form.status === 'published' ? '발행됨' : '임시 저장 상태'}
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto">
           {form.id && (
             <button
               onClick={remove}
               disabled={isPending}
               aria-label="삭제"
-              className="w-10 h-10 flex items-center justify-center rounded-lg border border-slate-300 text-slate-400 hover:text-red-600 hover:border-red-300 transition-colors"
+              className="a-btn a-btn--icon a-btn--danger"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" strokeWidth={1.5} />
             </button>
           )}
-          <button
-            onClick={() => submit('draft')}
-            disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-[0.9375rem] font-semibold text-slate-600 hover:border-brand hover:text-brand transition-colors disabled:opacity-60"
-          >
-            <Save className="w-4 h-4" />
+          <button onClick={() => submit('draft')} disabled={isPending} className="a-btn">
+            <Save className="w-4 h-4" strokeWidth={1.5} />
             임시 저장
           </button>
-          <button
-            onClick={() => submit('published')}
-            disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-bold px-5 py-2.5 text-[0.9375rem] transition-colors disabled:opacity-60"
-          >
-            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
+          <button onClick={() => submit('published')} disabled={isPending} className="a-btn a-btn--solid">
+            <CornerMarks />
+            {isPending
+              ? <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} />
+              : <Rocket className="w-4 h-4" strokeWidth={1.5} />}
             발행
           </button>
         </div>
       </div>
 
-      {message && (
-        <p
-          className={`flex gap-2 items-start rounded-lg px-4 py-3 text-sm ${
-            message.ok
-              ? 'bg-green-50 border border-green-200 text-green-800'
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}
-        >
-          {message.ok ? <Check className="w-4 h-4 mt-0.5 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />}
-          {message.text}
-        </p>
-      )}
+      {message && <ResultNote ok={message.ok} text={message.text} />}
 
-      {/* 좁은 화면에서는 글쓰기/SEO를 탭으로 나눈다 */}
-      <div className="xl:hidden inline-flex rounded-lg border border-slate-200 bg-white p-1">
-        <button
-          onClick={() => setTab('write')}
-          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-semibold ${tab === 'write' ? 'bg-brand text-white' : 'text-slate-500'}`}
-        >
-          <PenLine className="w-4 h-4" /> 글쓰기
-        </button>
-        <button
-          onClick={() => setTab('seo')}
-          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-semibold ${tab === 'seo' ? 'bg-brand text-white' : 'text-slate-500'}`}
-        >
-          <Eye className="w-4 h-4" /> SEO 점검
-        </button>
+      {/* 좁은 화면에서는 글쓰기/SEO를 탭으로 나눈다.
+          .bp-seg가 display를 지정하므로 숨김은 바깥 래퍼가 맡는다 */}
+      <div className="xl:hidden">
+        <div className="bp-seg">
+          <button
+            onClick={() => setTab('write')}
+            className="bp-seg-opt display"
+            data-active={tab === 'write' ? '' : undefined}
+          >
+            <PenLine className="w-4 h-4" strokeWidth={1.5} /> 글쓰기
+          </button>
+          <button
+            onClick={() => setTab('seo')}
+            className="bp-seg-opt display"
+            data-active={tab === 'seo' ? '' : undefined}
+          >
+            <Eye className="w-4 h-4" strokeWidth={1.5} /> SEO 점검
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_minmax(0,380px)] gap-5 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_minmax(0,380px)] gap-4 items-start">
         {/* ── 본문 편집 ── */}
-        <div className={`space-y-4 ${tab === 'seo' ? 'hidden xl:block' : ''}`}>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5 space-y-4">
+        <div className={`space-y-3.5 ${tab === 'seo' ? 'hidden xl:block' : ''}`}>
+          <div className="a-panel a-panel-body space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-4">
               <Field label="게시판">
-                <select className={inputClass} value={form.type} onChange={(e) => set('type', e.target.value)}>
+                <select className="bp-input" value={form.type} onChange={(e) => set('type', e.target.value)}>
                   {POST_TYPES.map((t) => (
                     <option key={t} value={t}>{POST_TYPE_LABELS[t as PostType]}</option>
                   ))}
@@ -172,7 +150,7 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
               </Field>
               <Field label="제목">
                 <input
-                  className={inputClass}
+                  className="bp-input"
                   value={form.title}
                   onChange={(e) => set('title', e.target.value)}
                   onBlur={() => { if (!form.slug) void autoSlug(); }}
@@ -185,16 +163,12 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
             <Field label="주소 (URL)" help={`완성된 주소: ${path}`}>
               <div className="flex gap-2">
                 <input
-                  className={`${inputClass} font-mono text-sm`}
+                  className="bp-input mono-num"
                   value={form.slug}
                   onChange={(e) => set('slug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                   placeholder="daegu-factory-electric-cost"
                 />
-                <button
-                  type="button"
-                  onClick={autoSlug}
-                  className="whitespace-nowrap rounded-lg border border-slate-300 px-3.5 text-sm font-semibold text-slate-600 hover:border-brand hover:text-brand"
-                >
+                <button type="button" onClick={autoSlug} className="a-btn">
                   자동 생성
                 </button>
               </div>
@@ -207,7 +181,7 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
             {form.coverImage && (
               <Field label="대표 사진 설명" help="사진이 안 보일 때 대신 읽히는 글입니다. 이미지 검색에도 쓰입니다.">
                 <input
-                  className={inputClass}
+                  className="bp-input"
                   value={form.coverAlt}
                   onChange={(e) => set('coverAlt', e.target.value)}
                   placeholder="예) 대구 달서구 공장 배전반 설치 현장"
@@ -216,21 +190,23 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
             )}
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+          <div className="a-panel">
             <MarkdownToolbar onInsert={(text) => set('body', form.body + text)} />
             <textarea
               value={form.body}
               onChange={(e) => set('body', e.target.value)}
               rows={24}
               placeholder={PLACEHOLDER}
-              className="w-full px-4 py-4 text-base leading-relaxed text-ink focus:outline-none resize-y font-mono"
+              aria-label="본문"
+              className="bp-input"
+              style={{ border: 'none', background: 'var(--a-panel)', lineHeight: 1.8, padding: 16 }}
             />
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+          <div className="a-panel a-panel-body">
             <Field label="목록 요약" help="비워두면 본문 앞부분을 자동으로 씁니다.">
               <textarea
-                className={inputClass}
+                className="bp-input"
                 value={form.excerpt}
                 onChange={(e) => set('excerpt', e.target.value)}
                 rows={2}
@@ -241,14 +217,14 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
         </div>
 
         {/* ── SEO ── */}
-        <div className={`space-y-4 xl:sticky xl:top-4 ${tab === 'write' ? 'hidden xl:block' : ''}`}>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-4">
+        <div className={`space-y-3.5 xl:sticky xl:top-4 ${tab === 'write' ? 'hidden xl:block' : ''}`}>
+          <div className="a-panel a-panel-body space-y-4">
             <Field
               label="핵심 키워드"
               help="이 글로 검색에 걸리고 싶은 말 하나. 아래 점검 항목이 전부 이 값을 기준으로 계산됩니다."
             >
               <input
-                className={inputClass}
+                className="bp-input"
                 value={form.focusKeyword}
                 onChange={(e) => set('focusKeyword', e.target.value)}
                 placeholder="예) 대구 공장 전기공사 비용"
@@ -258,7 +234,7 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
 
             <Field label="검색 결과 제목" help="비워두면 위의 글 제목이 그대로 쓰입니다.">
               <input
-                className={inputClass}
+                className="bp-input"
                 value={form.metaTitle}
                 onChange={(e) => set('metaTitle', e.target.value)}
                 placeholder={form.title}
@@ -268,7 +244,7 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
 
             <Field label="검색 결과 설명">
               <textarea
-                className={inputClass}
+                className="bp-input"
                 value={form.metaDescription}
                 onChange={(e) => set('metaDescription', e.target.value)}
                 rows={3}
@@ -276,19 +252,18 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
               />
             </Field>
 
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={form.noindex}
-                onChange={(e) => set('noindex', e.target.checked)}
-                className="w-5 h-5 mt-0.5 rounded border-slate-300 text-brand focus:ring-brand"
-              />
-              <span className="text-sm text-slate-600 leading-snug break-keep">
-                <span className="font-semibold text-ink">검색엔진에 노출하지 않기</span>
+            <div className="flex items-start justify-between gap-3">
+              <span className="break-keep" style={{ fontSize: 13.5 }}>
+                <span style={{ fontWeight: 600 }}>검색엔진에 노출하지 않기</span>
                 <br />
-                내부 공지처럼 검색에 뜨면 안 되는 글에만 켜세요.
+                <span className="text-muted">내부 공지처럼 검색에 뜨면 안 되는 글에만 켜세요.</span>
               </span>
-            </label>
+              <Switch
+                checked={form.noindex}
+                onChange={(v) => set('noindex', v)}
+                label="검색엔진에 노출하지 않기"
+              />
+            </div>
           </div>
 
           <SeoPanel
@@ -320,7 +295,10 @@ function MarkdownToolbar({ onInsert }: { onInsert: (text: string) => void }) {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 bg-slate-50 px-2 py-1.5">
+    <div
+      className="flex flex-wrap items-center gap-1 px-2 py-1.5"
+      style={{ borderBottom: '1px solid var(--color-divider)', background: 'rgba(89,128,166,0.05)' }}
+    >
       {buttons.map((b) => {
         const Icon = b.icon;
         return (
@@ -329,34 +307,16 @@ function MarkdownToolbar({ onInsert }: { onInsert: (text: string) => void }) {
             type="button"
             onClick={() => onInsert(b.text)}
             title={b.label}
-            className="inline-flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-white hover:text-brand transition-colors"
+            className="a-btn a-btn--sm a-btn--ghost"
           >
-            <Icon className="w-3.5 h-3.5" />
+            <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
             {b.label}
           </button>
         );
       })}
-      <span className="ml-auto text-xs text-slate-400 px-2 hidden sm:block">
+      <span className="a-help ml-auto px-2 hidden sm:block">
         버튼을 누르면 글 맨 끝에 서식이 추가됩니다
       </span>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  help,
-  children,
-}: {
-  label: string;
-  help?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-sm font-bold text-ink">{label}</label>
-      {children}
-      {help && <p className="text-xs text-slate-500 leading-relaxed break-keep">{help}</p>}
     </div>
   );
 }

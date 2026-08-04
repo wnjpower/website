@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Image from 'next/image';
 import { Upload, Loader2, X, AlertCircle } from 'lucide-react';
 import { createBrowserSupabase } from '@/lib/supabase-browser';
 
@@ -67,36 +66,40 @@ export default function ImageUpload({
   return (
     <div className="space-y-2">
       {value ? (
-        <div className="relative rounded-lg border border-slate-200 overflow-hidden bg-slate-100">
+        <figure
+          className="relative m-0"
+          style={{ border: '1px solid var(--color-divider)', background: 'var(--color-surface)' }}
+        >
           {/* 외부 URL이 올 수 있어 next/image 대신 img를 쓴다 (도메인 등록 불필요) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="업로드한 이미지 미리보기" className="w-full h-40 object-cover" />
+          <img src={value} alt="업로드한 이미지 미리보기" className="w-full h-40 object-cover block" />
           <button
             type="button"
             onClick={() => onChange('')}
             aria-label="이미지 제거"
-            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+            className="a-btn a-btn--icon a-btn--sm absolute top-1.5 right-1.5"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" strokeWidth={1.5} />
           </button>
-        </div>
+        </figure>
       ) : (
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="w-full flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 px-4 py-8 text-slate-500 hover:border-brand hover:text-brand transition-colors disabled:opacity-60"
+          className="a-btn a-btn--block flex-col gap-1.5"
+          style={{ borderStyle: 'dashed', padding: '26px 16px' }}
         >
           {uploading ? (
             <>
-              <Loader2 className="w-6 h-6 animate-spin" />
-              <span className="text-sm font-semibold">올리는 중…</span>
+              <Loader2 className="w-5 h-5 bp-spin" strokeWidth={1.5} />
+              올리는 중…
             </>
           ) : (
             <>
-              <Upload className="w-6 h-6" />
-              <span className="text-sm font-semibold">사진 올리기</span>
-              <span className="text-xs text-slate-400">JPG · PNG · WEBP · 10MB 이하</span>
+              <Upload className="w-5 h-5" strokeWidth={1.5} />
+              사진 올리기
+              <span className="a-help">JPG · PNG · WEBP · 10MB 이하</span>
             </>
           )}
         </button>
@@ -120,14 +123,15 @@ export default function ImageUpload({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-500 font-mono"
+          className="bp-input mono-num"
+          style={{ minHeight: 32, padding: '5px 8px' }}
           aria-label="이미지 주소"
         />
       )}
 
       {error && (
-        <p className="flex gap-2 items-start text-xs text-red-600">
-          <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+        <p className="flex gap-1.5 items-start" style={{ fontSize: 12, color: 'var(--a-err)' }}>
+          <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
           {error}
         </p>
       )}

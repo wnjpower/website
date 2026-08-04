@@ -30,8 +30,9 @@ export default async function SeoPage() {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PageHeader
+        no="06"
         title="검색엔진"
         description="새 글을 올리면 네이버·Bing에 자동으로 알립니다. 여기서는 그 결과를 확인하고, 필요하면 직접 다시 제출할 수 있습니다."
       />

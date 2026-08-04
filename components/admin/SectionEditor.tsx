@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft, Check, Loader2, Rocket, RotateCcw, Undo2, Monitor, Smartphone,
-  RefreshCw, AlertCircle, Eye,
+  RefreshCw, Eye,
 } from 'lucide-react';
 import { FieldRenderer } from './Fields';
+import { Notice, CornerMarks } from './ui';
 import type { SectionDef } from '@/lib/content/schema';
 import { saveDraft, publishSection, discardDraft, resetSection } from '@/app/admin/actions';
 
@@ -136,122 +137,101 @@ export default function SectionEditor({
   return (
     <div className="space-y-4">
       {/* ── 상단 바 ── */}
-      <div className="flex flex-wrap items-center gap-3 justify-between">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link
-            href="/admin/content"
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:text-brand hover:border-brand transition-colors flex-shrink-0"
-            aria-label="목록으로"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div className="min-w-0">
-            <h1 className="text-xl font-bold text-ink truncate">{section.label}</h1>
-            <p className="text-sm text-slate-500 truncate">{section.summary}</p>
-          </div>
+      <div className="a-pagehead" style={{ alignItems: 'center' }}>
+        <Link href="/admin/content" className="a-btn a-btn--icon" aria-label="목록으로">
+          <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+        </Link>
+        <div className="min-w-0">
+          <h1 className="truncate" style={{ fontSize: 24 }}>{section.label}</h1>
+          <p className="text-muted truncate" style={{ fontSize: 12.5 }}>{section.summary}</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5 ml-auto">
           <SaveIndicator state={saveState} hasDraft={hasDraft} />
-          <button
-            onClick={onPublish}
-            disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-bold px-5 py-2.5 text-[0.9375rem] transition-colors disabled:opacity-60"
-          >
-            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
+          <button onClick={onPublish} disabled={isPending} className="a-btn a-btn--solid">
+            <CornerMarks />
+            {isPending
+              ? <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} />
+              : <Rocket className="w-4 h-4" strokeWidth={1.5} />}
             발행
           </button>
         </div>
       </div>
 
       {message && (
-        <p
-          className={`flex gap-2 items-start rounded-lg px-4 py-3 text-sm ${
-            saveState === 'error'
-              ? 'bg-red-50 border border-red-200 text-red-700'
-              : 'bg-green-50 border border-green-200 text-green-800'
-          }`}
-        >
-          {saveState === 'error' ? (
-            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-          ) : (
-            <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
-          )}
-          {message}
-        </p>
+        <Notice tone={saveState === 'error' ? 'err' : 'ok'}>
+          <span>{message}</span>
+        </Notice>
       )}
 
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,420px)_1fr] gap-5 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,420px)_1fr] gap-4 items-start">
         {/* ── 편집 폼 ── */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-6">
-          {section.fields.map((field) => (
-            <FieldRenderer
-              key={field.key}
-              field={field}
-              value={data[field.key]}
-              onChange={(next) => update(field.key, next)}
-            />
-          ))}
+        <div className="a-panel">
+          <div className="a-panel-body space-y-6">
+            {section.fields.map((field) => (
+              <FieldRenderer
+                key={field.key}
+                field={field}
+                value={data[field.key]}
+                onChange={(next) => update(field.key, next)}
+              />
+            ))}
+          </div>
 
-          <div className="border-t border-slate-100 pt-4 flex flex-wrap gap-2">
+          <div
+            className="flex flex-wrap gap-2 px-4 py-3.5"
+            style={{ borderTop: '1px solid var(--color-divider)' }}
+          >
             {hasDraft && (
-              <button
-                onClick={onDiscard}
-                disabled={isPending}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-600 hover:border-slate-400 transition-colors disabled:opacity-60"
-              >
-                <Undo2 className="w-3.5 h-3.5" />
+              <button onClick={onDiscard} disabled={isPending} className="a-btn a-btn--sm">
+                <Undo2 className="w-3.5 h-3.5" strokeWidth={1.5} />
                 수정 취소
               </button>
             )}
-            <button
-              onClick={onReset}
-              disabled={isPending}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-500 hover:text-red-600 hover:border-red-300 transition-colors disabled:opacity-60"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
+            <button onClick={onReset} disabled={isPending} className="a-btn a-btn--sm a-btn--danger">
+              <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} />
               기본 문구로
             </button>
           </div>
         </div>
 
         {/* ── 미리보기 ── */}
-        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden sticky top-4">
-          <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-slate-200 bg-slate-50">
-            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-600">
-              <Eye className="w-4 h-4" />
+        <div className="a-panel sticky top-4">
+          <div className="a-panel-head" style={{ alignItems: 'center' }}>
+            <span className="display inline-flex items-center gap-1.5" style={{ fontSize: 15 }}>
+              <Eye className="w-4 h-4" strokeWidth={1.5} />
               미리보기
-              <span className="hidden sm:inline text-xs font-normal text-slate-400">
+              <span className="text-muted hidden sm:inline" style={{ fontSize: 12 }}>
                 — 방문자에게는 아직 보이지 않습니다
               </span>
             </span>
             <div className="flex items-center gap-1">
               <DeviceButton active={device === 'desktop'} onClick={() => setDevice('desktop')} label="데스크톱">
-                <Monitor className="w-4 h-4" />
+                <Monitor className="w-4 h-4" strokeWidth={1.5} />
               </DeviceButton>
               <DeviceButton active={device === 'mobile'} onClick={() => setDevice('mobile')} label="모바일">
-                <Smartphone className="w-4 h-4" />
+                <Smartphone className="w-4 h-4" strokeWidth={1.5} />
               </DeviceButton>
               <button
                 onClick={refreshPreview}
                 aria-label="미리보기 새로고침"
-                className="w-8 h-8 flex items-center justify-center rounded text-slate-400 hover:text-brand hover:bg-white"
+                className="a-btn a-btn--icon a-btn--sm a-btn--ghost"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
               </button>
             </div>
           </div>
 
-          <div className={`bg-slate-200 ${device === 'mobile' ? 'p-4 flex justify-center' : ''}`}>
+          <div
+            className={device === 'mobile' ? 'p-4 flex justify-center' : ''}
+            style={{ background: 'var(--color-surface)' }}
+          >
             <iframe
               ref={iframeRef}
               src={previewSrc}
               title="사이트 미리보기"
-              className={`bg-white ${
-                device === 'mobile'
-                  ? 'w-[390px] max-w-full h-[720px] rounded-xl border border-slate-300 shadow-lg'
-                  : 'w-full h-[720px]'
-              }`}
+              className={device === 'mobile' ? 'w-[390px] max-w-full h-[720px] elev-md' : 'w-full h-[720px]'}
+              style={{ background: '#fff', border: device === 'mobile' ? '1px solid var(--color-divider)' : 'none' }}
             />
           </div>
         </div>
@@ -276,9 +256,7 @@ function DeviceButton({
       onClick={onClick}
       aria-label={label}
       aria-pressed={active}
-      className={`w-8 h-8 flex items-center justify-center rounded transition-colors ${
-        active ? 'bg-white text-brand shadow-sm' : 'text-slate-400 hover:text-brand'
-      }`}
+      className={`a-btn a-btn--icon a-btn--sm ${active ? 'a-btn--solid' : 'a-btn--ghost'}`}
     >
       {children}
     </button>
@@ -288,22 +266,22 @@ function DeviceButton({
 function SaveIndicator({ state, hasDraft }: { state: SaveState; hasDraft: boolean }) {
   if (state === 'saving') {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-slate-500">
-        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+      <span className="text-muted inline-flex items-center gap-1.5" style={{ fontSize: 12.5 }}>
+        <Loader2 className="w-3.5 h-3.5 bp-spin" strokeWidth={1.5} />
         저장 중…
       </span>
     );
   }
   if (state === 'saved') {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-green-700">
-        <Check className="w-3.5 h-3.5" />
+      <span className="inline-flex items-center gap-1.5" style={{ fontSize: 12.5, color: 'var(--a-ok)' }}>
+        <Check className="w-3.5 h-3.5" strokeWidth={1.5} />
         임시 저장됨
       </span>
     );
   }
   if (hasDraft) {
-    return <span className="text-sm text-amber-600 font-medium">발행 대기 중</span>;
+    return <span style={{ fontSize: 12.5, color: 'var(--a-warn)' }}>발행 대기 중</span>;
   }
   return null;
 }

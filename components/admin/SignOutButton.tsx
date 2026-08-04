@@ -15,11 +15,8 @@ export default function SignOutButton() {
   }
 
   return (
-    <button
-      onClick={signOut}
-      className="inline-flex items-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-semibold px-5 py-3 transition-colors"
-    >
-      <LogOut className="w-4 h-4" />
+    <button onClick={signOut} className="a-btn a-btn--dark">
+      <LogOut className="w-4 h-4" strokeWidth={1.5} />
       다른 계정으로 로그인
     </button>
   );
