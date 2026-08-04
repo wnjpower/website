@@ -9,6 +9,70 @@
 
 ---
 
+## 2026-08-05 — 한 번도 돌지 않던 `npm run build`·`npm run lint` 복구
+
+이 저장소는 처음부터 **두 검증 명령이 모두 죽어 있었다.** 로컬에서 빌드가 통과한 적이
+없으니 «타입은 되는데 빌드가 깨지는» 변경을 잡을 방법이 없었고, lint는 아예 단 한 줄도
+검사한 적이 없었다. 배포는 Vercel(리눅스)에서만 성공하고 있었다.
+
+### ① `next build` — Windows에서 `/opengraph-image` 프리렌더 실패
+
+Next 14가 번들한 `@vercel/og`가 폰트·wasm 파일을 이렇게 읽는다.
+
+```js
+fs.readFileSync(fileURLToPath(join(import.meta.url, "../yoga.wasm")))
+```
+
+`path.join()`에 **파일 경로가 아니라 `file://` URL**을 넘긴 게 잘못이다. POSIX에서는
+`file:/home/…/yoga.wasm`이 되어 (이상하지만) 유효한 URL이라 통과한다 — Vercel 빌드가
+멀쩡했던 이유다. Windows에서는 `path.win32.join`이 슬래시를 뒤집고 앞에 `./`를 붙여
+
+```
+.\file:\C:\Users\…\yoga.wasm
+```
+
+이 되는데 이건 URL이 아니다 → `new URL()`이 `Invalid URL`을 던진다. 모듈 최상위에서
+터지므로 `next build`뿐 아니라 `next dev`의 OG 렌더도 함께 죽는다.
+
+> 한동안 «사용자 경로에 공백이 있어서»로 알고 있었으나 **틀린 진단이었다.**
+> 공백 없는 경로에서도 똑같이 터진다 — Windows면 무조건이다.
+
+- [`scripts/patch-og-windows.mjs`](scripts/patch-og-windows.mjs) — 문제의 세 줄을
+  `new URL("./파일", import.meta.url)` 형태로 바꾼다. `postinstall`로 자동 실행.
+- **운영 동작은 한 바이트도 바뀌지 않는다.** 치환된 코드는 리눅스에서 정확히 같은
+  파일을 가리키고, OG 이미지는 지금처럼 빌드 시점에 정적으로 생성된다
+  (`○ /opengraph-image`). 요청 시점 생성(`runtime = 'edge'`)이나 정적 PNG 커밋도
+  검토했지만, 둘 다 Windows 개발 환경 문제를 고치자고 운영을 건드리는 선택이었다.
+- 스크립트는 **설치를 절대 실패시키지 않는다**(항상 exit 0). 못 고쳐도 리눅스에서는
+  원래 코드가 잘 돌기 때문에 배포를 막는 쪽이 더 위험하다. 멱등이라 여러 번 돌아도 된다.
+- Next를 15+로 올리면 이 패치는 불필요해진다 — 그때 스크립트째 지우면 된다.
+
+### ② `eslint` — 설정 파일이 설치된 버전과 맞지 않았다
+
+`eslint.config.mjs`는 create-next-app이 만들어 준 그대로였는데, **플랫 설정을 직접
+내보내는 최신 `eslint-config-next`를 전제로** 쓰여 있었다. 실제로 깔린 14.2.35는 여전히
+eslintrc 스타일이라 `ERR_MODULE_NOT_FOUND`로 죽었다(초기 커밋부터 그대로).
+
+감싸는 것만으로는 부족했다 — **14는 peer가 `eslint ^7 || ^8`이라 ESLint 9를 아예
+지원하지 않는다.** 규칙 두 개가 ESLint 9에서 사라진 API를 부른다.
+
+| 문제 | 조치 |
+|---|---|
+| `eslint-config-next@14`가 플랫 설정 미지원 | `FlatCompat`으로 감쌈 |
+| `@next/eslint-plugin-next@14` → `context.getAncestors is not a function` | lint 전용 devDependency만 `eslint-config-next@15`로 (Next 런타임은 14 그대로) |
+| `eslint-plugin-react-hooks` 2023년 canary → `context.getScope is not a function` | `overrides`로 v5 안정판 고정 |
+
+한 번도 검사된 적 없는 코드베이스치고는 깨끗해서, 나온 지적은 7건뿐이었고 전부 고쳤다.
+
+- `components/Header.tsx` — `<a href="/#quote">` → `<Link>` (전체 새로고침 방지)
+- 안 쓰는 import 3건, `sw.js`의 빈 `catch (e)` 2건, 익명 default export 1건
+
+> `components/Header.tsx`와 `components/sections/QuoteForm.tsx`는 **어디서도
+> import되지 않는다** — 1b 재구축 때 `components/redesign/`로 옮겨 가며 남은 잔재다.
+> 이번에는 lint만 맞추고 남겨 뒀다. 삭제는 별도로 판단할 것.
+
+---
+
 ## 2026-08-04 — 어드민을 사이트와 같은 디자인 시스템으로 이관
 
 사이트 본문은 «1b 블루프린트»로 전부 옮겼는데 어드민만 옛 팔레트(네이비 `#0F2E4D` ·

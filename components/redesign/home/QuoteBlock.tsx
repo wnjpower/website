@@ -11,7 +11,6 @@ import {
   CategoryLabels,
   CATEGORIES_BY_CUSTOMER_TYPE,
   CUSTOMER_TYPES,
-  CustomerTypeLabels,
 } from '@/lib/validators';
 import { gtagEvent } from '@/components/GoogleAnalytics';
 import { track } from '@/components/analytics/Tracker';

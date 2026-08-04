@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "postinstall": "node scripts/patch-og-windows.mjs",
     "test:resend": "node --env-file=.env.local scripts/test-resend.mjs",
     "push:keys": "node scripts/generate-vapid-keys.mjs"
   },
@@ -34,13 +35,14 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
     "@types/web-push": "^3.6.4",
     "eslint": "^9",
-    "eslint-config-next": "^14.2.35",
+    "eslint-config-next": "^15.5.22",
     "shadcn": "^4.7.0",
     "sharp": "^0.35.3",
     "tailwindcss": "^4",

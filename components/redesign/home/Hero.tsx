@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ArrowRight, Phone } from 'lucide-react';
-import { COMPANY } from '@/lib/site';
 import { CornerMarks } from '@/components/redesign/Chrome';
 import type { SiteContent } from '@/lib/content/schema';
 import type { Cta, CtaSlot } from '@/lib/cta/schema';

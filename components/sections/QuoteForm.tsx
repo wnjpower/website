@@ -9,7 +9,6 @@ import {
   CategoryLabels,
   CATEGORIES_BY_CUSTOMER_TYPE,
   CUSTOMER_TYPES,
-  CustomerTypeLabels,
 } from '@/lib/validators';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';

@@ -199,13 +199,13 @@ export default function Header({
               <Phone className="w-5 h-5" />
               <span className="tabular-nums">{phoneCta.label} 전화상담</span>
             </a>
-            <a
+            <Link
               href="/#quote"
               onClick={closeMenu}
               className="flex items-center justify-center gap-2 bg-brand hover:bg-brand-700 text-white font-bold text-lg px-4 py-4 rounded-lg transition-colors"
             >
               무료 견적문의
-            </a>
+            </Link>
           </div>
           <p className="text-xs text-slate-400 text-center py-3">
             사업자등록번호 {COMPANY.bizNumber} · 전기공사업 등록법인
