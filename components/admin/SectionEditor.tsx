@@ -7,7 +7,7 @@ import {
   RefreshCw, Eye,
 } from 'lucide-react';
 import { FieldRenderer } from './Fields';
-import { Notice, CornerMarks } from './ui';
+import { Notice } from './ui';
 import type { SectionDef } from '@/lib/content/schema';
 import { saveDraft, publishSection, discardDraft, resetSection } from '@/app/admin/actions';
 
@@ -149,7 +149,6 @@ export default function SectionEditor({
         <div className="flex items-center gap-2.5 ml-auto">
           <SaveIndicator state={saveState} hasDraft={hasDraft} />
           <button onClick={onPublish} disabled={isPending} className="a-btn a-btn--solid">
-            <CornerMarks />
             {isPending
               ? <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} />
               : <Rocket className="w-4 h-4" strokeWidth={1.5} />}

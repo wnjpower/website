@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { SECTION_DEFS } from '@/lib/content/schema';
 import { getAllSectionStates } from '@/lib/content/admin';
 import PageHeader from '@/components/admin/PageHeader';
-import { Chip, Notice, CornerMarks } from '@/components/admin/ui';
+import { Chip, Notice } from '@/components/admin/ui';
 
 export default async function ContentIndexPage() {
   const states = await getAllSectionStates();
@@ -42,7 +42,6 @@ export default async function ContentIndexPage() {
               className="a-panel post-card block"
               style={{ padding: '16px 18px' }}
             >
-              <CornerMarks />
               <div className="flex items-baseline gap-2.5 mb-1">
                 <span className="display" style={{ fontSize: 13, letterSpacing: '.12em', color: 'var(--color-accent-700)' }}>
                   {String(i + 1).padStart(2, '0')}

@@ -196,8 +196,8 @@ textarea {
    컴파일러를 거치지 않는 인라인 <style>로 옮겨 이 문제를 피했다. */
 
 /* 옛 팔레트로 만든 배경 텍스처(.tech-dark/.tech-light)와 강조 규칙선
-   (.rule-accent)이 여기 있었다. 1b는 격자를 blueprint.css의 .grid-field로,
-   강조선을 헤어라인으로 다시 그려서 셋 다 쓰는 곳이 없어졌다. */
+   (.rule-accent)이 여기 있었다. 1b는 강조선을 헤어라인으로 다시 그렸고,
+   배경 텍스처는 blueprint.css의 .sheet(단색 밝은 면)가 대신한다. */
 
 /* =========================================================
    동적 효과 (모션) — 모두 prefers-reduced-motion 가드

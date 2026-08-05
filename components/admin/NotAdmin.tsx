@@ -1,6 +1,5 @@
 import { ShieldAlert } from 'lucide-react';
 import SignOutButton from './SignOutButton';
-import { CornerMarks } from './ui';
 
 /**
  * 로그인은 됐지만 관리자 화이트리스트(public.admins)에 없는 계정에게 보이는 화면.
@@ -12,7 +11,6 @@ export default function NotAdmin() {
   return (
     <div className="min-h-screen flex items-center justify-center px-5 py-12">
       <div className="a-panel max-w-md text-center" style={{ padding: '32px 28px' }}>
-        <CornerMarks />
         <ShieldAlert
           className="w-8 h-8 mx-auto mb-4"
           strokeWidth={1.5}

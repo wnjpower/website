@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, KeyRound } from 'lucide-react';
-import { Notice, Field, CornerMarks } from '@/components/admin/ui';
+import { Notice, Field } from '@/components/admin/ui';
 import { createBrowserSupabase } from '@/lib/supabase-browser';
 
 /**
@@ -96,7 +96,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-5 py-12 grid-field">
+    <div className="min-h-screen flex items-center justify-center px-5 py-12 sheet">
       <div className="w-full max-w-sm">
         <div className="text-center mb-7">
           <p className="display" style={{ fontSize: 26, letterSpacing: '-.01em' }}>우앤주전력</p>
@@ -107,7 +107,6 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="a-panel" style={{ padding: 22 }}>
-          <CornerMarks />
 
           {phase === 'checking' && (
             <p className="text-muted flex items-center justify-center gap-2 py-2">

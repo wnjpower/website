@@ -1,19 +1,17 @@
 import type { ReactNode } from 'react';
 import { AlertCircle, Check, Info, TriangleAlert } from 'lucide-react';
-import { CornerMarks } from '@/components/redesign/CornerMarks';
 
 /**
  * 어드민 공용 프리미티브 — 1b 블루프린트.
  *
- * 사이트 본문이 쓰는 것과 같은 조각(사각형 프레임·정합 마크·헤어라인 표)을
- * 대시보드 밀도에 맞춰 다시 묶은 것이다. 화면마다 같은 카드 마크업을
- * 손으로 반복하던 것을 여기로 모아, 톤이 한 곳에서만 바뀌도록 한다.
+ * 사이트 본문이 쓰는 것과 같은 조각(사각형 프레임·헤어라인 표)을 대시보드
+ * 밀도에 맞춰 다시 묶은 것이다. 화면마다 같은 카드 마크업을 손으로 반복하던
+ * 것을 여기로 모아, 톤이 한 곳에서만 바뀌도록 한다.
  *
- * 정합 마크(corner)는 상자 바깥 -6px에 그려진다. 그래서 기본값은 끄고,
- * "이 화면의 주인공"인 상자에만 켠다 — 패널마다 켜면 도면이 아니라 잡음이 된다.
+ * 네 모서리 "+" 정합 마크와 그것을 켜던 marks 프롭은 사장님 요청으로 뺐다.
+ * 사이트 쪽에서 전부 걷어냈고, 어드민만 남기면 두 화면이 다시 다른 제품처럼
+ * 보인다 — 어드민을 같은 시스템으로 옮긴 이유가 그거였다.
  */
-
-export { CornerMarks };
 
 // ─────────────────────────────────────────────
 //  패널
@@ -26,7 +24,6 @@ export function Panel({
   children,
   /** 본문 여백 없이 표·목록을 테두리까지 붙일 때 */
   flush = false,
-  marks = false,
   className = '',
 }: {
   title?: string;
@@ -34,12 +31,10 @@ export function Panel({
   action?: ReactNode;
   children?: ReactNode;
   flush?: boolean;
-  marks?: boolean;
   className?: string;
 }) {
   return (
     <section className={`a-panel ${className}`}>
-      {marks && <CornerMarks />}
       {title && (
         <div className="a-panel-head">
           <div className="min-w-0">
@@ -125,17 +120,14 @@ export function StatTile({
   value,
   hint,
   icon,
-  marks = false,
 }: {
   label: string;
   value: string;
   hint?: string;
   icon?: ReactNode;
-  marks?: boolean;
 }) {
   return (
     <div className="a-stat">
-      {marks && <CornerMarks />}
       <p className="a-stat-label">
         {icon}
         {label}

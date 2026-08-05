@@ -122,16 +122,13 @@ export default function LiveDashboard() {
         </div>
       </div>
 
-      {/* ── 핵심 지표 ──
-          정합 마크가 상자 바깥 6px에 그려지므로 칸 사이를 24px 이상 띄운다.
-          더 붙이면 옆 칸 마크와 겹쳐 «+»가 두 개씩 붙은 것처럼 보인다. */}
+      {/* ── 핵심 지표 ── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
-        <StatTile marks icon={<Users {...ICON} />} label="방문자" value={o.sessions.toLocaleString('ko-KR')} hint={stats.rangeLabel} />
-        <StatTile marks icon={<Eye {...ICON} />} label="페이지뷰" value={o.pageviews.toLocaleString('ko-KR')} />
-        <StatTile marks icon={<Phone {...ICON} />} label="전화 클릭" value={o.phone_clicks.toLocaleString('ko-KR')} />
-        <StatTile marks icon={<Inbox {...ICON} />} label="견적문의" value={o.leads.toLocaleString('ko-KR')} />
+        <StatTile icon={<Users {...ICON} />} label="방문자" value={o.sessions.toLocaleString('ko-KR')} hint={stats.rangeLabel} />
+        <StatTile icon={<Eye {...ICON} />} label="페이지뷰" value={o.pageviews.toLocaleString('ko-KR')} />
+        <StatTile icon={<Phone {...ICON} />} label="전화 클릭" value={o.phone_clicks.toLocaleString('ko-KR')} />
+        <StatTile icon={<Inbox {...ICON} />} label="견적문의" value={o.leads.toLocaleString('ko-KR')} />
         <StatTile
-          marks
           icon={<TrendingUp {...ICON} />}
           label="전환율"
           value={`${conversionRate.toFixed(1)}%`}

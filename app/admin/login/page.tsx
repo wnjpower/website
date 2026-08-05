@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, LogIn, MailCheck, ArrowLeft } from 'lucide-react';
-import { Notice, Field, CornerMarks } from '@/components/admin/ui';
+import { Notice, Field } from '@/components/admin/ui';
 import { createBrowserSupabase } from '@/lib/supabase-browser';
 
 /** 콜백 라우트가 실패를 넘겨줄 때 쓰는 문구 */
@@ -25,7 +25,7 @@ export default function LoginPage() {
 /** 로그인·재설정 화면 공통 껍데기 — 도면 격자 위에 놓인 한 장의 카드 */
 function AuthShell({ subtitle, children }: { subtitle: string; children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-5 py-12 grid-field">
+    <div className="min-h-screen flex items-center justify-center px-5 py-12 sheet">
       <div className="w-full max-w-sm">
         <div className="text-center mb-7">
           <p className="display" style={{ fontSize: 26, letterSpacing: '-.01em' }}>우앤주전력</p>
@@ -35,7 +35,6 @@ function AuthShell({ subtitle, children }: { subtitle: string; children: React.R
           <p className="text-muted mt-1.5" style={{ fontSize: 13 }}>{subtitle}</p>
         </div>
         <div className="a-panel" style={{ padding: 22 }}>
-          <CornerMarks />
           {children}
         </div>
       </div>

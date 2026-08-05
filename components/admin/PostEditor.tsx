@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import SeoPanel from './SeoPanel';
 import ImageUpload from './ImageUpload';
-import { Field, ResultNote, Switch, CornerMarks } from './ui';
+import { Field, ResultNote, Switch } from './ui';
 import { savePost, deletePost, suggestSlug, type PostInput } from '@/app/admin/post-actions';
 import { POST_TYPE_LABELS, POST_TYPES, postPath, type PostType } from '@/lib/posts-shared';
 
@@ -104,7 +104,6 @@ export default function PostEditor({ initial }: { initial: PostFormValue }) {
             임시 저장
           </button>
           <button onClick={() => submit('published')} disabled={isPending} className="a-btn a-btn--solid">
-            <CornerMarks />
             {isPending
               ? <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} />
               : <Rocket className="w-4 h-4" strokeWidth={1.5} />}
