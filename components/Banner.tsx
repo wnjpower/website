@@ -18,6 +18,16 @@ export function bannerIsOn(content: SiteContent['banner']): boolean {
  * 헤더가 fixed라서 배너를 그냥 문서 흐름에 두면 헤더 뒤로 숨는다. 그래서 배너도
  * fixed로 최상단에 두고, 헤더와 본문은 --banner-h 만큼 아래로 밀린다.
  * 배너가 꺼져 있으면 --banner-h가 0이라 기존 레이아웃과 완전히 동일해진다.
+ *
+ * [색 — 액센트 계열 중 700을 쓰는 이유]
+ * 1b 이관 뒤에도 이 띠만 옛 강조색(번트 앰버 #C2620E)에 남아, 사이트에서 혼자
+ * 다른 시스템의 색으로 떠 있었다. 블루프린트 액센트로 통일하되 단계는 700이다.
+ * 채움 버튼(.btn-solid)이 쓰는 --color-accent는 이 띠의 13px 본문 크기에서
+ * 대비가 3.7:1로 WCAG AA(4.5:1)에 못 미친다. --color-accent-700은 5.8:1이라
+ * 통과한다. 버튼은 글자가 커서 문제가 없지만 이 띠는 작아서 단계를 내렸다.
+ * (옛 앰버도 4.2:1로 실은 AA 미달이었다 — 색을 바꾸며 함께 고쳤다.)
+ *
+ * 이 컴포넌트는 .blueprint-theme 안에서 렌더된다 — 토큰이 그 아래 정의돼 있다.
  */
 export default function Banner({ content }: { content: SiteContent['banner'] }) {
   if (!bannerIsOn(content)) return null;
@@ -26,8 +36,12 @@ export default function Banner({ content }: { content: SiteContent['banner'] }) 
 
   return (
     <div
-      className="fixed top-0 inset-x-0 z-[60] bg-signal text-white flex items-center"
-      style={{ height: BANNER_HEIGHT }}
+      className="fixed top-0 inset-x-0 z-[60] flex items-center"
+      style={{
+        height: BANNER_HEIGHT,
+        background: 'var(--color-accent-700)',
+        color: 'var(--color-bg)',
+      }}
       data-cta-scope="banner"
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 flex items-center justify-center gap-3 text-center w-full">

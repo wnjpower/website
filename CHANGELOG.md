@@ -9,6 +9,246 @@
 
 ---
 
+## 2026-08-05 — 1b 재구축이 남긴 죽은 코드 정리 (4단계)
+
+사이트를 «1b 블루프린트»로 다시 지으면서 옛 화면을 만들던 코드가 그대로 남아 있었다.
+빌드에는 들어가지 않지만 저장소에 남아 **«어느 쪽이 진짜인지» 헷갈리게 한다** —
+`components/sections/Hero.tsx`와 `components/redesign/home/Hero.tsx`가 나란히 있으면
+다음 사람은 둘 다 읽어야 한다.
+
+### 어떻게 찾았나
+
+`app/` 아래 전 파일과 `middleware.ts`를 뿌리로 `import` · `export … from` · 동적
+`import()` · `require()` · CSS `@import`를 따라가며 도달 가능한 파일을 표시하고,
+남은 것을 죽은 파일로 봤다. `@/` 별칭과 확장자 생략, `index` 파일을 모두 해석한다.
+
+### 지운 것 — 파일 29개 · 2,799줄 · 패키지 4개
+
+삭제에는 **순서가 있다.** 1단계를 지워야 2단계가 고아가 되고, 2단계를 지워야 패키지가
+떨어진다. 거꾸로 하면 «아직 쓰는 데가 있다»고 나온다.
+
+| 단계 | 무엇 | 규모 |
+|---|---|---|
+| 1 | 어디서도 import되지 않는 파일 | 16개 · 1,583줄 |
+| 2 | 1단계 파일만이 쓰던 파일 | 13개 · 1,216줄 |
+| 3 | 2단계 파일만이 쓰던 패키지 | 4개 (전이 포함 11개) |
+
+1단계의 대체 관계 — 옛것이 어디로 갔는지:
+
+| 지운 것 | 지금 그 일을 하는 것 |
+|---|---|
+| `sections/Hero.tsx` | `redesign/home/Hero.tsx` |
+| `Header.tsx` | `redesign/HeaderBar.tsx` + `MobileNav.tsx` |
+| `sections/Services · Process · Pricing · Contact · WhyUs · Credentials` | `redesign/home/Sections.tsx` |
+| `sections/Faq.tsx` | `redesign/home/HomeFaq.tsx` |
+| `sections/Portfolio.tsx` | `redesign/portfolio/Ledger.tsx` |
+| `sections/QuoteSection.tsx` | `redesign/home/QuoteBlock.tsx` |
+| `sections/Footer.tsx` · `FloatingCta.tsx` | `redesign/Chrome.tsx` |
+| `sections/About.tsx` | `app/about/page.tsx`가 직접 조립 |
+| `ui/select.tsx` | 폼이 네이티브 `<select>`로 |
+| `CountUp.tsx` | 대체 없이 참조만 끊김 |
+
+3단계에서 빠진 패키지는 전부 shadcn 계열이다 — `@base-ui/react`(13.6MB) ·
+`tailwind-merge` · `class-variance-authority` · `clsx`. 1b는 `blueprint.css`의
+손으로 쓴 클래스로 갈아탔다.
+
+`components/sections/`는 통째로 없어졌고 `components/ui/`에는 `sonner.tsx`만 남는다.
+
+> **번들 크기는 그대로다** (First Load JS 87.3 kB). 죽은 코드는 이미 트리셰이킹으로
+> 빠져 있었다. 줄어드는 것은 설치 용량과 잠금 파일이지 사용자가 받는 바이트가 아니다.
+> 얻는 것은 저장소를 읽는 사람이 «진짜 화면을 만드는 코드»만 보게 되는 것이다.
+
+### 비어 보이지만 남긴 것
+
+- **`react-dom`** — import 구문이 한 곳도 없지만 Next가 화면을 그리는 데 반드시 필요하다.
+  의존성 검사 도구가 가장 흔히 틀리는 항목이라 적어 둔다.
+- **`shadcn`(devDependency) · `components.json`** — `globals.css`가
+  `@import "shadcn/tailwind.css"`를 쓰고, 토스트(`ui/sonner.tsx`)도 계속 쓴다.
+  `components.json`의 `utils` 별칭이 사라진 `lib/utils.ts`를 가리키게 되지만 CLI가
+  컴포넌트를 새로 받을 때만 보는 값이라 그대로 뒀다.
+- **`next.config.mjs` · `postcss.config.mjs` · `public/sw.js`** — import되지 않는 게
+  정상이다. 빌드 도구와 브라우저가 규약으로 직접 읽는다.
+
+각 단계마다 `npx tsc --noEmit` · `npm run lint` · `npm run build`(40/40)로 확인했다.
+
+### 4단계 — 공지 띠를 액센트로 통일하고 옛 팔레트를 걷어냄
+
+1b 이관 뒤에도 **최상단 공지 띠만 옛 강조색**(번트 앰버 `#C2620E`)에 남아, 사이트에서
+혼자 다른 시스템의 색으로 떠 있었다. 이것 하나 때문에 옛 팔레트 전체가 살아 있었다.
+
+**색 단계를 700으로 내린 이유** — 채움 버튼(`.btn-solid`)이 쓰는 `--color-accent`를
+그대로 쓰면 이 띠의 13px 본문 크기에서 대비가 **3.7:1**로 WCAG AA(4.5:1)에 못 미친다.
+`--color-accent-700`은 **5.78:1**로 통과한다(헤드리스 크롬에서 계산값 확인). 버튼은
+글자가 커서 문제가 없지만 이 띠는 작아서 단계를 내렸다.
+
+> 옛 앰버도 실은 **4.2:1로 AA 미달**이었다 — 「흰 글씨 AA」라고 적힌 주석이 틀렸던
+> 것이고, 색을 바꾸며 함께 고쳤다.
+
+`Banner`를 `.blueprint-theme` **안으로 옮겼다.** 토큰이 그 아래 정의돼 있어 밖에서는
+풀리지 않는다. `fixed`라서 화면상 위치는 그대로다.
+
+**`globals.css` 421 → 290줄**
+
+| 지운 것 | 사유 |
+|---|---|
+| `--color-brand*` · `--color-ink` · `--color-signal*` (9개) | 화면에서 쓰는 곳이 하나도 없어짐 |
+| `.tech-dark` · `.tech-light` · `.rule-accent` | 1b가 격자를 `.grid-field`로, 강조선을 헤어라인으로 다시 그림 |
+| `.prose-wnj` 전체 | `blueprint.css`로 옮김 (아래) |
+
+**`.prose-wnj`를 한곳으로 합침** — 이관 중에는 뼈대(여백·글자 크기)가 `globals.css`,
+색만 `blueprint.css`가 덮어쓰는 2단 구조였다. 옛 팔레트가 살아 있어 두 시스템이 한
+화면에 섞이는 것을 막아야 했기 때문이다. 그 위험이 사라졌고 한 요소를 고치려 두 파일을
+오가는 비용만 남아서 합쳤다. 쓰이는 곳(개인정보처리방침·게시글·실적 상세)이 전부
+`SubPageShell`을 거쳐 항상 테마 안이므로 스코프를 좁혀도 안전하다.
+
+**미사용 export 6개 제거** — `enablePreview`/`disablePreview`/`exitPreviewAndGoHome`
+(미리보기가 `app/api/preview` 라우트로 옮겨간 뒤 남은 서버 액션), `CTA_STYLE_LABELS`,
+`CONTENT_KEYS`, `portfolioByCategory`. 딸려 나온 미사용 import는 **되살린 lint가 잡아
+줬다** — 복구해 둔 값이 바로 나타난 셈이다.
+
+실 데이터로 홈·개인정보처리방침·실적 상세를 띄워 옛 색이 남지 않은 것과 prose가 그대로인
+것을 눈으로 확인했다.
+
+### 남은 것 — DB (손대지 않음)
+
+- **`ctas.style` 컬럼** — 사이트가 읽지 않지만 저장된 값이 있다. 타입(`CtaStyle`)은
+  코드에 남겨 뒀다.
+- **`site_content` JSON의 옛 키** — `eyebrow`·`segments`·`footer`·`ogImageHeadline`.
+
+둘 다 **코드와 달리 `git revert`로 되돌릴 수 없다.** 읽지 않는 값이 남아 있는 비용은
+사실상 0이고, 지우면 되돌릴 수 없으므로 남긴다. 정말 지운다면 사이트 정리가 충분히
+안정된 뒤 별도 마이그레이션으로 하는 편이 안전하다.
+
+---
+
+## 2026-08-05 — 한 번도 돌지 않던 `npm run build`·`npm run lint` 복구
+
+이 저장소는 처음부터 **두 검증 명령이 모두 죽어 있었다.** 로컬에서 빌드가 통과한 적이
+없으니 «타입은 되는데 빌드가 깨지는» 변경을 잡을 방법이 없었고, lint는 아예 단 한 줄도
+검사한 적이 없었다. 배포는 Vercel(리눅스)에서만 성공하고 있었다.
+
+### ① `next build` — Windows에서 `/opengraph-image` 프리렌더 실패
+
+Next 14가 번들한 `@vercel/og`가 폰트·wasm 파일을 이렇게 읽는다.
+
+```js
+fs.readFileSync(fileURLToPath(join(import.meta.url, "../yoga.wasm")))
+```
+
+`path.join()`에 **파일 경로가 아니라 `file://` URL**을 넘긴 게 잘못이다. POSIX에서는
+`file:/home/…/yoga.wasm`이 되어 (이상하지만) 유효한 URL이라 통과한다 — Vercel 빌드가
+멀쩡했던 이유다. Windows에서는 `path.win32.join`이 슬래시를 뒤집고 앞에 `./`를 붙여
+
+```
+.\file:\C:\Users\…\yoga.wasm
+```
+
+이 되는데 이건 URL이 아니다 → `new URL()`이 `Invalid URL`을 던진다. 모듈 최상위에서
+터지므로 `next build`뿐 아니라 `next dev`의 OG 렌더도 함께 죽는다.
+
+> 한동안 «사용자 경로에 공백이 있어서»로 알고 있었으나 **틀린 진단이었다.**
+> 공백 없는 경로에서도 똑같이 터진다 — Windows면 무조건이다.
+
+- [`scripts/patch-og-windows.mjs`](scripts/patch-og-windows.mjs) — 문제의 세 줄을
+  `new URL("./파일", import.meta.url)` 형태로 바꾼다. `postinstall`로 자동 실행.
+- **운영 동작은 한 바이트도 바뀌지 않는다.** 치환된 코드는 리눅스에서 정확히 같은
+  파일을 가리키고, OG 이미지는 지금처럼 빌드 시점에 정적으로 생성된다
+  (`○ /opengraph-image`). 요청 시점 생성(`runtime = 'edge'`)이나 정적 PNG 커밋도
+  검토했지만, 둘 다 Windows 개발 환경 문제를 고치자고 운영을 건드리는 선택이었다.
+- 스크립트는 **설치를 절대 실패시키지 않는다**(항상 exit 0). 못 고쳐도 리눅스에서는
+  원래 코드가 잘 돌기 때문에 배포를 막는 쪽이 더 위험하다. 멱등이라 여러 번 돌아도 된다.
+- Next를 15+로 올리면 이 패치는 불필요해진다 — 그때 스크립트째 지우면 된다.
+
+### ② `eslint` — 설정 파일이 설치된 버전과 맞지 않았다
+
+`eslint.config.mjs`는 create-next-app이 만들어 준 그대로였는데, **플랫 설정을 직접
+내보내는 최신 `eslint-config-next`를 전제로** 쓰여 있었다. 실제로 깔린 14.2.35는 여전히
+eslintrc 스타일이라 `ERR_MODULE_NOT_FOUND`로 죽었다(초기 커밋부터 그대로).
+
+감싸는 것만으로는 부족했다 — **14는 peer가 `eslint ^7 || ^8`이라 ESLint 9를 아예
+지원하지 않는다.** 규칙 두 개가 ESLint 9에서 사라진 API를 부른다.
+
+| 문제 | 조치 |
+|---|---|
+| `eslint-config-next@14`가 플랫 설정 미지원 | `FlatCompat`으로 감쌈 |
+| `@next/eslint-plugin-next@14` → `context.getAncestors is not a function` | lint 전용 devDependency만 `eslint-config-next@15`로 (Next 런타임은 14 그대로) |
+| `eslint-plugin-react-hooks` 2023년 canary → `context.getScope is not a function` | `overrides`로 v5 안정판 고정 |
+
+한 번도 검사된 적 없는 코드베이스치고는 깨끗해서, 나온 지적은 7건뿐이었고 전부 고쳤다.
+
+- `components/Header.tsx` — `<a href="/#quote">` → `<Link>` (전체 새로고침 방지)
+- 안 쓰는 import 3건, `sw.js`의 빈 `catch (e)` 2건, 익명 default export 1건
+
+> `components/Header.tsx`와 `components/sections/QuoteForm.tsx`는 **어디서도
+> import되지 않는다** — 1b 재구축 때 `components/redesign/`로 옮겨 가며 남은 잔재다.
+> 이번에는 lint만 맞추고 남겨 뒀다. 삭제는 별도로 판단할 것.
+
+---
+
+## 2026-08-04 — 어드민을 사이트와 같은 디자인 시스템으로 이관
+
+사이트 본문은 «1b 블루프린트»로 전부 옮겼는데 어드민만 옛 팔레트(네이비 `#0F2E4D` ·
+둥근 모서리 · 슬레이트 회색)에 남아 있었다. 사장님은 «사이트 보기»와 어드민을 하루에도
+여러 번 오가는데 두 화면이 서로 다른 제품처럼 보였다. 더 나쁜 것은 **편집 화면이 실제
+사이트 구조와 어긋나 있었던 것** — 고쳐도 화면이 바뀌지 않는 칸이 10개쯤 있었다.
+
+### 디자인 — 토큰·프리미티브를 사이트와 공유
+- [`components/admin/admin.css`](components/admin/admin.css) — 어드민 전용 레이어.
+  토큰·유틸리티(`.blueprint`/`.corner`/`.bp-table`/`.bp-input`/`.bp-seg`/`.display`/
+  `.mono-num`)는 [`blueprint.css`](components/redesign/blueprint.css)를 그대로 쓰고,
+  대시보드에만 필요한 것(사이드 레일·패널·버튼·칩·알림 상자·스위치)만 얹었다.
+  규칙은 전부 `.admin-theme` 아래에 가둬 로드 순서에 의존하지 않는다.
+- [`components/admin/ui.tsx`](components/admin/ui.tsx) — 공용 프리미티브
+  (`Panel`·`Notice`·`Chip`·`StatTile`·`Field`·`Switch`·`Segmented`).
+  화면마다 손으로 반복하던 카드 마크업을 한곳으로 모았다.
+- 테마는 [`app/admin/layout.tsx`](app/admin/layout.tsx)가 씌운다 — 로그인·권한 없음·
+  대시보드가 모두 같은 팔레트를 쓴다.
+- 사이드 레일에 **메뉴 번호(`01`~`07`)** 를 붙였다. 사이트 본문이 섹션을 «01 사업영역»
+  처럼 부르므로 같은 언어를 쓰고, [사용법 문서](docs/어드민_사용법.md)의 장 번호와도 일치한다.
+- 정합 마크(`+`)는 «그 화면의 주인공»에만 켠다(수치 타일·발행 버튼·로그인 카드).
+  패널마다 켜면 도면이 아니라 잡음이 된다.
+- 차트 색을 액센트 계열로 옮겼다(`#416180` ↔ `#C2620E`). 파랑↔주황은 색각 이상에서도
+  구분되는 조합이고, 파랑을 블루프린트 액센트에 맞춰 팔레트 밖으로 나가지 않게 했다.
+
+### 구조 — 편집 화면을 실제 사이트와 일치시킴
+재구축 뒤 화면에서 사라졌는데 편집 칸만 남아 있던 항목을 [`lib/content/schema.ts`](lib/content/schema.ts)
+의 `SECTION_DEFS`에서 뺐다. **기본값(`CONTENT_DEFAULTS`)은 그대로 두어 저장된 값은 잃지 않는다.**
+
+| 뺀 것 | 이유 |
+|---|---|
+| 섹션별 `작은 머리말(eyebrow)` 7개 | 새 섹션 머리는 «번호 + 제목 + 보조 설명»이라 자리가 없다 |
+| 헤더 `로고 아래 한 줄` | 헤더가 로고 이미지 + 상호로 바뀌며 사라졌다 |
+| 히어로 `고객 유형 안내 링크`·`아이콘` | 새 히어로가 쓰지 않는다 |
+| 연락처 `제목`·`설명` | 제목("연락처"·"오시는 길")이 고정으로 바뀌었다 |
+| **푸터 섹션 전체** | 등록번호 줄만 남아 편집 대상이 없다 |
+| 검색엔진 `공유 이미지 문구` | OG 이미지 문구가 고정으로 바뀌었다 |
+
+- 히어로 미리보기 앵커를 `hero` → `top`으로 고쳤다. 실제 섹션 id가 `top`이라
+  **미리보기가 히어로로 스크롤되지 않고 있었다.**
+- 빠른 견적 접수 영역에 `id="quick"`을 주고 앵커를 연결했다
+  ([`QuickQuoteBar.tsx`](components/redesign/home/QuickQuoteBar.tsx)).
+- «여기서 못 바꾸는 것» 안내에 **시공 실적 원장·푸터**를 명시했다. 못 바꾸는 것을
+  적어두지 않으면 찾다가 없는 메뉴를 찾게 된다.
+
+### 실제 화면을 띄워 보고 고친 것
+로컬에 실 데이터를 연결해(`vercel env pull`) 전 화면을 확인하고 잡은 것들이다.
+
+- **CTA 버튼 성과가 표 12개로 늘어져 있었다.** 변형이 하나뿐인 자리는 «비교»할 것이
+  없는데도 자리마다 한 줄짜리 표를 그려서, 정작 실험 중인 자리가 묻혔다. 단일 문구는
+  한 표로 모으고 실험 중인 자리만 따로 펼친다. 대시보드 길이가 2,834px → 1,870px.
+- **집계에만 잡히는 자리 이름이 영문 id로 보였다** (`service_card_factory`,
+  `quick_bar_submit` …). 1b 재구축에서 사업영역 카드·서비스 상세·실적 상세·퀵폼에
+  `data-cta-slot`을 새로 달았는데 이름표가 없었다.
+  [`ctaSlotLabel()`](lib/cta/schema.ts)로 한국어 이름을 붙였다(접두사 + 공종 조합).
+- **CTA 편집의 «색상» 선택을 뺐다.** 블루프린트에는 강조색이 액센트 하나뿐이라 어느
+  값을 골라도 화면이 같았다. 타입·DB 컬럼은 남겨 둔다.
+- 정합 마크(`+`)는 상자 바깥 6px에 그려진다. 수치 타일·편집 카드 그리드 간격이
+  12·14px이라 옆 상자의 마크와 겹쳐 «+»가 두 개씩 붙은 것처럼 보였다 → 24·28px로.
+- 페이지 머리에서 `justify-content: space-between`을 걷어냈다. 폰에서 줄이 접히면
+  «01»과 제목이 양 끝으로 벌어져 한 덩어리로 읽히지 않았다.
+
+---
+
 ## 2026-08-03 — 비밀번호 재설정이 아예 동작하지 않던 문제
 
 재설정 메일의 링크를 열면 `localhost` 연결 거부로 끝났다. 원인이 둘이었고 **둘 다**

@@ -48,20 +48,10 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* =========================================================
-     WNJ 브랜드 팔레트 — "절제된 기관형"
-     딥 스틸네이비를 지배색으로, 강조색(signal)은 CTA·핵심 수치 등
-     극소수 지점에만. 고채도 색을 남발하지 않는 것이 이 시스템의 원칙.
-     이 토큰들이 bg-brand / text-brand / bg-signal 등 유틸리티를 만든다.
+     옛 WNJ 브랜드 팔레트(네이비 #0F2E4D · 번트 앰버 #C2620E)는 여기 있었다.
+     1b 블루프린트 이관이 끝나 화면에서 쓰이는 곳이 하나도 남지 않아 지웠다.
+     지금 색은 전부 components/redesign/blueprint.css의 토큰이 정한다.
      ========================================================= */
-  --color-brand: #0F2E4D;        /* 지배 네이비 — 헤더·기본 버튼·아이콘 */
-  --color-brand-700: #1B4B7A;    /* 밝은 네이비 — 링크 hover·보조 */
-  --color-brand-600: #24608F;    /* 라인·강조 라인 */
-  --color-brand-dark: #0A2138;   /* 히어로·푸터 등 어두운 면 */
-  --color-brand-950: #071829;    /* 가장 어두운 네이비 */
-  --color-brand-tint: #EEF3F8;   /* 아주 옅은 네이비 — 칩·연한 배경 */
-  --color-ink: #0F172A;          /* 본문 최진한 텍스트 */
-  --color-signal: #C2620E;       /* 강조색(번트 앰버) — CTA 채움, 흰 글씨 AA */
-  --color-signal-dark: #9A4E0B;  /* 밝은 배경 위 강조 텍스트용(AA) */
 }
 
 :root {
@@ -205,34 +195,9 @@ textarea {
    판정해 통째로 제거해 버린다. 즉 구형 브라우저용 폴백을 빌드가 지워 없앤다.
    컴파일러를 거치지 않는 인라인 <style>로 옮겨 이 문제를 피했다. */
 
-/* =========================================================
-   기술 배경(사진 대신) — 어두운 네이비 면에 얹는 미세 도면 격자.
-   전기 엔지니어링의 인상을 사진 없이 만든다. 강조는 극히 낮은 대비.
-   ========================================================= */
-.tech-dark {
-  background-color: var(--color-brand-dark);
-  background-image:
-    radial-gradient(120% 90% at 85% -10%, rgba(36, 96, 143, 0.28) 0%, transparent 55%),
-    linear-gradient(180deg, rgba(7, 24, 41, 0) 0%, rgba(7, 24, 41, 0.55) 100%),
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 100%, 34px 34px, 34px 34px;
-}
-
-/* 밝은 면의 아주 옅은 도면 격자 (선택적 텍스처) */
-.tech-light {
-  background-image:
-    linear-gradient(rgba(15, 46, 77, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 46, 77, 0.04) 1px, transparent 1px);
-  background-size: 34px 34px;
-}
-
-/* 상단 얇은 강조 규칙선(hairline accent) */
-.rule-accent {
-  height: 2px;
-  width: 2.5rem;
-  background: var(--color-signal);
-}
+/* 옛 팔레트로 만든 배경 텍스처(.tech-dark/.tech-light)와 강조 규칙선
+   (.rule-accent)이 여기 있었다. 1b는 격자를 blueprint.css의 .grid-field로,
+   강조선을 헤어라인으로 다시 그려서 셋 다 쓰는 곳이 없어졌다. */
 
 /* =========================================================
    동적 효과 (모션) — 모두 prefers-reduced-motion 가드
@@ -316,141 +281,9 @@ textarea {
 }
 
 /* =========================================================
-   게시글 본문 (마크다운 → HTML)
+   게시글 본문(.prose-wnj)은 components/redesign/blueprint.css로 옮겼다.
 
-   @tailwindcss/typography를 쓰지 않고 직접 정의한다. 플러그인은 영문
-   기준 여백·줄간격이라 한국어 본문에서 답답해 보이고, 필요한 건 아래
-   몇 가지뿐이라 의존성을 하나 늘릴 이유가 없다.
+   전에는 뼈대(여백·글자 크기)가 여기 있고 색만 blueprint.css가 덮어써서,
+   한 요소를 고치려면 두 파일을 오가야 했다. 사이트 전체가 블루프린트로
+   넘어와 옛 팔레트를 쓸 일이 없어졌으므로 한곳으로 합쳤다.
    ========================================================= */
-.prose-wnj {
-  color: #334155;
-  font-size: 1.0625rem;
-  line-height: 1.85;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-}
-
-.prose-wnj > * + * {
-  margin-top: 1.25em;
-}
-
-.prose-wnj h2 {
-  margin-top: 2.5em;
-  margin-bottom: 0.75em;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: -0.01em;
-  color: var(--color-ink);
-  padding-top: 1.25rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.prose-wnj h3 {
-  margin-top: 2em;
-  margin-bottom: 0.6em;
-  font-size: 1.1875rem;
-  font-weight: 700;
-  line-height: 1.5;
-  color: var(--color-ink);
-}
-
-.prose-wnj h2:first-child,
-.prose-wnj h3:first-child {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: 0;
-}
-
-.prose-wnj a {
-  color: var(--color-brand-700);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  font-weight: 500;
-}
-.prose-wnj a:hover {
-  color: var(--color-brand);
-}
-
-.prose-wnj strong {
-  font-weight: 700;
-  color: var(--color-ink);
-}
-
-.prose-wnj ul,
-.prose-wnj ol {
-  padding-left: 1.35em;
-}
-.prose-wnj ul {
-  list-style: disc;
-}
-.prose-wnj ol {
-  list-style: decimal;
-}
-.prose-wnj li + li {
-  margin-top: 0.5em;
-}
-.prose-wnj li::marker {
-  color: var(--color-brand-600);
-}
-
-.prose-wnj blockquote {
-  border-left: 3px solid var(--color-signal);
-  padding: 0.25em 0 0.25em 1.15em;
-  color: #475569;
-  background: #f8fafc;
-}
-
-.prose-wnj img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.75rem;
-  border: 1px solid #e2e8f0;
-}
-
-.prose-wnj code {
-  background: #f1f5f9;
-  padding: 0.15em 0.4em;
-  border-radius: 0.25rem;
-  font-size: 0.9em;
-}
-
-.prose-wnj pre {
-  background: var(--color-brand-950);
-  color: #e2e8f0;
-  padding: 1.15rem;
-  border-radius: 0.75rem;
-  overflow-x: auto;
-}
-.prose-wnj pre code {
-  background: transparent;
-  padding: 0;
-  color: inherit;
-}
-
-/* 표는 좁은 화면에서 가로 스크롤로 처리한다. 축소해서 넣으면 글자가 읽히지 않는다. */
-.prose-wnj table {
-  display: block;
-  width: 100%;
-  overflow-x: auto;
-  border-collapse: collapse;
-  font-size: 0.9375rem;
-}
-.prose-wnj th,
-.prose-wnj td {
-  border: 1px solid #e2e8f0;
-  padding: 0.65rem 0.85rem;
-  text-align: left;
-}
-.prose-wnj th {
-  background: #f8fafc;
-  font-weight: 700;
-  color: var(--color-ink);
-  white-space: nowrap;
-}
-
-.prose-wnj hr {
-  border: 0;
-  border-top: 1px solid #e2e8f0;
-  margin: 2.5em 0;
-}

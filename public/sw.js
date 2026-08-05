@@ -33,7 +33,7 @@ self.addEventListener('push', (event) => {
   let data = {};
   try {
     data = event.data ? event.data.json() : {};
-  } catch (e) {
+  } catch {
     data = {};
   }
 
@@ -104,7 +104,7 @@ self.addEventListener('pushsubscriptionchange', (event) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscription: newSub.toJSON(), oldEndpoint }),
         });
-      } catch (e) {
+      } catch {
         // 여기서 실패해도 할 수 있는 일이 없다. 어드민 화면을 열면 다시 등록된다.
       }
     })(),

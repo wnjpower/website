@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Bell, BellOff, Send, Trash2, Loader2, Check, AlertCircle,
+  Bell, BellOff, Send, Trash2, Loader2, Check,
   Smartphone, Monitor, Tablet, Share, PlusSquare, Moon, RotateCcw,
 } from 'lucide-react';
+import { Panel, Notice, Chip, ResultNote } from './ui';
 import {
   NOTIFY_TYPES, NOTIFY_TYPE_LABELS, NOTIFY_TYPE_HINTS, DEFAULT_SETTINGS,
   type NotificationSettings, type NotifyType, type PushDevice,
@@ -35,9 +36,6 @@ type Banner = { ok: boolean; text: string } | null;
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
-const cardClass = 'rounded-xl border border-slate-200 bg-white overflow-hidden';
-const sectionHeadClass = 'px-4 sm:px-5 py-3.5 border-b border-slate-200 bg-slate-50';
-
 // 반환 타입을 명시하지 않는다. `Uint8Array`로 적으면 ArrayBufferLike로 넓어져
 // applicationServerKey(BufferSource)에 넣을 수 없다 — 추론된 타입이 정확하다.
 function urlBase64ToUint8Array(base64String: string) {
@@ -64,10 +62,10 @@ function needsIosInstall(): boolean {
 }
 
 function DeviceIcon({ device }: { device: string | null }) {
-  const cls = 'w-4 h-4 text-slate-400 flex-shrink-0';
-  if (device === 'mobile') return <Smartphone className={cls} />;
-  if (device === 'tablet') return <Tablet className={cls} />;
-  return <Monitor className={cls} />;
+  const props = { className: 'w-4 h-4 flex-shrink-0 mt-0.5 text-muted', strokeWidth: 1.5 } as const;
+  if (device === 'mobile') return <Smartphone {...props} />;
+  if (device === 'tablet') return <Tablet {...props} />;
+  return <Monitor {...props} />;
 }
 
 /**
@@ -96,40 +94,34 @@ function ToggleRow({
       aria-checked={checked}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`w-full flex items-center gap-3 text-left transition-colors ${
-        emphasis ? 'px-4 sm:px-5 py-4' : 'px-4 sm:px-5 py-3.5'
-      } ${disabled ? 'opacity-45 cursor-not-allowed' : 'hover:bg-slate-50 active:bg-slate-100'} ${
-        emphasis && checked ? 'bg-brand-tint hover:bg-brand-tint' : ''
-      } focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/50`}
+      className={`w-full flex items-center gap-3 text-left px-4 ${emphasis ? 'py-4' : 'py-3'} ${
+        disabled ? 'opacity-45 cursor-not-allowed' : 'a-row-hover'
+      }`}
+      style={emphasis && checked ? { background: 'rgba(89,128,166,0.07)' } : undefined}
     >
       {icon && <span className="flex-shrink-0">{icon}</span>}
 
       <span className="flex-1 min-w-0">
-        <span className={`block text-ink ${emphasis ? 'font-bold text-[1.0625rem]' : 'font-semibold'}`}>
+        <span className="block" style={{ fontWeight: emphasis ? 700 : 500, fontSize: emphasis ? 16 : 14.5 }}>
           {title}
         </span>
-        {hint && <span className="block text-sm text-slate-500 break-keep mt-0.5">{hint}</span>}
+        {hint && (
+          <span className="text-muted block break-keep mt-0.5" style={{ fontSize: 12.5, lineHeight: 1.55 }}>
+            {hint}
+          </span>
+        )}
       </span>
 
       <span className="flex flex-col items-center gap-1 flex-shrink-0">
         {/* 시각 요소일 뿐이다. 상태는 바깥 button의 role=switch/aria-checked가 알린다 */}
-        <span
-          aria-hidden
-          className={`relative block rounded-full transition-colors duration-150 ${
-            emphasis ? 'w-[3.25rem] h-[1.75rem]' : 'w-[3rem] h-[1.625rem]'
-          } ${checked ? 'bg-brand' : 'bg-slate-300'}`}
-        >
-          <span
-            className={`absolute top-[0.125rem] left-[0.125rem] block rounded-full bg-white shadow transition-transform duration-150 ${
-              emphasis ? 'w-[1.5rem] h-[1.5rem]' : 'w-[1.375rem] h-[1.375rem]'
-            } ${
-              checked
-                ? emphasis ? 'translate-x-[1.5rem]' : 'translate-x-[1.375rem]'
-                : 'translate-x-0'
-            }`}
-          />
+        <span className="a-switch" data-on={checked ? '' : undefined} aria-hidden>
+          <span />
         </span>
-        <span className={`text-[0.6875rem] font-bold ${checked ? 'text-brand' : 'text-slate-400'}`}>
+        <span
+          className="display"
+          style={{ fontSize: 11, color: checked ? 'var(--color-accent-700)' : 'rgba(29,31,32,0.45)' }}
+          aria-hidden
+        >
           {checked ? '켜짐' : '꺼짐'}
         </span>
       </span>
@@ -141,15 +133,15 @@ function ToggleRow({
 function SaveStatus({ state, onRetry }: { state: SaveState; onRetry: () => void }) {
   if (state === 'saving') {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-slate-500">
-        <Loader2 className="w-3.5 h-3.5 animate-spin" /> 저장 중…
+      <span className="text-muted inline-flex items-center gap-1.5" style={{ fontSize: 12.5 }}>
+        <Loader2 className="w-3.5 h-3.5 bp-spin" strokeWidth={1.5} /> 저장 중…
       </span>
     );
   }
   if (state === 'saved') {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-green-700 font-semibold">
-        <Check className="w-3.5 h-3.5" /> 저장됨
+      <span className="inline-flex items-center gap-1.5" style={{ fontSize: 12.5, color: 'var(--a-ok)' }}>
+        <Check className="w-3.5 h-3.5" strokeWidth={1.5} /> 저장됨
       </span>
     );
   }
@@ -157,13 +149,14 @@ function SaveStatus({ state, onRetry }: { state: SaveState; onRetry: () => void 
     return (
       <button
         onClick={onRetry}
-        className="inline-flex items-center gap-1.5 text-sm text-red-700 font-semibold hover:underline"
+        className="inline-flex items-center gap-1.5"
+        style={{ fontSize: 12.5, color: 'var(--a-err)', fontWeight: 600 }}
       >
-        <RotateCcw className="w-3.5 h-3.5" /> 저장 실패 — 다시 시도
+        <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} /> 저장 실패 — 다시 시도
       </button>
     );
   }
-  return <span className="text-sm text-slate-400">변경하면 자동 저장됩니다</span>;
+  return <span className="text-muted" style={{ fontSize: 12.5 }}>변경하면 자동 저장됩니다</span>;
 }
 
 function formatDateTime(iso: string | null): string {
@@ -446,213 +439,172 @@ export default function PushManager() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-slate-500 py-10 justify-center">
-        <Loader2 className="w-4 h-4 animate-spin" /> 불러오는 중…
+      <div className="flex items-center gap-2 text-muted py-10 justify-center">
+        <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} /> 불러오는 중…
       </div>
     );
   }
 
   if (tableMissing) {
     return (
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 space-y-2">
-        <p className="font-bold flex items-center gap-2">
-          <AlertCircle className="w-4 h-4" /> DB 준비가 아직 안 됐습니다
+      <Notice tone="warn" title="DB 준비가 아직 안 됐습니다">
+        <p>
+          Supabase SQL Editor에서 <code>supabase/push-schema.sql</code>을 한 번 실행한 뒤 이 화면을
+          새로고침해 주세요. 알림 기기 목록과 설정을 담을 테이블이 만들어집니다.
         </p>
-        <p className="leading-relaxed break-keep">
-          Supabase SQL Editor에서 <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">supabase/push-schema.sql</code>을
-          한 번 실행한 뒤 이 화면을 새로고침해 주세요. 알림 기기 목록과 설정을 담을 테이블이 만들어집니다.
-        </p>
-      </div>
+      </Notice>
     );
   }
 
   const quietOn = form.quietStart !== null && form.quietEnd !== null;
 
   return (
-    <div className="space-y-4">
-      {banner && (
-        <p
-          className={`flex gap-2 items-start rounded-lg px-4 py-3 text-sm break-keep ${
-            banner.ok
-              ? 'bg-green-50 border border-green-200 text-green-800'
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}
-        >
-          {banner.ok
-            ? <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
-            : <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />}
-          {banner.text}
-        </p>
-      )}
+    <div className="space-y-3.5">
+      {banner && <ResultNote ok={banner.ok} text={banner.text} />}
 
       {/* ── 서버 준비 상태 ── */}
       {!state?.ready && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 space-y-2">
-          <p className="font-bold flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" /> 서버 설정이 아직 끝나지 않았습니다
-          </p>
-          <ul className="list-disc pl-5 space-y-1 leading-relaxed">
+        <Notice tone="warn" title="서버 설정이 아직 끝나지 않았습니다">
+          <ul className="list-disc pl-5 space-y-1">
             {!state?.vapidConfigured && (
               <li>
-                <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">NEXT_PUBLIC_VAPID_PUBLIC_KEY</code> ·
-                <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200 ml-1">VAPID_PRIVATE_KEY</code> 미설정
+                <code>NEXT_PUBLIC_VAPID_PUBLIC_KEY</code> · <code>VAPID_PRIVATE_KEY</code> 미설정
               </li>
             )}
             {!state?.serviceRoleConfigured && (
-              <li>
-                <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">SUPABASE_SERVICE_ROLE_KEY</code> 미설정
-              </li>
+              <li><code>SUPABASE_SERVICE_ROLE_KEY</code> 미설정</li>
             )}
           </ul>
-          <p className="leading-relaxed break-keep">
-            <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">npm run push:keys</code>로 키를 만들어
-            Vercel 환경변수에 넣고 재배포하면 이 안내가 사라집니다. (자세한 순서: <code className="bg-white px-1.5 py-0.5 rounded border border-amber-200">.env.example</code>)
+          <p className="mt-2">
+            <code>npm run push:keys</code>로 키를 만들어 Vercel 환경변수에 넣고 재배포하면 이 안내가
+            사라집니다. (자세한 순서: <code>.env.example</code>)
           </p>
-        </div>
+        </Notice>
       )}
 
       {/* ── ① 이 기기 ── */}
-      <section className={cardClass}>
-        <div className={sectionHeadClass}>
-          <h2 className="font-bold text-ink">지금 보고 있는 기기</h2>
-          <p className="text-sm text-slate-500 break-keep">
-            알림을 받을 기기마다 한 번씩 켜 주세요. 휴대폰과 PC 둘 다 켜두면 양쪽에 다 뜹니다.
-          </p>
-        </div>
-
-        <div className="p-4 sm:p-5 space-y-4">
+      <Panel
+        title="지금 보고 있는 기기"
+        note="알림을 받을 기기마다 한 번씩 켜 주세요. 휴대폰과 PC 둘 다 켜두면 양쪽에 다 뜹니다."
+      >
+        <div className="space-y-4">
           {!supported ? (
-            <p className="text-sm text-slate-600 break-keep">
+            <p className="break-keep" style={{ fontSize: 13.5 }}>
               이 브라우저는 웹 알림을 지원하지 않습니다. 크롬·엣지·사파리(최신)에서 열어 주세요.
             </p>
           ) : iosInstallNeeded ? (
-            <div className="rounded-lg bg-slate-50 border border-slate-200 p-4 space-y-2 text-sm text-slate-700">
-              <p className="font-bold text-ink">아이폰·아이패드는 홈 화면에 추가해야 알림을 받을 수 있습니다</p>
-              <ol className="space-y-1.5 leading-relaxed">
+            <div
+              className="p-4 space-y-2"
+              style={{ border: '1px solid var(--color-divider)', background: 'var(--color-bg)', fontSize: 13.5 }}
+            >
+              <p style={{ fontWeight: 700 }}>아이폰·아이패드는 홈 화면에 추가해야 알림을 받을 수 있습니다</p>
+              <ol className="space-y-1.5" style={{ lineHeight: 1.6 }}>
                 <li className="flex gap-2">
-                  <Share className="w-4 h-4 mt-0.5 flex-shrink-0 text-slate-400" />
+                  <Share className="w-4 h-4 mt-0.5 flex-shrink-0 text-muted" strokeWidth={1.5} />
                   사파리 하단 <b>공유</b> 버튼을 누릅니다.
                 </li>
                 <li className="flex gap-2">
-                  <PlusSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-slate-400" />
+                  <PlusSquare className="w-4 h-4 mt-0.5 flex-shrink-0 text-muted" strokeWidth={1.5} />
                   <b>홈 화면에 추가</b>를 선택합니다.
                 </li>
                 <li className="flex gap-2">
-                  <Bell className="w-4 h-4 mt-0.5 flex-shrink-0 text-slate-400" />
+                  <Bell className="w-4 h-4 mt-0.5 flex-shrink-0 text-muted" strokeWidth={1.5} />
                   홈 화면에 생긴 아이콘으로 다시 들어와 이 화면에서 알림을 켭니다.
                 </li>
               </ol>
-              <p className="text-xs text-slate-500 break-keep">
+              <p className="a-help">
                 애플이 iOS 16.4부터 정한 규칙이라 우회할 방법이 없습니다. 안드로이드·PC는 그냥 켜면 됩니다.
               </p>
             </div>
           ) : subscribedHere ? (
             <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 border border-green-200 text-green-800 px-3 py-1.5 text-sm font-bold">
-                <Bell className="w-4 h-4" /> 이 기기에서 알림 받는 중
-              </span>
-              <button
-                onClick={disableHere}
-                disabled={busy !== null}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-600 hover:border-slate-400 disabled:opacity-50"
-              >
-                {busy === 'disable' ? <Loader2 className="w-4 h-4 animate-spin" /> : <BellOff className="w-4 h-4" />}
+              <Chip tone="ok">
+                <Bell className="w-3.5 h-3.5" strokeWidth={1.5} /> 이 기기에서 알림 받는 중
+              </Chip>
+              <button onClick={disableHere} disabled={busy !== null} className="a-btn a-btn--sm">
+                {busy === 'disable'
+                  ? <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} />
+                  : <BellOff className="w-4 h-4" strokeWidth={1.5} />}
                 이 기기 알림 끄기
               </button>
             </div>
           ) : (
             <div className="flex flex-wrap items-center gap-3">
-              <button
-                onClick={enableHere}
-                disabled={busy !== null}
-                className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50"
-              >
-                {busy === 'enable' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+              <button onClick={enableHere} disabled={busy !== null} className="a-btn a-btn--solid">
+                {busy === 'enable'
+                  ? <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} />
+                  : <Bell className="w-4 h-4" strokeWidth={1.5} />}
                 이 기기에서 알림 받기
               </button>
               {permission === 'denied' && (
-                <span className="text-sm text-red-600 break-keep">
+                <span className="break-keep" style={{ fontSize: 13, color: 'var(--a-err)' }}>
                   브라우저에서 알림이 차단돼 있습니다. 주소창 왼쪽 자물쇠 → 알림 → 허용으로 바꿔 주세요.
                 </span>
               )}
             </div>
           )}
 
-          <button
-            onClick={sendTest}
-            disabled={busy !== null || !state?.ready}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-700 hover:border-brand hover:text-brand disabled:opacity-50"
-          >
-            {busy === 'test' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          <button onClick={sendTest} disabled={busy !== null || !state?.ready} className="a-btn a-btn--sm">
+            {busy === 'test'
+              ? <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} />
+              : <Send className="w-4 h-4" strokeWidth={1.5} />}
             시험 알림 보내기
           </button>
         </div>
-      </section>
+      </Panel>
 
       {/* ── ② 등록된 기기 ── */}
-      <section className={cardClass}>
-        <div className={sectionHeadClass}>
-          <h2 className="font-bold text-ink">알림 받는 기기 ({state?.devices.length ?? 0})</h2>
-          <p className="text-sm text-slate-500 break-keep">
-            기기를 바꾸거나 더 이상 쓰지 않는 브라우저는 지워 주세요.
-          </p>
-        </div>
-
+      <Panel
+        title={`알림 받는 기기 (${state?.devices.length ?? 0})`}
+        note="기기를 바꾸거나 더 이상 쓰지 않는 브라우저는 지워 주세요."
+        flush
+      >
         {(state?.devices.length ?? 0) === 0 ? (
-          <p className="p-5 text-sm text-slate-500">아직 등록된 기기가 없습니다.</p>
+          <p className="p-4 text-muted" style={{ fontSize: 13.5 }}>아직 등록된 기기가 없습니다.</p>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="a-rows">
             {state?.devices.map((d) => {
               const isCurrent = d.endpointTail === myEndpointTail;
               return (
-                <li key={d.id} className="flex items-start gap-3 px-4 sm:px-5 py-3.5">
+                <li key={d.id} className="flex items-start gap-3 px-4 py-3">
                   <DeviceIcon device={d.device} />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-ink text-[0.9375rem]">{d.label ?? '이름 없는 기기'}</span>
-                      {isCurrent && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-brand-tint text-brand-700">이 기기</span>
-                      )}
-                      {!d.active && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">
-                          알림 중단됨
-                        </span>
-                      )}
+                      <span style={{ fontWeight: 500 }}>{d.label ?? '이름 없는 기기'}</span>
+                      {isCurrent && <Chip tone="outline">이 기기</Chip>}
+                      {!d.active && <Chip tone="err">알림 중단됨</Chip>}
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-muted mt-0.5" style={{ fontSize: 12 }}>
                       마지막 알림 도착 {formatDateTime(d.lastSuccessAt)}
                       {d.failureCount > 0 && ` · 연속 실패 ${d.failureCount}회`}
                     </p>
                     {d.lastError && (
-                      <p className="text-xs text-red-600 mt-0.5 break-all">{d.lastError}</p>
+                      <p className="break-all mt-0.5" style={{ fontSize: 11.5, color: 'var(--a-err)' }}>
+                        {d.lastError}
+                      </p>
                     )}
                   </div>
                   <button
                     onClick={() => removeDevice(d.id, d.label ?? '이름 없는 기기')}
                     aria-label="기기 삭제"
-                    className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 flex-shrink-0"
+                    className="a-btn a-btn--icon a-btn--sm a-btn--ghost a-btn--danger"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                   </button>
                 </li>
               );
             })}
           </ul>
         )}
-      </section>
+      </Panel>
 
       {/* ── ③ 무엇을 알릴지 ── */}
-      <section className={cardClass}>
-        <div className={`${sectionHeadClass} flex flex-wrap items-center justify-between gap-2`}>
-          <div className="min-w-0">
-            <h2 className="font-bold text-ink">무엇을 알릴까요</h2>
-            <p className="text-sm text-slate-500 break-keep">
-              알림이 너무 잦으면 정작 중요한 문의를 놓칩니다. 필요 없는 항목은 꺼 두세요.
-            </p>
-          </div>
-          <SaveStatus state={saveState} onRetry={() => { void flushSave(); }} />
-        </div>
-
+      <Panel
+        title="무엇을 알릴까요"
+        note="알림이 너무 잦으면 정작 중요한 문의를 놓칩니다. 필요 없는 항목은 꺼 두세요."
+        action={<SaveStatus state={saveState} onRetry={() => { void flushSave(); }} />}
+        flush
+      >
         {/* 대표 스위치 — 이것만 끄면 기기를 지우지 않고도 전부 멈춘다 */}
         <ToggleRow
           emphasis
@@ -666,16 +618,14 @@ export default function PushManager() {
           }
           icon={
             form.enabled
-              ? <Bell className="w-5 h-5 text-brand" />
-              : <BellOff className="w-5 h-5 text-slate-400" />
+              ? <Bell className="w-5 h-5" strokeWidth={1.5} style={{ color: 'var(--color-accent-700)' }} />
+              : <BellOff className="w-5 h-5 text-muted" strokeWidth={1.5} />
           }
         />
 
-        <div className="border-t border-slate-200">
-          <p className="px-4 sm:px-5 pt-4 pb-1 text-xs font-bold tracking-wide text-slate-400">
-            알림 종류
-          </p>
-          <ul className="divide-y divide-slate-100">
+        <div style={{ borderTop: '1px solid var(--color-divider)' }}>
+          <p className="bp-label px-4 pt-3.5">알림 종류</p>
+          <ul className="a-rows">
             {NOTIFY_TYPES.map((type) => (
               <li key={type}>
                 <ToggleRow
@@ -690,22 +640,20 @@ export default function PushManager() {
           </ul>
         </div>
 
-        <div className="border-t border-slate-200">
-          <p className="px-4 sm:px-5 pt-4 pb-1 text-xs font-bold tracking-wide text-slate-400">
-            알림 빈도
-          </p>
+        <div style={{ borderTop: '1px solid var(--color-divider)' }}>
+          <p className="bp-label px-4 pt-3.5">알림 빈도</p>
 
-          <div className={`px-4 sm:px-5 py-3.5 ${form.enabled ? '' : 'opacity-45'}`}>
+          <div className="px-4 py-3" style={{ opacity: form.enabled ? 1 : 0.45 }}>
             <label className="block">
-              <span className="font-semibold text-ink block">같은 사람이 여러 번 눌렀을 때</span>
-              <span className="text-sm text-slate-500 block mb-2 break-keep">
+              <span className="block" style={{ fontWeight: 500 }}>같은 사람이 여러 번 눌렀을 때</span>
+              <span className="text-muted block break-keep mb-2" style={{ fontSize: 12.5 }}>
                 한 방문자가 버튼을 반복해 눌러도 이 간격 안에는 한 번만 알립니다.
               </span>
               <select
                 value={form.minIntervalMinutes}
                 disabled={!form.enabled}
                 onChange={(e) => update({ minIntervalMinutes: Number(e.target.value) })}
-                className="w-full sm:max-w-xs rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand disabled:bg-slate-50"
+                className="bp-input sm:max-w-xs"
               >
                 <option value={0}>누를 때마다 알림</option>
                 <option value={10}>10분에 한 번만</option>
@@ -716,7 +664,7 @@ export default function PushManager() {
             </label>
           </div>
 
-          <div className="border-t border-slate-100">
+          <div style={{ borderTop: '1px solid rgba(29,31,32,0.09)' }}>
             <ToggleRow
               checked={quietOn}
               disabled={!form.enabled}
@@ -727,30 +675,36 @@ export default function PushManager() {
                   ? '이 시간대에는 클릭 알림을 보내지 않습니다. 견적문의 접수는 예외로 항상 옵니다.'
                   : '밤에 알림을 받고 싶지 않으면 켜세요. 견적문의 접수는 예외로 항상 옵니다.'
               }
-              icon={<Moon className={`w-5 h-5 ${quietOn ? 'text-brand' : 'text-slate-400'}`} />}
+              icon={
+                <Moon
+                  className="w-5 h-5"
+                  strokeWidth={1.5}
+                  style={{ color: quietOn ? 'var(--color-accent-700)' : 'rgba(29,31,32,0.45)' }}
+                />
+              }
             />
 
             {quietOn && (
-              <div className={`px-4 sm:px-5 pb-4 -mt-1 ${form.enabled ? '' : 'opacity-45'}`}>
+              <div className="px-4 pb-4 -mt-1" style={{ opacity: form.enabled ? 1 : 0.45 }}>
                 <div className="flex items-center gap-2 max-w-sm">
                   <select
                     aria-label="방해금지 시작 시각"
                     value={form.quietStart ?? 22}
                     disabled={!form.enabled}
                     onChange={(e) => update({ quietStart: Number(e.target.value) })}
-                    className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand disabled:bg-slate-50"
+                    className="bp-input flex-1"
                   >
                     {Array.from({ length: 24 }, (_, h) => (
                       <option key={h} value={h}>{String(h).padStart(2, '0')}시부터</option>
                     ))}
                   </select>
-                  <span className="text-slate-400 flex-shrink-0">~</span>
+                  <span className="text-muted flex-shrink-0">~</span>
                   <select
                     aria-label="방해금지 종료 시각"
                     value={form.quietEnd ?? 7}
                     disabled={!form.enabled}
                     onChange={(e) => update({ quietEnd: Number(e.target.value) })}
-                    className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand disabled:bg-slate-50"
+                    className="bp-input flex-1"
                   >
                     {Array.from({ length: 24 }, (_, h) => (
                       <option key={h} value={h}>{String(h).padStart(2, '0')}시까지</option>
@@ -758,7 +712,7 @@ export default function PushManager() {
                   </select>
                 </div>
                 {form.quietStart === form.quietEnd && (
-                  <p className="text-sm text-amber-700 mt-2 break-keep">
+                  <p className="break-keep mt-2" style={{ fontSize: 13, color: 'var(--a-warn)' }}>
                     시작과 종료가 같으면 방해금지가 걸리지 않습니다. 다른 시각을 골라 주세요.
                   </p>
                 )}
@@ -766,7 +720,7 @@ export default function PushManager() {
             )}
           </div>
         </div>
-      </section>
+      </Panel>
     </div>
   );
 }

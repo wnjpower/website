@@ -10,14 +10,18 @@ import { useState, useId } from 'react';
  * 사실상 아무 의미가 없는 그림이 된다. 그래서 계열마다 같은 x축을 공유하는
  * 작은 차트를 따로 그린다(small multiples).
  *
- * 색상은 dataviz 검증기(대비·색각 이상 분리도)를 통과한 값만 쓴다.
+ * 색상은 대비·색각 이상 분리도를 통과한 값만 쓴다. 파랑↔주황 한 쌍은 가장
+ * 안전한 조합이고, 파랑을 블루프린트 액센트 계열(accent-700)로 맞춰
+ * 사이트 팔레트 안에 머문다.
+ *
+ * 모서리는 깎지 않는다 — 이 디자인 시스템에 둥근 모서리는 없다.
  */
 
 export const CHART_COLORS = {
-  /** 방문·트래픽 계열 */
-  traffic: '#2F72A8',
-  /** 전환(문의·전화) 계열 */
-  conversion: '#D06F14',
+  /** 방문·트래픽 계열 — 블루프린트 액센트 */
+  traffic: '#416180',
+  /** 전환(문의·전화) 계열 — 대비되는 번트 앰버 */
+  conversion: '#C2620E',
 } as const;
 
 export interface BarDatum {
@@ -43,10 +47,7 @@ export default function BarChart({
 
   if (data.length === 0) {
     return (
-      <div
-        className="flex items-center justify-center text-sm text-slate-400"
-        style={{ height }}
-      >
+      <div className="flex items-center justify-center text-muted" style={{ height, fontSize: 13 }}>
         {emptyMessage}
       </div>
     );
@@ -71,12 +72,12 @@ export default function BarChart({
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={color} stopOpacity="1" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.75" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.72" />
           </linearGradient>
         </defs>
 
-        {/* 기준선 — 눈에 띄지 않게 */}
-        <line x1="0" y1={height - 0.5} x2="100" y2={height - 0.5} stroke="#E2E8F0" strokeWidth="1" />
+        {/* 기준선 — 표의 헤어라인과 같은 값 */}
+        <line x1="0" y1={height - 0.5} x2="100" y2={height - 0.5} stroke="rgba(29,31,32,0.16)" strokeWidth="1" />
 
         {data.map((d, i) => {
           const barWidth = slot * (1 - gapRatio);
@@ -102,7 +103,6 @@ export default function BarChart({
                   y={height - h}
                   width={barWidth}
                   height={h}
-                  rx="1.5"
                   fill={`url(#${gradientId})`}
                   opacity={hover === null || isHovered ? 1 : 0.45}
                   className="transition-opacity pointer-events-none"
@@ -116,19 +116,26 @@ export default function BarChart({
       {/* 툴팁 — 막대 위에 겹치지 않게 상단 고정 */}
       {hover !== null && (
         <div
-          className="absolute top-0 pointer-events-none z-10 -translate-x-1/2 rounded-md bg-ink px-2.5 py-1.5 text-xs text-white shadow-lg whitespace-nowrap"
-          style={{ left: `${((hover + 0.5) / data.length) * 100}%` }}
+          className="display absolute top-0 pointer-events-none z-10 -translate-x-1/2 elev-md"
+          style={{
+            left: `${((hover + 0.5) / data.length) * 100}%`,
+            background: 'var(--color-accent-900)',
+            color: '#f2f2f3',
+            padding: '4px 9px',
+            fontSize: 12,
+            whiteSpace: 'nowrap',
+          }}
         >
-          <span className="font-mono tabular-nums font-bold">
+          <span className="mono-num" style={{ fontWeight: 600 }}>
             {data[hover].value.toLocaleString('ko-KR')}
             {valueSuffix}
           </span>
-          <span className="text-slate-300 ml-1.5">{data[hover].label}</span>
+          <span style={{ opacity: 0.65, marginLeft: 7 }}>{data[hover].label}</span>
         </div>
       )}
 
       {/* x축 양 끝만 표시 — 눈금을 다 적으면 읽히지 않는다 */}
-      <div className="flex justify-between text-[0.6875rem] text-slate-400 mt-1 tabular-nums">
+      <div className="mono-num text-muted flex justify-between mt-1" style={{ fontSize: 11 }}>
         <span>{data[0]?.label}</span>
         <span>{data[data.length - 1]?.label}</span>
       </div>
@@ -148,8 +155,11 @@ export function InlineBar({
 }) {
   const pct = max > 0 ? Math.max(2, (value / max) * 100) : 0;
   return (
-    <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden" aria-hidden>
-      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
+    <div
+      style={{ height: 5, width: '100%', background: 'rgba(29,31,32,0.09)', overflow: 'hidden' }}
+      aria-hidden
+    >
+      <div style={{ height: '100%', width: `${pct}%`, background: color }} />
     </div>
   );
 }

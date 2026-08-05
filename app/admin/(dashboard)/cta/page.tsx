@@ -11,8 +11,9 @@ export default async function CtaPage() {
     .order('variant');
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PageHeader
+        no="04"
         title="CTA 버튼"
         description="사이트의 행동 유도 버튼을 문구·색·링크까지 직접 바꾸고, 같은 자리에 여러 문구를 두어 어느 쪽이 더 눌리는지 비교할 수 있습니다."
       />

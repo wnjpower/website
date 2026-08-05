@@ -287,8 +287,6 @@ export const CONTENT_DEFAULTS = {
 export type SiteContent = typeof CONTENT_DEFAULTS;
 export type ContentKey = keyof SiteContent;
 
-export const CONTENT_KEYS = Object.keys(CONTENT_DEFAULTS) as ContentKey[];
-
 // ─────────────────────────────────────────────
 //  어드민 폼 정의 — 이 배열로 편집 화면이 자동 생성된다
 // ─────────────────────────────────────────────
@@ -330,26 +328,24 @@ export interface SectionDef {
   fields: FieldDef[];
 }
 
-/** 아이콘은 임의 문자열을 허용하면 화면이 깨지므로 목록에서 고르게 한다. */
-const ICON_OPTIONS = [
-  { value: 'ShieldCheck',   label: '방패(신뢰·면허)' },
-  { value: 'CalendarClock', label: '달력(기간·경력)' },
-  { value: 'Layers',        label: '레이어(원스톱)' },
-  { value: 'Wrench',        label: '공구(A/S)' },
-  { value: 'CircuitBoard',  label: '회로기판(배전반)' },
-  { value: 'Factory',       label: '공장' },
-  { value: 'Lamp',          label: '조명(인테리어)' },
-  { value: 'Zap',           label: '번개(전기)' },
-  { value: 'Phone',         label: '전화' },
-  { value: 'CheckCircle2',  label: '체크' },
-  { value: 'Users',         label: '사람들' },
-  { value: 'Award',         label: '수상·인증' },
-];
+/*
+ * 아이콘 선택 목록은 없앴다. 1b 블루프린트는 신뢰 지표·자격 카드에 아이콘을 쓰지
+ * 않고 값(등록번호·기간)만 큰 글씨로 낸다. 사업영역 카드 아이콘은 공종 id에 매여
+ * 있어 고르는 대상이 아니다. 저장된 icon 값은 기본값에 그대로 남아 있다.
+ */
 
+/**
+ * 섹션 머리 공통 필드.
+ *
+ * 1b 블루프린트에서 섹션 머리는 «번호 + 제목 + 보조 설명»이다(SectionHead).
+ * 번호는 순서로 결정되고, 옛 디자인의 '작은 머리말(eyebrow)'은 자리가 없어졌다.
+ * 그래서 편집 화면에서도 뺐다 — 고쳐도 화면이 그대로인 칸은 "저장이 안 된다"는
+ * 오해를 만든다. 저장된 값 자체는 기본값에 남아 있으므로 데이터는 잃지 않는다.
+ */
 const HEADING_FIELDS: FieldDef[] = [
-  { key: 'eyebrow', label: '작은 머리말', type: 'text', maxLength: 30, help: '제목 위에 작게 들어가는 한 마디' },
   { key: 'title',   label: '섹션 제목',   type: 'text', maxLength: 80 },
-  { key: 'lead',    label: '설명 문구',   type: 'textarea', maxLength: 300 },
+  { key: 'lead',    label: '설명 문구',   type: 'textarea', maxLength: 300,
+    help: '제목 오른쪽에 작은 글씨로 붙습니다' },
 ];
 
 export const SECTION_DEFS: SectionDef[] = [
@@ -367,11 +363,9 @@ export const SECTION_DEFS: SectionDef[] = [
   {
     key: 'header',
     label: '헤더 (상단 메뉴)',
-    summary: '로고 옆 문구, 상단 띠 문구, 메뉴 항목을 바꿉니다.',
+    summary: '로고 옆 상호와 메뉴 항목. 모든 페이지에 같은 헤더가 나옵니다.',
     fields: [
       { key: 'logoText',      label: '로고 옆 회사명', type: 'text', maxLength: 20 },
-      { key: 'logoSub',       label: '로고 아래 한 줄', type: 'text', maxLength: 30,
-        help: '현재 디자인에서는 로고 오른쪽에 영문 표기가 나오므로 화면에는 쓰이지 않습니다' },
       { key: 'showBlogLink',  label: '메뉴에 블로그 추가', type: 'boolean', help: '켜면 메뉴 끝에 "전기공사 정보"가 붙습니다' },
       {
         key: 'nav', label: '메뉴 항목', type: 'list', itemTitleKey: 'label', maxItems: 8,
@@ -387,28 +381,22 @@ export const SECTION_DEFS: SectionDef[] = [
     key: 'hero',
     label: '히어로 (첫 화면)',
     summary: '방문자가 가장 먼저 보는 영역. 전환율에 가장 큰 영향을 줍니다.',
-    anchor: 'hero',
+    // 홈의 히어로 섹션 id는 'top'이다. 'hero'로 두면 미리보기가 그 자리로 가지 않는다.
+    anchor: 'top',
     fields: [
-      { key: 'eyebrow', label: '작은 머리말', type: 'text', maxLength: 40 },
+      { key: 'eyebrow', label: '작은 머리말', type: 'text', maxLength: 40,
+        help: '제목 위에 대문자 간격으로 들어가는 한 줄 (예: 등록번호 안내)' },
       { key: 'title',   label: '큰 제목',     type: 'richtext', maxLength: 120, help: '줄을 나누려면 Enter를 누르세요' },
       { key: 'lead',    label: '설명 문구',   type: 'textarea', maxLength: 400,
         help: '"우앤주전력은 ○○입니다" 형태의 정의문으로 시작하세요. AI 검색이 이 문장을 그대로 인용합니다' },
       { key: 'leadHighlight', label: '설명 중 강조할 부분', type: 'text', maxLength: 60, help: '설명 문구 안에 이 글자가 있으면 굵게 표시됩니다' },
       { key: 'note',    label: '설명 아래 한 줄', type: 'text', maxLength: 80, help: '예: 현장 방문 견적 무료 · 출장비 없음' },
-      { key: 'backgroundImage', label: '배경 사진', type: 'image', help: '비우면 단선결선도 도면이 표시됩니다' },
-      {
-        key: 'segments', label: '고객 유형 안내 링크', type: 'list', itemTitleKey: 'label', maxItems: 4,
-        fields: [
-          { key: 'label', label: '제목',   type: 'text', maxLength: 24 },
-          { key: 'sub',   label: '부제',   type: 'text', maxLength: 30 },
-          { key: 'href',  label: '링크',   type: 'url' },
-        ],
-      },
+      { key: 'backgroundImage', label: '오른쪽 사진', type: 'image',
+        help: '비우면 수전설비 단선결선도 도면이 표시됩니다. 실제 시공 사진이 생기면 올려주세요' },
       {
         key: 'trustStats', label: '신뢰 지표 (4칸)', type: 'list', itemTitleKey: 'label', maxItems: 4,
         help: '숫자·등록번호처럼 확인 가능한 값일수록 신뢰도가 올라갑니다',
         fields: [
-          { key: 'icon',  label: '아이콘(현재 미사용)', type: 'select', options: ICON_OPTIONS },
           { key: 'label', label: '큰 글씨 (값)',  type: 'text', maxLength: 24, help: '예: 대구-01425, 20년+, 당일 출동' },
           { key: 'sub',   label: '아래 설명',     type: 'text', maxLength: 34, help: '예: 전기공사업 등록번호' },
           { key: 'mono',  label: '숫자 서체', type: 'boolean', help: '등록번호처럼 숫자를 또박또박 보여줄 때 켜세요' },
@@ -420,6 +408,7 @@ export const SECTION_DEFS: SectionDef[] = [
     key: 'quickForm',
     label: '빠른 견적 접수 (히어로 아래)',
     summary: '연락처만 받는 짧은 폼. 본 견적폼이 부담스러운 방문자를 잡습니다.',
+    anchor: 'quick',
     fields: [
       { key: 'enabled',     label: '퀵폼 표시', type: 'boolean', help: '끄면 히어로 바로 아래 사업영역이 옵니다' },
       { key: 'title',       label: '제목',      type: 'text', maxLength: 30 },
@@ -483,8 +472,8 @@ export const SECTION_DEFS: SectionDef[] = [
   },
   {
     key: 'pricing',
-    label: '비용 안내',
-    summary: '표준 작업 항목표. 단가가 확정되면 “비용”란을 금액으로 바꾸세요.',
+    label: '비용 기준',
+    summary: '금액 대신 “무엇이 금액을 정하는가”를 밝히는 영역. 변수 3개 + 작업 항목표.',
     anchor: 'pricing',
     fields: [
       ...HEADING_FIELDS,
@@ -556,24 +545,21 @@ export const SECTION_DEFS: SectionDef[] = [
     ],
   },
   {
+    /*
+     * 오시는 길 — 제목("연락처"·"오시는 길")과 주소·전화는 고정이다.
+     * 주소·번호는 lib/site.ts가 정본이고 JSON-LD·푸터·자격 섹션이 같은 값을 쓰므로,
+     * 여기서 따로 고칠 수 있게 하면 NAP(상호·주소·전화)이 어긋난다.
+     * 편집 대상은 영업시간과 시공 가능 지역뿐이다.
+     */
     key: 'contact',
     label: '연락처·오시는 길',
-    summary: '영업시간과 시공 가능 지역.',
+    summary: '영업시간과 시공 가능 지역. 주소·전화번호는 사업자 정보라 고정입니다.',
     anchor: 'contact',
     fields: [
-      ...HEADING_FIELDS,
-      { key: 'hours',       label: '영업시간',      type: 'text', maxLength: 60, help: '헤더 상단 띠와 같은 값으로 맞추세요' },
+      { key: 'hours',       label: '영업시간',      type: 'text', maxLength: 60,
+        help: '예: 평일 09:00–18:00 · 토 09:00–13:00' },
       { key: 'hoursNote',   label: '영업시간 주석', type: 'text', maxLength: 60 },
       { key: 'serviceArea', label: '시공 가능 지역', type: 'textarea', maxLength: 200 },
-    ],
-  },
-  {
-    key: 'footer',
-    label: '푸터',
-    summary: '맨 아래 회사 소개 한 줄.',
-    fields: [
-      { key: 'tagline', label: '회사 소개 한 줄', type: 'text', maxLength: 80 },
-      { key: 'note',    label: '추가 안내',       type: 'textarea', maxLength: 200 },
     ],
   },
   {
@@ -586,8 +572,6 @@ export const SECTION_DEFS: SectionDef[] = [
       { key: 'description', label: '검색 결과 설명', type: 'textarea', maxLength: 160,
         help: '한글 기준 80자 안팎을 권장합니다' },
       { key: 'keywords',    label: '핵심 키워드',    type: 'tags', help: '한 줄에 하나씩' },
-      { key: 'ogImageHeadline', label: '공유 이미지 문구', type: 'text', maxLength: 40,
-        help: '카카오톡·문자로 링크를 보낼 때 보이는 이미지 안의 글자' },
     ],
   },
 ];

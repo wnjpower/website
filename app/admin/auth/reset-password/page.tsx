@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, KeyRound, AlertCircle, Check } from 'lucide-react';
+import { Loader2, KeyRound } from 'lucide-react';
+import { Notice, Field, CornerMarks } from '@/components/admin/ui';
 import { createBrowserSupabase } from '@/lib/supabase-browser';
 
 /**
@@ -95,96 +96,82 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-5 py-12">
+    <div className="min-h-screen flex items-center justify-center px-5 py-12 grid-field">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <p className="text-2xl font-bold text-brand tracking-tight">우앤주전력</p>
-          <p className="text-sm text-slate-500 mt-1">새 비밀번호 설정</p>
+        <div className="text-center mb-7">
+          <p className="display" style={{ fontSize: 26, letterSpacing: '-.01em' }}>우앤주전력</p>
+          <p className="display text-muted" style={{ fontSize: 12, letterSpacing: '.18em' }}>
+            ADMIN CONSOLE
+          </p>
+          <p className="text-muted mt-1.5" style={{ fontSize: 13 }}>새 비밀번호 설정</p>
         </div>
 
-        {phase === 'checking' && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex items-center justify-center gap-2 text-slate-500">
-            <Loader2 className="w-4 h-4 animate-spin" /> 확인 중…
-          </div>
-        )}
+        <div className="a-panel" style={{ padding: 22 }}>
+          <CornerMarks />
 
-        {phase === 'no-session' && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-            <p className="flex gap-2 items-start rounded-lg bg-amber-50 border border-amber-200 px-3.5 py-3 text-sm text-amber-900 break-keep">
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              링크가 만료됐거나 이미 사용된 것 같습니다. 재설정 링크는 한 번만, 그리고 짧은 시간 안에만 쓸 수 있습니다.
+          {phase === 'checking' && (
+            <p className="text-muted flex items-center justify-center gap-2 py-2">
+              <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} /> 확인 중…
             </p>
-            <Link
-              href="/admin/login?reset=1"
-              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-bold py-3.5 text-base transition-colors"
-            >
-              재설정 메일 다시 받기
-            </Link>
-          </div>
-        )}
+          )}
 
-        {phase === 'done' && (
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <p className="flex gap-2 items-start rounded-lg bg-green-50 border border-green-200 px-3.5 py-3 text-sm text-green-800">
-              <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              비밀번호를 바꿨습니다. 관리자 화면으로 이동합니다…
-            </p>
-          </div>
-        )}
-
-        {phase === 'ready' && (
-          <form
-            onSubmit={onSubmit}
-            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4"
-          >
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-ink mb-1.5">
-                새 비밀번호
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand"
-              />
-              <p className="text-xs text-slate-500 mt-1.5">{MIN_LENGTH}자 이상</p>
+          {phase === 'no-session' && (
+            <div className="space-y-4">
+              <Notice tone="warn">
+                <span>
+                  링크가 만료됐거나 이미 사용된 것 같습니다. 재설정 링크는 한 번만, 그리고 짧은 시간
+                  안에만 쓸 수 있습니다.
+                </span>
+              </Notice>
+              <Link href="/admin/login?reset=1" className="a-btn a-btn--solid a-btn--block">
+                재설정 메일 다시 받기
+              </Link>
             </div>
+          )}
 
-            <div>
-              <label htmlFor="confirm" className="block text-sm font-semibold text-ink mb-1.5">
-                새 비밀번호 확인
-              </label>
-              <input
-                id="confirm"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 px-3.5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand"
-              />
-            </div>
+          {phase === 'done' && (
+            <Notice tone="ok">
+              <span>비밀번호를 바꿨습니다. 관리자 화면으로 이동합니다…</span>
+            </Notice>
+          )}
 
-            {error && (
-              <p className="flex gap-2 items-start rounded-lg bg-red-50 border border-red-200 px-3.5 py-3 text-sm text-red-700 break-keep">
-                <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                {error}
-              </p>
-            )}
+          {phase === 'ready' && (
+            <form onSubmit={onSubmit} className="space-y-4">
+              <Field label="새 비밀번호" htmlFor="password" help={`${MIN_LENGTH}자 이상`}>
+                <input
+                  id="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bp-input"
+                />
+              </Field>
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-bold py-3.5 text-base transition-colors disabled:opacity-60"
-            >
-              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
-              비밀번호 바꾸기
-            </button>
-          </form>
-        )}
+              <Field label="새 비밀번호 확인" htmlFor="confirm">
+                <input
+                  id="confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  className="bp-input"
+                />
+              </Field>
+
+              {error && <Notice tone="err"><span>{error}</span></Notice>}
+
+              <button type="submit" disabled={saving} className="a-btn a-btn--solid a-btn--block">
+                {saving
+                  ? <Loader2 className="w-5 h-5 bp-spin" strokeWidth={1.5} />
+                  : <KeyRound className="w-5 h-5" strokeWidth={1.5} />}
+                비밀번호 바꾸기
+              </button>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

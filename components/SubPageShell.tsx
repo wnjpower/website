@@ -50,36 +50,37 @@ export default async function SubPageShell({
   const quoteHref = hideQuote ? '/#quote' : '#quote';
 
   return (
-    <>
+    <div
+      className={`blueprint-theme ${blueprintFontClass}`}
+      style={{
+        ['--banner-h' as string]: bannerOn ? BANNER_HEIGHT : '0px',
+        paddingTop: bannerOn ? BANNER_HEIGHT : undefined,
+      }}
+    >
+      {/* 배너는 테마 안에 둔다 — 액센트 토큰이 .blueprint-theme 아래 정의돼 있다.
+          fixed라서 어디에 두든 화면 최상단에 그려지는 것은 같다. */}
       <Banner content={content.banner} />
-      <div
-        className={`blueprint-theme ${blueprintFontClass}`}
-        style={{
-          ['--banner-h' as string]: bannerOn ? BANNER_HEIGHT : '0px',
-          paddingTop: bannerOn ? BANNER_HEIGHT : undefined,
-        }}
-      >
-        <ScrollReveal />
-        <BlueprintHeader content={content.header} ctaHref={quoteHref} />
 
-        <main>
-          {children}
-          {!hideQuote && (
-            <QuoteBlock
-              content={content.quote}
-              ctas={ctas}
-              source={quoteSource}
-              initialCategory={initialCategory}
-              initialCustomerType={initialCustomerType}
-            />
-          )}
-          <Contact content={content.contact} />
-        </main>
+      <ScrollReveal />
+      <BlueprintHeader content={content.header} ctaHref={quoteHref} />
 
-        <BlueprintFooter />
-        <BlueprintDesktopDock quoteHref={quoteHref} />
-        <BlueprintMobileBar quoteHref={quoteHref} ctaSlot="floating_quote" />
-      </div>
-    </>
+      <main>
+        {children}
+        {!hideQuote && (
+          <QuoteBlock
+            content={content.quote}
+            ctas={ctas}
+            source={quoteSource}
+            initialCategory={initialCategory}
+            initialCustomerType={initialCustomerType}
+          />
+        )}
+        <Contact content={content.contact} />
+      </main>
+
+      <BlueprintFooter />
+      <BlueprintDesktopDock quoteHref={quoteHref} />
+      <BlueprintMobileBar quoteHref={quoteHref} ctaSlot="floating_quote" />
+    </div>
   );
 }

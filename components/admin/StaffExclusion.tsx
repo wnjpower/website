@@ -43,13 +43,10 @@ export function StaffExclusionToggle() {
           ? '지금 이 브라우저의 방문은 방문자 수에 포함되지 않습니다. 눌러서 포함시킬 수 있습니다.'
           : '지금 이 브라우저의 방문이 방문자 수에 포함되고 있습니다. 눌러서 제외할 수 있습니다.'
       }
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
-        excluded
-          ? 'border-slate-200 bg-white text-slate-500 hover:border-brand hover:text-brand'
-          : 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100'
-      }`}
+      className={`a-chip ${excluded ? '' : 'a-chip--warn'}`}
+      style={{ padding: '6px 10px' }}
     >
-      {excluded ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+      {excluded ? <EyeOff className="w-3.5 h-3.5" strokeWidth={1.5} /> : <Eye className="w-3.5 h-3.5" strokeWidth={1.5} />}
       {excluded ? '내 방문 제외 중' : '내 방문 집계 중'}
     </button>
   );

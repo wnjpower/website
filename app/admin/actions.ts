@@ -1,8 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { draftMode } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { createServerSupabase, getAdminUser } from '@/lib/supabase-server';
 import { invalidateContent } from '@/lib/content/get';
 import { invalidateCtas } from '@/lib/cta/get';
@@ -119,19 +117,6 @@ export async function resetSection(key: string): Promise<ActionResult> {
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : '되돌리기에 실패했습니다.' };
   }
-}
-
-// ─────────────────────────────────────────────
-//  미리보기 (draft mode)
-// ─────────────────────────────────────────────
-
-export async function enablePreview(): Promise<void> {
-  await requireAdmin();
-  draftMode().enable();
-}
-
-export async function disablePreview(): Promise<void> {
-  draftMode().disable();
 }
 
 // ─────────────────────────────────────────────
@@ -268,12 +253,6 @@ export async function submitUrlsToSearchEngines(paths: string[]): Promise<Action
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : '제출에 실패했습니다.' };
   }
-}
-
-/** 어드민에서 로그아웃 없이 홈으로 돌아갈 때 미리보기를 확실히 끈다. */
-export async function exitPreviewAndGoHome(): Promise<void> {
-  draftMode().disable();
-  redirect('/');
 }
 
 export type { ContentKey };

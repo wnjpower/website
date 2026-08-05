@@ -41,14 +41,58 @@ export const CTA_SLOT_HINTS: Record<CtaSlot, string> = {
   contact_call:    '연락처 섹션의 전화 버튼입니다.',
 };
 
-export type CtaStyle = 'primary' | 'signal' | 'outline' | 'ghost';
-
-export const CTA_STYLE_LABELS: Record<CtaStyle, string> = {
-  primary: '네이비 (기본)',
-  signal:  '앰버 강조 (주목도 최상)',
-  outline: '테두리만',
-  ghost:   '투명 (어두운 배경용)',
+/**
+ * 편집 대상은 아니지만 클릭이 집계되는 자리.
+ *
+ * 1b 재구축에서 사업영역 카드·서비스 상세·실적 상세·퀵폼에 `data-cta-slot`을 달았다.
+ * 이 자리들은 문구가 본문에 매여 있어 어드민에서 갈아끼우지 않는다. 그래도 실시간
+ * 현황에는 성과가 뜨는데, 이름이 없으면 `service_card_factory` 같은 영문 id가
+ * 그대로 보인다. 화면에 나오는 이상 한국어 이름을 붙인다.
+ */
+const CATEGORY_LABELS: Record<string, string> = {
+  factory:  '공장·산업',
+  power:    '수전·증설',
+  panel:    '배전반',
+  interior: '인테리어·일반',
 };
+
+const SLOT_PREFIXES: [string, string][] = [
+  ['service_card_',   '사업영역 카드'],
+  ['service_cta_',    '서비스 상세 하단'],
+  ['portfolio_cta_',  '실적 상세 하단'],
+];
+
+const EXTRA_SLOT_LABELS: Record<string, string> = {
+  quick_bar_submit: '빠른 견적 접수 — 제출',
+  mobile_bar:       '모바일 하단 바',
+};
+
+/** 실시간 현황·리포트에서 슬롯 id를 사람이 읽는 이름으로 바꾼다. */
+export function ctaSlotLabel(slot: string): string {
+  if (slot in CTA_SLOT_LABELS) return CTA_SLOT_LABELS[slot as CtaSlot];
+  if (slot in EXTRA_SLOT_LABELS) return EXTRA_SLOT_LABELS[slot];
+
+  for (const [prefix, label] of SLOT_PREFIXES) {
+    if (slot.startsWith(prefix)) {
+      const rest = slot.slice(prefix.length);
+      return `${label} — ${CATEGORY_LABELS[rest] ?? rest}`;
+    }
+  }
+  return slot;
+}
+
+/**
+ * 버튼 색.
+ *
+ * 1b 블루프린트에는 강조색이 하나뿐이라(액센트) 실제 화면은 이 값을 읽지 않는다.
+ * 어드민 편집 화면에서도 뺐다.
+ *
+ * 타입과 DB 컬럼(ctas.style)은 남겨 둔다 — 저장된 값이 있고, 지우려면 마이그레이션이
+ * 필요한데 읽지 않는 컬럼이 남아 있는 비용이 그보다 작다. 사람에게 보여 줄 이름표
+ * (CTA_STYLE_LABELS)는 고를 화면이 없어졌으므로 지웠다. 색 선택을 되살릴 일이
+ * 생기면 그때 이름표도 다시 쓰면 된다.
+ */
+export type CtaStyle = 'primary' | 'signal' | 'outline' | 'ghost';
 
 export interface Cta {
   id: string;

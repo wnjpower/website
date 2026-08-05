@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Plus, ExternalLink } from 'lucide-react';
 import PageHeader from '@/components/admin/PageHeader';
+import { Chip, Notice, Empty } from '@/components/admin/ui';
 import { createServerSupabase } from '@/lib/supabase-server';
 import { POST_TYPE_LABELS, POST_TYPES, postPath, type PostType } from '@/lib/posts';
 
@@ -30,22 +31,20 @@ export default async function PostsPage({
   const rows = (data ?? []) as Row[];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <PageHeader
+        no="05"
         title="게시판"
         description="검색으로 사람들이 찾아오게 만드는 글을 씁니다. 글을 쓰는 동안 SEO 점수와 고칠 점이 실시간으로 표시됩니다."
         action={
-          <Link
-            href="/admin/posts/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-bold px-4 py-2.5 text-[0.9375rem] transition-colors"
-          >
-            <Plus className="w-4 h-4" />
+          <Link href="/admin/posts/new" className="a-btn a-btn--solid">
+            <Plus className="w-4 h-4" strokeWidth={1.5} />
             새 글 쓰기
           </Link>
         }
       />
 
-      <div className="flex flex-wrap gap-2">
+      <div className="bp-seg flex-wrap">
         <FilterLink href="/admin/posts" active={!type} label="전체" />
         {POST_TYPES.map((t) => (
           <FilterLink
@@ -58,51 +57,42 @@ export default async function PostsPage({
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800 break-keep">
-          게시판 테이블이 아직 없습니다. Supabase SQL 편집기에서{' '}
-          <code className="font-mono bg-amber-100 px-1.5 py-0.5 rounded">supabase/admin-schema.sql</code>을
-          실행하면 바로 사용할 수 있습니다.
-          <br />
-          <span className="text-xs opacity-70">({error.message})</span>
-        </div>
-      ) : rows.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white py-16 text-center">
-          <p className="text-slate-500 mb-1">아직 작성된 글이 없습니다.</p>
-          <p className="text-sm text-slate-400 mb-6 break-keep px-6">
-            &ldquo;대구 공장 전기공사 비용&rdquo;처럼 고객이 실제로 검색하는 말을 제목으로 잡아 보세요.
+        <Notice tone="warn" title="게시판 테이블이 아직 없습니다">
+          <p>
+            Supabase SQL 편집기에서 <code>supabase/admin-schema.sql</code>을 실행하면 바로 사용할 수 있습니다.
           </p>
-          <Link
-            href="/admin/posts/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-bold px-5 py-3 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            첫 글 쓰기
-          </Link>
+          <p className="opacity-70 mt-1">({error.message})</p>
+        </Notice>
+      ) : rows.length === 0 ? (
+        <div className="a-panel">
+          <Empty>
+            아직 작성된 글이 없습니다.
+            <br />
+            &ldquo;대구 공장 전기공사 비용&rdquo;처럼 고객이 실제로 검색하는 말을 제목으로 잡아 보세요.
+          </Empty>
+          <div className="flex justify-center pb-10">
+            <Link href="/admin/posts/new" className="a-btn a-btn--solid">
+              <Plus className="w-4 h-4" strokeWidth={1.5} />
+              첫 글 쓰기
+            </Link>
+          </div>
         </div>
       ) : (
-        <div className="rounded-xl border border-slate-200 bg-white divide-y divide-slate-100 overflow-hidden">
+        <div className="a-panel a-rows">
           {rows.map((post) => (
-            <div key={post.id} className="flex items-center gap-3 px-4 py-3.5">
-              <Link href={`/admin/posts/${post.id}`} className="flex-1 min-w-0 group">
-                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mb-0.5">
-                  <span
-                    className={`text-[0.6875rem] font-bold px-2 py-0.5 rounded flex-shrink-0 ${
-                      post.status === 'published'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-slate-200 text-slate-600'
-                    }`}
-                  >
+            <div key={post.id} className="flex items-center gap-3 px-4 py-3 a-row-hover">
+              <Link href={`/admin/posts/${post.id}`} className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+                  <Chip tone={post.status === 'published' ? 'ok' : 'muted'}>
                     {post.status === 'published' ? '발행됨' : '임시저장'}
-                  </span>
-                  <span className="text-xs text-slate-400 flex-shrink-0">
+                  </Chip>
+                  <span className="text-muted" style={{ fontSize: 12 }}>
                     {POST_TYPE_LABELS[post.type as PostType] ?? post.type}
                   </span>
-                  <ScoreBadge score={post.seo_score} />
+                  <ScoreChip score={post.seo_score} />
                 </div>
-                <p className="font-semibold text-ink truncate group-hover:text-brand transition-colors">
-                  {post.title}
-                </p>
-                <p className="text-xs text-slate-400 truncate">
+                <p className="truncate" style={{ fontWeight: 500 }}>{post.title}</p>
+                <p className="text-muted truncate" style={{ fontSize: 12 }}>
                   {post.focus_keyword ? `키워드: ${post.focus_keyword} · ` : ''}
                   {formatDate(post.published_at ?? post.updated_at)}
                 </p>
@@ -114,9 +104,9 @@ export default async function PostsPage({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="사이트에서 보기"
-                  className="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-brand hover:bg-slate-50 flex-shrink-0"
+                  className="a-btn a-btn--icon a-btn--sm a-btn--ghost"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4" strokeWidth={1.5} />
                 </a>
               )}
             </div>
@@ -129,27 +119,19 @@ export default async function PostsPage({
 
 function FilterLink({ href, active, label }: { href: string; active: boolean; label: string }) {
   return (
-    <Link
-      href={href}
-      className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
-        active ? 'bg-brand text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-brand hover:text-brand'
-      }`}
-    >
+    <Link href={href} className="bp-seg-opt display" data-active={active ? '' : undefined}>
       {label}
     </Link>
   );
 }
 
-function ScoreBadge({ score }: { score: number | null }) {
+function ScoreChip({ score }: { score: number | null }) {
   if (score === null) return null;
-  const color =
-    score >= 80 ? 'bg-green-100 text-green-700'
-    : score >= 50 ? 'bg-amber-100 text-amber-700'
-    : 'bg-red-100 text-red-700';
+  const tone = score >= 80 ? 'ok' : score >= 50 ? 'warn' : 'err';
   return (
-    <span className={`text-[0.6875rem] font-bold px-2 py-0.5 rounded tabular-nums flex-shrink-0 ${color}`}>
-      SEO {score}
-    </span>
+    <Chip tone={tone}>
+      <span className="mono-num">SEO {score}</span>
+    </Chip>
   );
 }
 

@@ -122,7 +122,8 @@ export default function QuickQuoteBar({ content }: { content: SiteContent['quick
   }
 
   return (
-    <section className="grid-field">
+    // id는 어드민 미리보기가 이 영역으로 바로 스크롤하기 위한 것이다
+    <section id="quick" className="grid-field">
       <div
         style={{
           maxWidth: 1280,

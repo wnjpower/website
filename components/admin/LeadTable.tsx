@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Phone, Mail, ChevronDown, ChevronUp, Loader2, Check } from 'lucide-react';
+import { Chip, Empty } from './ui';
 import { updateLead } from '@/app/admin/actions';
 import { LEAD_STATUS_LABELS, type LeadStatus } from '@/lib/leads';
 import { CHANNEL_LABELS, PAID_CHANNELS, type Channel } from '@/lib/analytics/attribution';
@@ -27,12 +28,13 @@ export interface LeadRow {
   landing_path: string | null;
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  new:       'bg-brand text-white',
-  contacted: 'bg-blue-100 text-blue-800',
-  quoted:    'bg-amber-100 text-amber-800',
-  won:       'bg-green-100 text-green-800',
-  lost:      'bg-slate-200 text-slate-600',
+/** 상태 배지 — 미연락(new)만 액센트로 채워 눈에 걸리게 한다 */
+const STATUS_TONE: Record<string, 'accent' | 'outline' | 'ok' | 'warn' | 'muted'> = {
+  new:       'accent',
+  contacted: 'outline',
+  quoted:    'warn',
+  won:       'ok',
+  lost:      'muted',
 };
 
 export default function LeadTable({ rows }: { rows: LeadRow[] }) {
@@ -40,14 +42,14 @@ export default function LeadTable({ rows }: { rows: LeadRow[] }) {
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white py-16 text-center">
-        <p className="text-slate-400">아직 접수된 견적문의가 없습니다.</p>
+      <div className="a-panel">
+        <Empty>아직 접수된 견적문의가 없습니다.</Empty>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white divide-y divide-slate-100 overflow-hidden">
+    <div className="a-panel a-rows">
       {rows.map((lead) => (
         <LeadItem
           key={lead.id}
@@ -90,27 +92,27 @@ function LeadItem({
   }
 
   return (
-    <div className={status === 'new' ? 'bg-brand-tint/40' : ''}>
-      <div className="flex items-center gap-3 px-4 py-3.5">
+    <div style={status === 'new' ? { background: 'rgba(89,128,166,0.06)' } : undefined}>
+      <div className="flex items-center gap-2.5 px-3.5 py-3">
         <button
           onClick={onToggle}
           aria-expanded={open}
           className="flex-1 min-w-0 text-left flex flex-wrap items-center gap-x-3 gap-y-1"
         >
-          <span
-            className={`text-[0.6875rem] font-bold px-2 py-0.5 rounded flex-shrink-0 ${STATUS_STYLES[status] ?? STATUS_STYLES.new}`}
-          >
+          <Chip tone={STATUS_TONE[status] ?? 'accent'}>
             {LEAD_STATUS_LABELS[status as LeadStatus] ?? status}
-          </span>
-          <span className="font-bold text-ink truncate">
+          </Chip>
+          <span className="truncate" style={{ fontWeight: 700 }}>
             {lead.name}
-            {lead.company_name && <span className="font-normal text-slate-500"> · {lead.company_name}</span>}
+            {lead.company_name && (
+              <span className="text-muted" style={{ fontWeight: 400 }}> · {lead.company_name}</span>
+            )}
           </span>
-          <span className="text-sm text-slate-500 font-mono tabular-nums">{lead.phone}</span>
-          <span className="text-sm text-slate-400 truncate">
+          <span className="mono-num" style={{ fontSize: 14 }}>{lead.phone}</span>
+          <span className="text-muted truncate" style={{ fontSize: 13 }}>
             {CategoryLabels[lead.category as keyof typeof CategoryLabels] ?? lead.category}
           </span>
-          <span className="text-xs text-slate-400 tabular-nums ml-auto whitespace-nowrap">
+          <span className="mono-num text-muted ml-auto whitespace-nowrap" style={{ fontSize: 12 }}>
             {formatDate(lead.created_at)}
           </span>
         </button>
@@ -118,29 +120,30 @@ function LeadItem({
         <a
           href={`tel:${lead.phone}`}
           aria-label={`${lead.name}에게 전화`}
-          className="w-10 h-10 flex items-center justify-center rounded-lg bg-signal text-white hover:brightness-105 flex-shrink-0"
+          className="a-btn a-btn--icon a-btn--solid"
         >
-          <Phone className="w-4 h-4" />
+          <Phone className="w-4 h-4" strokeWidth={1.5} />
         </a>
         <button
           onClick={onToggle}
           aria-label={open ? '접기' : '펼치기'}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 flex-shrink-0"
+          className="a-btn a-btn--icon a-btn--ghost"
         >
-          {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          {open
+            ? <ChevronUp className="w-4 h-4" strokeWidth={1.5} />
+            : <ChevronDown className="w-4 h-4" strokeWidth={1.5} />}
         </button>
       </div>
 
       {open && (
-        <div className="px-4 pb-5 space-y-4 bg-white border-t border-slate-100 pt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+        <div
+          className="px-3.5 pb-5 pt-4 space-y-4"
+          style={{ background: 'var(--a-panel)', borderTop: '1px solid var(--color-divider)' }}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5" style={{ fontSize: 13.5 }}>
             <Detail label="유입 경로">
               {CHANNEL_LABELS[channel] ?? channel}
-              {isPaid && (
-                <span className="ml-2 text-[0.6875rem] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">
-                  유료 광고
-                </span>
-              )}
+              {isPaid && <Chip tone="warn" className="ml-2">유료 광고</Chip>}
             </Detail>
             {lead.utm_campaign && <Detail label="캠페인">{lead.utm_campaign}</Detail>}
             {lead.utm_term && <Detail label="검색어">{lead.utm_term}</Detail>}
@@ -148,8 +151,8 @@ function LeadItem({
             {lead.region && <Detail label="시공 지역">{lead.region}</Detail>}
             {lead.email && (
               <Detail label="이메일">
-                <a href={`mailto:${lead.email}`} className="text-brand hover:underline inline-flex items-center gap-1">
-                  <Mail className="w-3.5 h-3.5" />
+                <a href={`mailto:${lead.email}`} className="a-link inline-flex items-center gap-1">
+                  <Mail className="w-3.5 h-3.5" strokeWidth={1.5} />
                   {lead.email}
                 </a>
               </Detail>
@@ -159,49 +162,61 @@ function LeadItem({
 
           {lead.message && (
             <div>
-              <p className="text-xs font-bold text-slate-500 mb-1">문의 내용</p>
-              <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-3">
+              <p className="bp-label">문의 내용</p>
+              <p
+                className="whitespace-pre-wrap break-keep"
+                style={{
+                  fontSize: 13.5,
+                  lineHeight: 1.7,
+                  background: 'var(--color-bg)',
+                  border: '1px solid var(--color-divider)',
+                  padding: '11px 13px',
+                }}
+              >
                 {lead.message}
               </p>
             </div>
           )}
 
-          <div className="flex flex-wrap gap-2">
-            {(Object.keys(LEAD_STATUS_LABELS) as LeadStatus[]).map((s) => (
-              <button
-                key={s}
-                onClick={() => { setStatus(s); save({ status: s }); }}
-                disabled={isPending}
-                className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                  status === s
-                    ? 'bg-brand text-white'
-                    : 'border border-slate-300 text-slate-600 hover:border-brand hover:text-brand'
-                }`}
-              >
-                {LEAD_STATUS_LABELS[s]}
-              </button>
-            ))}
+          <div>
+            <p className="bp-label">진행 상태</p>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(LEAD_STATUS_LABELS) as LeadStatus[]).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => { setStatus(s); save({ status: s }); }}
+                  disabled={isPending}
+                  className={`a-btn a-btn--sm ${status === s ? 'a-btn--solid' : ''}`}
+                >
+                  {LEAD_STATUS_LABELS[s]}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1.5">처리 메모</label>
+            <label className="bp-label" htmlFor={`memo-${lead.id}`}>처리 메모</label>
             <textarea
+              id={`memo-${lead.id}`}
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               onBlur={() => memo !== (lead.memo ?? '') && save({ memo })}
               rows={2}
               placeholder="통화 내용, 견적 금액, 다음 할 일 등"
-              className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+              className="bp-input"
             />
             <div className="h-5 mt-1">
               {isPending && (
-                <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
-                  <Loader2 className="w-3 h-3 animate-spin" /> 저장 중…
+                <span className="text-muted inline-flex items-center gap-1.5" style={{ fontSize: 12 }}>
+                  <Loader2 className="w-3 h-3 bp-spin" strokeWidth={1.5} /> 저장 중…
                 </span>
               )}
               {saved && !isPending && (
-                <span className="inline-flex items-center gap-1.5 text-xs text-green-700">
-                  <Check className="w-3 h-3" /> 저장됨
+                <span
+                  className="inline-flex items-center gap-1.5"
+                  style={{ fontSize: 12, color: 'var(--a-ok)' }}
+                >
+                  <Check className="w-3 h-3" strokeWidth={1.5} /> 저장됨
                 </span>
               )}
             </div>
@@ -215,8 +230,8 @@ function LeadItem({
 function Detail({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-2">
-      <span className="text-slate-400 flex-shrink-0">{label}</span>
-      <span className="text-ink font-medium min-w-0 break-all">{children}</span>
+      <span className="text-muted flex-shrink-0">{label}</span>
+      <span className="min-w-0 break-all" style={{ fontWeight: 500 }}>{children}</span>
     </div>
   );
 }

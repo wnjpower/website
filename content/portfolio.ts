@@ -279,6 +279,3 @@ export const portfolioItems: PortfolioItem[] = [
 
 export const getPortfolioItem = (slug: string) =>
   portfolioItems.find((item) => item.slug === slug);
-
-export const portfolioByCategory = (category: ServiceCategory) =>
-  portfolioItems.filter((item) => item.category === category);

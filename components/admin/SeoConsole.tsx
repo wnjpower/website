@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Send, Loader2, Check, AlertCircle, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
+import { Send, Loader2, AlertCircle, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
+import { Panel, Empty, ResultNote } from './ui';
 import { submitUrlsToSearchEngines } from '@/app/admin/actions';
 
 export interface PingRow {
@@ -48,45 +49,32 @@ export default function SeoConsole({
   }
 
   return (
-    <div className="space-y-5">
-      {message && (
-        <p
-          className={`flex gap-2 items-start rounded-lg px-4 py-3 text-sm ${
-            message.ok
-              ? 'bg-green-50 border border-green-200 text-green-800'
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}
-        >
-          {message.ok ? <Check className="w-4 h-4 mt-0.5 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />}
-          {message.text}
-        </p>
-      )}
+    <div className="space-y-3.5">
+      {message && <ResultNote ok={message.ok} text={message.text} />}
 
       {/* ── 자동 제출 안내 ── */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="font-bold text-ink mb-2">자동 제출은 이미 켜져 있습니다</h2>
-        <ul className="space-y-2 text-sm text-slate-600 leading-relaxed break-keep">
-          <li className="flex gap-2">
-            <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+      <Panel title="자동 제출은 이미 켜져 있습니다">
+        <ul className="space-y-2.5" style={{ fontSize: 13.5, lineHeight: 1.65 }}>
+          <li className="flex gap-2 break-keep">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.5} style={{ color: 'var(--a-ok)' }} />
             <span>
-              <strong className="text-ink">글을 발행하거나 홈 문구를 발행할 때마다</strong>{' '}
-              네이버 서치어드바이저와 Bing에 자동으로 알립니다 (IndexNow).
+              <strong>글을 발행하거나 홈 문구를 발행할 때마다</strong> 네이버 서치어드바이저와 Bing에
+              자동으로 알립니다 (IndexNow).
             </span>
           </li>
-          <li className="flex gap-2">
-            <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+          <li className="flex gap-2 break-keep">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.5} style={{ color: 'var(--a-ok)' }} />
             <span>
-              사이트맵(<code className="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded">/sitemap.xml</code>)에도
-              새 글이 자동으로 들어가고, 수정 시각이 정확히 반영됩니다.
+              사이트맵(<Mono>/sitemap.xml</Mono>)에도 새 글이 자동으로 들어가고, 수정 시각이 정확히 반영됩니다.
             </span>
           </li>
-          <li className="flex gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+          <li className="flex gap-2 break-keep">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.5} style={{ color: 'var(--a-warn)' }} />
             <span>
-              <strong className="text-ink">구글은 IndexNow를 지원하지 않습니다.</strong>{' '}
-              구글용 공식 즉시 색인 API는 채용공고·방송에만 열려 있어 일반 페이지에는 쓸 수 없습니다.
-              대신 사이트맵의 수정 시각을 정확히 유지하는 것이 표준적인 방법이고, 그렇게 되어 있습니다.
-              처음 한 번은 서치콘솔에서 사이트맵을 직접 등록해 주세요.
+              <strong>구글은 IndexNow를 지원하지 않습니다.</strong> 구글용 공식 즉시 색인 API는
+              채용공고·방송에만 열려 있어 일반 페이지에는 쓸 수 없습니다. 대신 사이트맵의 수정 시각을
+              정확히 유지하는 것이 표준적인 방법이고, 그렇게 되어 있습니다. 처음 한 번은 서치콘솔에서
+              사이트맵을 직접 등록해 주세요.
             </span>
           </li>
         </ul>
@@ -98,29 +86,26 @@ export default function SeoConsole({
           <ExternalLinkButton href="/feed.xml" label="RSS 피드" />
           <ExternalLinkButton href={keyFileUrl} label="IndexNow 키 파일" />
         </div>
-      </div>
+      </Panel>
 
       {/* ── 수동 제출 ── */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="font-bold text-ink mb-1">직접 제출하기</h2>
-        <p className="text-sm text-slate-500 mb-4 break-keep">
-          내용을 크게 고쳤는데 검색 결과가 그대로일 때 눌러보세요. 같은 주소를 하루에 여러 번 제출하면
-          오히려 무시될 수 있으니 필요할 때만 사용하세요.
-        </p>
-
-        <div className="space-y-1.5 mb-4 max-h-64 overflow-y-auto">
+      <Panel
+        title="직접 제출하기"
+        note="내용을 크게 고쳤는데 검색 결과가 그대로일 때 눌러보세요. 같은 주소를 하루에 여러 번 제출하면 오히려 무시될 수 있으니 필요할 때만 사용하세요."
+      >
+        <div className="max-h-64 overflow-y-auto mb-4" style={{ border: '1px solid var(--color-divider)' }}>
           {knownPaths.map((path) => (
             <label
               key={path}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-50 cursor-pointer"
+              className="flex items-center gap-3 px-3 py-2 cursor-pointer a-row-hover"
             >
               <input
                 type="checkbox"
                 checked={selected.includes(path)}
                 onChange={() => toggle(path)}
-                className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand"
+                className="bp-check"
               />
-              <span className="text-sm font-mono text-slate-600 truncate">{path}</span>
+              <span className="mono-num truncate" style={{ fontSize: 13 }}>{path}</span>
             </label>
           ))}
         </div>
@@ -129,48 +114,52 @@ export default function SeoConsole({
           <button
             onClick={submit}
             disabled={isPending || selected.length === 0}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand hover:bg-brand-700 text-white font-bold px-5 py-2.5 text-[0.9375rem] transition-colors disabled:opacity-50"
+            className="a-btn a-btn--solid"
           >
-            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {isPending
+              ? <Loader2 className="w-4 h-4 bp-spin" strokeWidth={1.5} />
+              : <Send className="w-4 h-4" strokeWidth={1.5} />}
             선택한 {selected.length}개 주소 제출
           </button>
           <button
             onClick={() => setSelected(selected.length === knownPaths.length ? [] : knownPaths)}
-            className="text-sm font-semibold text-slate-500 hover:text-brand"
+            className="a-link display"
+            style={{ fontSize: 14 }}
           >
             {selected.length === knownPaths.length ? '전체 해제' : '전체 선택'}
           </button>
         </div>
-      </div>
+      </Panel>
 
       {/* ── 제출 이력 ── */}
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-        <h2 className="px-5 py-3.5 font-bold text-ink border-b border-slate-200 bg-slate-50">제출 이력</h2>
+      <Panel title="제출 이력" flush>
         {pings.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-400">아직 제출 기록이 없습니다.</p>
+          <Empty>아직 제출 기록이 없습니다.</Empty>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="a-rows">
             {pings.map((ping) => (
-              <li key={ping.id} className="flex items-start gap-3 px-5 py-3.5">
+              <li key={ping.id} className="flex items-start gap-3 px-4 py-3">
                 {ping.ok ? (
-                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.5} style={{ color: 'var(--a-ok)' }} />
                 ) : (
-                  <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <XCircle className="w-4 h-4 flex-shrink-0 mt-0.5" strokeWidth={1.5} style={{ color: 'var(--a-err)' }} />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-ink">
+                  <p style={{ fontSize: 13.5, fontWeight: 500 }}>
                     {TARGET_LABELS[ping.target] ?? ping.target}
-                    <span className="ml-2 font-normal text-slate-400">
-                      {ping.urls.length}개 주소
+                    <span className="text-muted" style={{ fontWeight: 400 }}>
+                      {' '}{ping.urls.length}개 주소
                       {ping.status !== null && ` · 응답 ${ping.status}`}
                     </span>
                   </p>
-                  <p className="text-xs text-slate-400 truncate font-mono">{ping.urls.join(', ')}</p>
+                  <p className="text-muted mono-num truncate" style={{ fontSize: 11.5 }}>{ping.urls.join(', ')}</p>
                   {!ping.ok && ping.response && (
-                    <p className="text-xs text-red-600 mt-0.5 break-all">{ping.response}</p>
+                    <p className="break-all mt-0.5" style={{ fontSize: 11.5, color: 'var(--a-err)' }}>
+                      {ping.response}
+                    </p>
                   )}
                 </div>
-                <span className="text-xs text-slate-400 tabular-nums whitespace-nowrap">
+                <span className="mono-num text-muted whitespace-nowrap" style={{ fontSize: 11.5 }}>
                   {new Date(ping.created_at).toLocaleString('ko-KR', {
                     month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false,
                   })}
@@ -179,21 +168,27 @@ export default function SeoConsole({
             ))}
           </ul>
         )}
-      </div>
+      </Panel>
     </div>
+  );
+}
+
+function Mono({ children }: { children: React.ReactNode }) {
+  return (
+    <code
+      className="mono-num"
+      style={{ background: 'var(--color-neutral-100)', padding: '1px 5px', fontSize: 12.5 }}
+    >
+      {children}
+    </code>
   );
 }
 
 function ExternalLinkButton({ href, label }: { href: string; label: string }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-600 hover:border-brand hover:text-brand transition-colors"
-    >
+    <a href={href} target="_blank" rel="noopener noreferrer" className="a-btn a-btn--sm">
       {label}
-      <ExternalLink className="w-3.5 h-3.5" />
+      <ExternalLink className="w-3.5 h-3.5" strokeWidth={1.5} />
     </a>
   );
 }

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import type { FieldDef } from '@/lib/content/schema';
 import ImageUpload from './ImageUpload';
+import { Switch } from './ui';
 
 /**
  * 스키마(FieldDef)를 보고 편집 UI를 그린다.
@@ -11,16 +12,13 @@ import ImageUpload from './ImageUpload';
  * 필드를 추가할 때 이 파일을 고칠 일은 없다. lib/content/schema.ts에 한 줄
  * 넣으면 여기서 알아서 그려진다 — "개발자 없이 편집"의 전제 조건이다.
  *
- * 입력 글꼴 크기는 16px 이상으로 둔다. iOS Safari는 16px 미만 입력창에
- * 포커스가 가면 화면을 자동으로 확대해 버려서, 폰으로 편집할 때 매우 불편하다.
+ * 입력 상자는 사이트 폼과 같은 .bp-input을 쓴다. 글꼴 크기는 16px 이상이다 —
+ * iOS Safari는 그보다 작은 입력창에 포커스가 가면 화면을 자동으로 확대해 버려서,
+ * 폰으로 편집할 때 매우 불편하다.
  */
 
 type Value = unknown;
 type Obj = Record<string, unknown>;
-
-const inputClass =
-  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base text-ink ' +
-  'focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-shadow';
 
 export function FieldRenderer({
   field,
@@ -36,9 +34,9 @@ export function FieldRenderer({
   return (
     <div className="space-y-1.5">
       <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={field.key} className="block text-sm font-bold text-ink">
+        <label htmlFor={field.key} className="bp-label" style={{ marginBottom: 0 }}>
           {field.label}
-          {field.readOnly && <span className="ml-2 text-xs font-normal text-slate-400">수정 불가</span>}
+          {field.readOnly && <span className="ml-2 opacity-70">수정 불가</span>}
         </label>
         {field.maxLength && typeof value === 'string' && (
           <CharCount value={value} max={field.maxLength} />
@@ -48,7 +46,7 @@ export function FieldRenderer({
       <FieldInput field={field} value={value} onChange={onChange} describedBy={describedBy} />
 
       {field.help && (
-        <p id={describedBy} className="text-xs text-slate-500 leading-relaxed">
+        <p id={describedBy} className="a-help">
           {field.help}
         </p>
       )}
@@ -62,7 +60,12 @@ function CharCount({ value, max }: { value: string; max: number }) {
   const near = !over && len > max * 0.9;
   return (
     <span
-      className={`text-xs tabular-nums ${over ? 'text-red-600 font-bold' : near ? 'text-amber-600' : 'text-slate-400'}`}
+      className="mono-num"
+      style={{
+        fontSize: 11,
+        fontWeight: over ? 700 : 400,
+        color: over ? 'var(--a-err)' : near ? 'var(--a-warn)' : 'rgba(29,31,32,0.45)',
+      }}
     >
       {len}/{max}
     </span>
@@ -82,7 +85,7 @@ function FieldInput({
 }) {
   switch (field.type) {
     case 'boolean':
-      return <Toggle checked={Boolean(value)} onChange={onChange} />;
+      return <Switch checked={Boolean(value)} onChange={onChange} label={field.label} />;
 
     case 'select':
       return (
@@ -91,7 +94,7 @@ function FieldInput({
           value={String(value ?? '')}
           onChange={(e) => onChange(e.target.value)}
           aria-describedby={describedBy}
-          className={inputClass}
+          className="bp-input"
         >
           {(field.options ?? []).map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -110,7 +113,7 @@ function FieldInput({
           onChange={(e) => onChange(e.target.value)}
           rows={field.type === 'richtext' ? 3 : 4}
           aria-describedby={describedBy}
-          className={`${inputClass} leading-relaxed resize-y`}
+          className="bp-input"
           placeholder={field.placeholder}
         />
       );
@@ -136,31 +139,11 @@ function FieldInput({
           readOnly={field.readOnly}
           aria-describedby={describedBy}
           placeholder={field.placeholder}
-          className={`${inputClass} ${field.readOnly ? 'bg-slate-100 text-slate-500' : ''}`}
+          className="bp-input"
+          style={field.readOnly ? { background: 'var(--color-neutral-100)', opacity: 0.75 } : undefined}
         />
       );
   }
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-7 w-12 flex-shrink-0 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${
-        checked ? 'bg-brand' : 'bg-slate-300'
-      }`}
-    >
-      <span
-        className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-          checked ? 'translate-x-6' : 'translate-x-1'
-        }`}
-      />
-      <span className="sr-only">{checked ? '켜짐' : '꺼짐'}</span>
-    </button>
-  );
 }
 
 /**
@@ -185,7 +168,7 @@ function TagsInput({ value, onChange }: { value: string[]; onChange: (v: string[
         );
       }}
       rows={Math.min(10, Math.max(3, value.length + 1))}
-      className={`${inputClass} leading-relaxed resize-y font-normal`}
+      className="bp-input"
       placeholder="한 줄에 하나씩 입력하세요"
     />
   );
@@ -247,16 +230,20 @@ function ListInput({
         const isOpen = openIndex === index;
 
         return (
-          <div key={index} className="rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
-            <div className="flex items-center gap-1 px-2 py-2">
-              <GripVertical className="w-4 h-4 text-slate-300 flex-shrink-0" aria-hidden />
+          <div key={index} style={{ border: '1px solid var(--color-divider)', background: 'var(--color-bg)' }}>
+            <div className="flex items-center gap-1 px-1.5 py-1.5">
+              {/* 항목 번호 — 사이트 표(W-01, A-01)와 같은 표기 */}
+              <span className="display flex-shrink-0 w-7 text-center" style={{ fontSize: 12.5, color: 'rgba(29,31,32,0.4)' }}>
+                {String(index + 1).padStart(2, '0')}
+              </span>
               <button
                 type="button"
                 onClick={() => setOpenIndex(isOpen ? null : index)}
                 aria-expanded={isOpen}
-                className="flex-1 min-w-0 text-left text-sm font-semibold text-ink truncate px-1 py-1.5 hover:text-brand"
+                className="flex-1 min-w-0 text-left truncate px-1 py-1.5"
+                style={{ fontSize: 13.5, fontWeight: 500 }}
               >
-                {title || `${index + 1}번 항목`}
+                {title}
               </button>
 
               <button
@@ -264,31 +251,34 @@ function ListInput({
                 onClick={() => move(index, -1)}
                 disabled={index === 0}
                 aria-label="위로"
-                className="w-8 h-8 flex items-center justify-center rounded text-slate-400 hover:text-brand hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent"
+                className="a-btn a-btn--icon a-btn--sm a-btn--ghost"
               >
-                <ChevronUp className="w-4 h-4" />
+                <ChevronUp className="w-4 h-4" strokeWidth={1.5} />
               </button>
               <button
                 type="button"
                 onClick={() => move(index, 1)}
                 disabled={index === value.length - 1}
                 aria-label="아래로"
-                className="w-8 h-8 flex items-center justify-center rounded text-slate-400 hover:text-brand hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent"
+                className="a-btn a-btn--icon a-btn--sm a-btn--ghost"
               >
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-4 h-4" strokeWidth={1.5} />
               </button>
               <button
                 type="button"
                 onClick={() => remove(index)}
                 aria-label="삭제"
-                className="w-8 h-8 flex items-center justify-center rounded text-slate-400 hover:text-red-600 hover:bg-white"
+                className="a-btn a-btn--icon a-btn--sm a-btn--ghost a-btn--danger"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4" strokeWidth={1.5} />
               </button>
             </div>
 
             {isOpen && (
-              <div className="border-t border-slate-200 bg-white px-3.5 py-4 space-y-4">
+              <div
+                className="px-3.5 py-4 space-y-4"
+                style={{ borderTop: '1px solid var(--color-divider)', background: 'var(--a-panel)' }}
+              >
                 {subFields.map((sub) => (
                   <FieldRenderer
                     key={sub.key}
@@ -303,18 +293,13 @@ function ListInput({
         );
       })}
 
-      {value.length < maxItems && (
-        <button
-          type="button"
-          onClick={add}
-          className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 px-4 py-3 text-sm font-semibold text-slate-500 hover:border-brand hover:text-brand transition-colors"
-        >
-          <Plus className="w-4 h-4" />
+      {value.length < maxItems ? (
+        <button type="button" onClick={add} className="a-btn a-btn--block a-btn--sm" style={{ borderStyle: 'dashed' }}>
+          <Plus className="w-4 h-4" strokeWidth={1.5} />
           항목 추가
         </button>
-      )}
-      {value.length >= maxItems && (
-        <p className="text-xs text-slate-400 text-center py-1">최대 {maxItems}개까지 추가할 수 있습니다.</p>
+      ) : (
+        <p className="a-help text-center">최대 {maxItems}개까지 추가할 수 있습니다.</p>
       )}
     </div>
   );
