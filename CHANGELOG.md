@@ -9,7 +9,7 @@
 
 ---
 
-## 2026-08-05 — 1b 재구축이 남긴 죽은 코드 정리 (3단계)
+## 2026-08-05 — 1b 재구축이 남긴 죽은 코드 정리 (4단계)
 
 사이트를 «1b 블루프린트»로 다시 지으면서 옛 화면을 만들던 코드가 그대로 남아 있었다.
 빌드에는 들어가지 않지만 저장소에 남아 **«어느 쪽이 진짜인지» 헷갈리게 한다** —
@@ -69,19 +69,55 @@
 - **`next.config.mjs` · `postcss.config.mjs` · `public/sw.js`** — import되지 않는 게
   정상이다. 빌드 도구와 브라우저가 규약으로 직접 읽는다.
 
-### 아직 남은 잔재 (판단이 필요해 손대지 않음)
-
-- **`app/globals.css`의 옛 팔레트** — `--color-brand`·`--color-ink`·`--sidebar-*`는
-  살아있는 사용처가 0이다. 다만 **홈 상단 공지 띠**(`components/Banner.tsx`)만 아직
-  옛 강조색 `--color-signal`(번트 앰버)을 쓴다. 경고색으로 일부러 남긴 것인지
-  이관에서 빠뜨린 것인지는 의도의 문제다.
-- **미사용 export 6개** — `app/admin/actions.ts`의 미리보기 액션 3개(API 라우트로
-  옮겨간 뒤 남음), `CTA_STYLE_LABELS`, `CONTENT_KEYS`, `portfolioByCategory`.
-- **DB** — `ctas.style` 컬럼과 `site_content` JSON의 옛 키(`eyebrow`·`segments`·
-  `footer`·`ogImageHeadline`). 코드와 달리 되돌리기 어렵고 남아 있어도 비용이 거의
-  없으니, 지우더라도 한참 뒤에 따로 하는 편이 안전하다.
-
 각 단계마다 `npx tsc --noEmit` · `npm run lint` · `npm run build`(40/40)로 확인했다.
+
+### 4단계 — 공지 띠를 액센트로 통일하고 옛 팔레트를 걷어냄
+
+1b 이관 뒤에도 **최상단 공지 띠만 옛 강조색**(번트 앰버 `#C2620E`)에 남아, 사이트에서
+혼자 다른 시스템의 색으로 떠 있었다. 이것 하나 때문에 옛 팔레트 전체가 살아 있었다.
+
+**색 단계를 700으로 내린 이유** — 채움 버튼(`.btn-solid`)이 쓰는 `--color-accent`를
+그대로 쓰면 이 띠의 13px 본문 크기에서 대비가 **3.7:1**로 WCAG AA(4.5:1)에 못 미친다.
+`--color-accent-700`은 **5.78:1**로 통과한다(헤드리스 크롬에서 계산값 확인). 버튼은
+글자가 커서 문제가 없지만 이 띠는 작아서 단계를 내렸다.
+
+> 옛 앰버도 실은 **4.2:1로 AA 미달**이었다 — 「흰 글씨 AA」라고 적힌 주석이 틀렸던
+> 것이고, 색을 바꾸며 함께 고쳤다.
+
+`Banner`를 `.blueprint-theme` **안으로 옮겼다.** 토큰이 그 아래 정의돼 있어 밖에서는
+풀리지 않는다. `fixed`라서 화면상 위치는 그대로다.
+
+**`globals.css` 421 → 290줄**
+
+| 지운 것 | 사유 |
+|---|---|
+| `--color-brand*` · `--color-ink` · `--color-signal*` (9개) | 화면에서 쓰는 곳이 하나도 없어짐 |
+| `.tech-dark` · `.tech-light` · `.rule-accent` | 1b가 격자를 `.grid-field`로, 강조선을 헤어라인으로 다시 그림 |
+| `.prose-wnj` 전체 | `blueprint.css`로 옮김 (아래) |
+
+**`.prose-wnj`를 한곳으로 합침** — 이관 중에는 뼈대(여백·글자 크기)가 `globals.css`,
+색만 `blueprint.css`가 덮어쓰는 2단 구조였다. 옛 팔레트가 살아 있어 두 시스템이 한
+화면에 섞이는 것을 막아야 했기 때문이다. 그 위험이 사라졌고 한 요소를 고치려 두 파일을
+오가는 비용만 남아서 합쳤다. 쓰이는 곳(개인정보처리방침·게시글·실적 상세)이 전부
+`SubPageShell`을 거쳐 항상 테마 안이므로 스코프를 좁혀도 안전하다.
+
+**미사용 export 6개 제거** — `enablePreview`/`disablePreview`/`exitPreviewAndGoHome`
+(미리보기가 `app/api/preview` 라우트로 옮겨간 뒤 남은 서버 액션), `CTA_STYLE_LABELS`,
+`CONTENT_KEYS`, `portfolioByCategory`. 딸려 나온 미사용 import는 **되살린 lint가 잡아
+줬다** — 복구해 둔 값이 바로 나타난 셈이다.
+
+실 데이터로 홈·개인정보처리방침·실적 상세를 띄워 옛 색이 남지 않은 것과 prose가 그대로인
+것을 눈으로 확인했다.
+
+### 남은 것 — DB (손대지 않음)
+
+- **`ctas.style` 컬럼** — 사이트가 읽지 않지만 저장된 값이 있다. 타입(`CtaStyle`)은
+  코드에 남겨 뒀다.
+- **`site_content` JSON의 옛 키** — `eyebrow`·`segments`·`footer`·`ogImageHeadline`.
+
+둘 다 **코드와 달리 `git revert`로 되돌릴 수 없다.** 읽지 않는 값이 남아 있는 비용은
+사실상 0이고, 지우면 되돌릴 수 없으므로 남긴다. 정말 지운다면 사이트 정리가 충분히
+안정된 뒤 별도 마이그레이션으로 하는 편이 안전하다.
 
 ---
 
