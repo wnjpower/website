@@ -9,6 +9,58 @@
 
 ---
 
+## 2026-08-05 — 1b 잔재 DB 정리
+
+코드 잔재를 정리하며 «되돌릴 수 없으니 남긴다»고 미뤄 뒀던 DB 두 가지를 정리했다.
+[`supabase/migrations/20260805_drop_legacy_content.sql`](supabase/migrations/20260805_drop_legacy_content.sql)
+
+### 조사에서 드러난 것 — 앞선 설명이 부정확했다
+
+«`ctas.style`은 사이트가 읽지 않는다»고 적어 뒀는데, 실제로는 **`lib/cta/get.ts`가
+SELECT에 `style`을 넣고 있었고 `saveCta`는 INSERT까지** 하고 있었다. 화면에 그리지
+않을 뿐 DB 경로에는 살아 있었다는 뜻이다. **컬럼만 지웠으면 어드민의 CTA 저장이
+`column style does not exist`로 깨졌을 것이다.**
+
+그래서 순서를 «코드 먼저, SQL 나중»으로 잡고 아래 네 곳을 먼저 걷어냈다.
+
+| 파일 | 걷어낸 것 |
+|---|---|
+| `lib/cta/get.ts` | `Row` 타입 · SELECT 컬럼 목록 · 매핑 |
+| `lib/cta/schema.ts` | `CtaStyle` 타입 · `Cta.style` · `CTA_DEFAULTS` 8곳 |
+| `app/admin/actions.ts` | `CtaInput.style` · `saveCta`의 row |
+| `components/admin/CtaManager.tsx` | `CtaRow` · 폼 상태 · 저장 payload |
+
+### 안전성 판단
+
+- **`ctas` 테이블은 0행이다.** 어드민에서 «이 자리를 A/B 실험에 쓰겠다»고 등록한
+  슬롯만 행이 생기는데 아직 아무 자리도 등록하지 않았다. 전부 코드의
+  `CTA_DEFAULTS`로 렌더된다 — 즉 잃는 데이터가 없다.
+- **옛 JSON 키는 이미 화면에 도달하지 못했다.** `lib/content/get.ts`의 `mergeDeep`이
+  «기본값에 없는 키는 버린다»고 명시적으로 걸러낸다. 이 정리는 동작을 바꾸지 않고
+  저장된 것과 실제로 쓰이는 것을 일치시킬 뿐이다.
+- **`footer` 행은 읽는 코드가 없다.** 푸터는 사업자정보 고정 블록이다.
+
+### 적용 결과
+
+`site_content`·`site_drafts` 두 테이블에서 `header.logoSub` · `services.eyebrow` ·
+`seo.ogImageHeadline`을 제거하고 `footer` 행을 지웠다. 이제 저장된 키가 스키마와
+정확히 일치한다 — header(8) · services(3) · seo(3).
+
+**`ctas.style` 컬럼 삭제는 미적용이다.** DDL이라 `service_role`로는 안 되고
+Management API PAT 또는 대시보드 SQL Editor가 필요한데 토큰이 없다. 남아 있어도
+무해하다 — `not null default 'primary'`가 걸려 있고 코드가 더 이상 INSERT에 넣지
+않으므로 기본값이 채워진다.
+
+적용 전 `site_content` 4행 · `site_drafts` 3행 · `ctas` 0행을 JSON으로 백업했고,
+되돌리는 SQL을 마이그레이션 파일 하단에 **실제 값 그대로** 적어 뒀다(추측으로 적었다가
+백업과 대조해 세 곳을 바로잡았다). 파일 전체가 멱등이라 몇 번을 돌려도 안전하다.
+
+검증: `tsc`·`lint`·`build`(30/30) 통과. 배포 후 운영 사이트 홈·서비스 상세·실적·
+회사소개·FAQ 전부 200이고, 홈에 CTA(«무료 현장 견적 신청» 5회)와 전화번호(41회)가
+그대로 나오는 것까지 확인했다.
+
+---
+
 ## 2026-08-05 — Next.js 14 → 15 업그레이드
 
 [공식 업그레이드 가이드](https://nextjs.org/docs/app/guides/upgrading/version-15)를 먼저 읽고,
