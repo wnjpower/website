@@ -81,18 +81,15 @@ export function ctaSlotLabel(slot: string): string {
   return slot;
 }
 
-/**
- * 버튼 색.
+/*
+ * 버튼 색(style)은 여기 있었다.
  *
- * 1b 블루프린트에는 강조색이 하나뿐이라(액센트) 실제 화면은 이 값을 읽지 않는다.
- * 어드민 편집 화면에서도 뺐다.
- *
- * 타입과 DB 컬럼(ctas.style)은 남겨 둔다 — 저장된 값이 있고, 지우려면 마이그레이션이
- * 필요한데 읽지 않는 컬럼이 남아 있는 비용이 그보다 작다. 사람에게 보여 줄 이름표
- * (CTA_STYLE_LABELS)는 고를 화면이 없어졌으므로 지웠다. 색 선택을 되살릴 일이
- * 생기면 그때 이름표도 다시 쓰면 된다.
+ * 1b 블루프린트에는 강조색이 액센트 하나뿐이라 어느 값을 골라도 화면이 같았다.
+ * 편집 화면 → 이름표 → 타입·조회·저장 순으로 걷어냈고, 마지막으로 DB 컬럼
+ * ctas.style까지 지웠다(supabase/migrations). 색 선택을 되살릴 일이 생기면
+ * 컬럼부터 다시 만들면 된다 — 지울 당시 ctas 테이블은 비어 있었으므로
+ * 잃은 데이터는 없다.
  */
-export type CtaStyle = 'primary' | 'signal' | 'outline' | 'ghost';
 
 export interface Cta {
   id: string;
@@ -101,7 +98,6 @@ export interface Cta {
   label: string;
   sublabel: string | null;
   href: string;
-  style: CtaStyle;
   icon: string | null;
   weight: number;
   active: boolean;
@@ -115,7 +111,7 @@ export interface Cta {
 export const CTA_DEFAULTS: Record<CtaSlot, Omit<Cta, 'id'>> = {
   header_phone: {
     slot: 'header_phone', variant: 'A', label: COMPANY.mobile, sublabel: null,
-    href: `tel:${COMPANY.mobile}`, style: 'signal', icon: 'Phone', weight: 100, active: true,
+    href: `tel:${COMPANY.mobile}`, icon: 'Phone', weight: 100, active: true,
   },
   /*
    * 1b 재구축에서 히어로 CTA 위계를 뒤집었다 — 견적(채움) > 전화(테두리).
@@ -126,31 +122,31 @@ export const CTA_DEFAULTS: Record<CtaSlot, Omit<Cta, 'id'>> = {
    */
   hero_primary: {
     slot: 'hero_primary', variant: 'A', label: '무료 현장 견적 신청', sublabel: null,
-    href: '#quote', style: 'primary', icon: null, weight: 100, active: true,
+    href: '#quote', icon: null, weight: 100, active: true,
   },
   hero_secondary: {
     slot: 'hero_secondary', variant: 'A', label: COMPANY.mobile, sublabel: null,
-    href: `tel:${COMPANY.mobile}`, style: 'outline', icon: 'Phone', weight: 100, active: true,
+    href: `tel:${COMPANY.mobile}`, icon: 'Phone', weight: 100, active: true,
   },
   pricing_cta: {
     slot: 'pricing_cta', variant: 'A', label: '무료 견적 받아보기', sublabel: null,
-    href: '#quote', style: 'primary', icon: null, weight: 100, active: true,
+    href: '#quote', icon: null, weight: 100, active: true,
   },
   quote_submit: {
     slot: 'quote_submit', variant: 'A', label: '무료 견적 신청하기', sublabel: null,
-    href: '#submit', style: 'primary', icon: null, weight: 100, active: true,
+    href: '#submit', icon: null, weight: 100, active: true,
   },
   floating_call: {
     slot: 'floating_call', variant: 'A', label: '전화상담', sublabel: null,
-    href: `tel:${COMPANY.mobile}`, style: 'signal', icon: 'Phone', weight: 100, active: true,
+    href: `tel:${COMPANY.mobile}`, icon: 'Phone', weight: 100, active: true,
   },
   floating_quote: {
     slot: 'floating_quote', variant: 'A', label: '견적문의', sublabel: null,
-    href: '#quote', style: 'primary', icon: null, weight: 100, active: true,
+    href: '#quote', icon: null, weight: 100, active: true,
   },
   contact_call: {
     slot: 'contact_call', variant: 'A', label: `${COMPANY.mobile}`, sublabel: null,
-    href: `tel:${COMPANY.mobile}`, style: 'signal', icon: 'Phone', weight: 100, active: true,
+    href: `tel:${COMPANY.mobile}`, icon: 'Phone', weight: 100, active: true,
   },
 };
 

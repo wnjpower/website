@@ -14,7 +14,7 @@ export const CTA_TAG = 'ctas';
 
 type Row = {
   id: string; slot: string; variant: string; label: string; sublabel: string | null;
-  href: string; style: string; icon: string | null; weight: number; active: boolean;
+  href: string; icon: string | null; weight: number; active: boolean;
 };
 
 const getActiveCtas = unstable_cache(
@@ -23,7 +23,7 @@ const getActiveCtas = unstable_cache(
     try {
       const { data, error } = await supabase
         .from('ctas')
-        .select('id, slot, variant, label, sublabel, href, style, icon, weight, active')
+        .select('id, slot, variant, label, sublabel, href, icon, weight, active')
         .eq('active', true);
       if (error) {
         console.error('[cta] 조회 실패 — 기본 버튼 사용', error.message);
@@ -77,7 +77,6 @@ export async function resolveCtas(): Promise<Record<CtaSlot, Cta>> {
       label: chosen.label,
       sublabel: chosen.sublabel,
       href: chosen.href,
-      style: (chosen.style as Cta['style']) ?? 'primary',
       icon: chosen.icon,
       weight: chosen.weight,
       active: chosen.active,

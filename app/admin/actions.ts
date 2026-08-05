@@ -130,7 +130,6 @@ export interface CtaInput {
   label: string;
   sublabel?: string | null;
   href: string;
-  style: string;
   icon?: string | null;
   weight: number;
   active: boolean;
@@ -154,7 +153,6 @@ export async function saveCta(input: CtaInput): Promise<ActionResult> {
       label:    input.label.trim(),
       sublabel: input.sublabel?.trim() || null,
       href:     input.href.trim(),
-      style:    input.style,
       icon:     input.icon || null,
       weight:   Math.max(0, Math.min(1000, Math.round(input.weight))),
       active:   input.active,
