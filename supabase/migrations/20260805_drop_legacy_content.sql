@@ -9,6 +9,21 @@
 --   본문 {"query": "<이 파일 전체>"}   (PAT 필요)
 --   또는 Supabase 대시보드 → SQL Editor 에 붙여넣기.
 --
+-- 이 파일은 몇 번을 돌려도 안전하다(멱등).
+--   · drop column if exists      — 이미 없으면 넘어간다
+--   · data - '키'                — 이미 없으면 값이 그대로다
+--   · delete ... where key=...   — 이미 없으면 0행이다
+--
+-- ── 적용 현황 (2026-08-05) ────────────────────────────────────────────────
+--   [x] ② site_content / site_drafts 옛 키 정리 — service_role로 적용 완료.
+--          결과: 두 테이블 모두 header(8키)·services(3키)·seo(3키)만 남음.
+--          footer 행은 site_content에서 1행 삭제(site_drafts에는 원래 없었음).
+--   [ ] ① alter table ... drop column style — 미적용.
+--          DDL이라 service_role로는 안 되고 Management API PAT 또는 대시보드가
+--          필요하다. .env.local에 SUPABASE_ACCESS_TOKEN이 없어 남겨 둔다.
+--          남아 있어도 무해하다 — 컬럼에 not null default 'primary'가 걸려 있고
+--          코드가 더 이상 INSERT에 넣지 않으므로 기본값이 채워진다.
+--
 -- 되돌리기: 파일 맨 아래 주석 참조.
 
 begin;
