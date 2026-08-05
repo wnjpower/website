@@ -6,7 +6,7 @@ import { Plus, Trash2, Loader2, FlaskConical, Pencil, X } from 'lucide-react';
 import { Panel, Chip, Field, ResultNote, Switch } from './ui';
 import {
   CTA_SLOTS, CTA_SLOT_LABELS, CTA_SLOT_HINTS, CTA_DEFAULTS,
-  type CtaSlot, type CtaStyle,
+  type CtaSlot,
 } from '@/lib/cta/schema';
 import { saveCta, deleteCta, type CtaInput } from '@/app/admin/actions';
 
@@ -17,7 +17,6 @@ export interface CtaRow {
   label: string;
   sublabel: string | null;
   href: string;
-  style: string;
   icon: string | null;
   weight: number;
   active: boolean;
@@ -98,7 +97,6 @@ export default function CtaManager({ rows }: { rows: CtaRow[] }) {
                       variant: nextVariantName(variants),
                       label: usingDefault ? fallback.label : '',
                       href: usingDefault ? fallback.href : '',
-                      style: usingDefault ? fallback.style : 'primary',
                       icon: usingDefault ? fallback.icon : '',
                       weight: 100,
                       active: true,
@@ -206,7 +204,6 @@ function CtaDialog({
     label:    value.label ?? '',
     sublabel: value.sublabel ?? '',
     href:     value.href ?? '',
-    style:    (value.style ?? 'primary') as CtaStyle,
     icon:     value.icon ?? '',
     variant:  value.variant ?? 'A',
     weight:   value.weight ?? 100,
@@ -312,7 +309,6 @@ function CtaDialog({
                 label: form.label,
                 sublabel: form.sublabel || null,
                 href: form.href,
-                style: form.style,
                 icon: form.icon || null,
                 weight: form.weight,
                 active: form.active,
