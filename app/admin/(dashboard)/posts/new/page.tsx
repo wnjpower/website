@@ -1,14 +1,16 @@
 import PostEditor from '@/components/admin/PostEditor';
 
-export default function NewPostPage({
+export default async function NewPostPage({
   searchParams,
 }: {
-  searchParams: { type?: string };
+  searchParams: Promise<{ type?: string }>;
 }) {
+  const { type } = await searchParams;
+
   return (
     <PostEditor
       initial={{
-        type: searchParams.type ?? 'blog',
+        type: type ?? 'blog',
         slug: '',
         title: '',
         excerpt: '',

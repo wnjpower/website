@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
   const from = new Date(to.getTime() - hours * 60 * 60 * 1000);
   const args = { from_ts: from.toISOString(), to_ts: to.toISOString() };
 
-  const db = createServerSupabase();
+  const db = await createServerSupabase();
 
   // 하나가 실패해도 나머지는 보여준다. 대시보드가 통째로 빈 화면이 되는 것보다
   // "이 표만 비어 있다"가 원인 파악에 훨씬 낫다.

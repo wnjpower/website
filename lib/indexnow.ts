@@ -112,7 +112,7 @@ export async function pingPaths(paths: string[]): Promise<PingResult[]> {
   // 기록 실패가 발행을 막으면 안 되므로 조용히 넘어간다.
   try {
     const { createServerSupabase } = await import('@/lib/supabase-server');
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     await db.from('index_pings').insert(
       results.map((r) => ({
         target: r.target,

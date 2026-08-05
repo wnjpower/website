@@ -3,7 +3,7 @@ import PageHeader from '@/components/admin/PageHeader';
 import { createServerSupabase } from '@/lib/supabase-server';
 
 export default async function CtaPage() {
-  const db = createServerSupabase();
+  const db = await createServerSupabase();
   const { data } = await db
     .from('ctas')
     .select('id, slot, variant, label, sublabel, href, style, icon, weight, active, note')

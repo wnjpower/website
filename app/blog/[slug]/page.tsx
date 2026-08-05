@@ -10,8 +10,11 @@ export async function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await getPublishedPost('blog', params.slug);
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> },
+): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPublishedPost('blog', slug);
   if (!post) return { title: '글을 찾을 수 없습니다' };
 
   const title = post.metaTitle || post.title;
@@ -35,8 +38,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = await getPublishedPost('blog', params.slug);
+export default async function BlogPostPage(
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  const { slug } = await params;
+  const post = await getPublishedPost('blog', slug);
   if (!post) notFound();
 
   return (

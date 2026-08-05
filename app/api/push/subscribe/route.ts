@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   const admin = await getAdminUser();
 
   if (admin) {
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const { error } = await db
       .from('push_subscriptions')
       .upsert({ ...row, created_by: admin.id }, { onConflict: 'endpoint' });
@@ -142,7 +142,7 @@ export async function DELETE(req: NextRequest) {
     // 본문 없이 호출되면 아래에서 400으로 떨어진다
   }
 
-  const db = createServerSupabase();
+  const db = await createServerSupabase();
   const query = db.from('push_subscriptions').delete();
 
   if (typeof body.id === 'string' && body.id.length > 0) {

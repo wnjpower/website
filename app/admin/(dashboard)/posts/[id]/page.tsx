@@ -2,14 +2,17 @@ import { notFound } from 'next/navigation';
 import PostEditor from '@/components/admin/PostEditor';
 import { createServerSupabase } from '@/lib/supabase-server';
 
-export default async function EditPostPage({ params }: { params: { id: string } }) {
-  const db = createServerSupabase();
+export default async function EditPostPage(
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const db = await createServerSupabase();
   const { data } = await db
     .from('posts')
     .select(
       'id, type, slug, title, excerpt, body, cover_image, cover_alt, status, focus_keyword, meta_title, meta_description, noindex',
     )
-    .eq('id', params.id)
+    .eq('id', id)
     .maybeSingle();
 
   if (!data) notFound();

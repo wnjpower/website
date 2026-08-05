@@ -14,9 +14,11 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder';
  *
  * 서버 컴포넌트에서는 쿠키를 쓸 수 없다(응답 헤더가 이미 나간 뒤일 수 있음).
  * 그래서 setAll은 실패를 삼킨다 — 세션 갱신은 middleware가 담당한다.
+ *
+ * Next 15부터 cookies()가 비동기라 이 함수도 async다. 부르는 쪽은 await를 붙인다.
  */
-export function createServerSupabase(): SupabaseClient {
-  const cookieStore = cookies();
+export async function createServerSupabase(): Promise<SupabaseClient> {
+  const cookieStore = await cookies();
 
   return createServerClient(url, anonKey, {
     cookies: {
@@ -42,7 +44,7 @@ export async function getAdminUser(): Promise<{
   email: string;
   name: string | null;
 } | null> {
-  const supabase = createServerSupabase();
+  const supabase = await createServerSupabase();
 
   // getUser()는 Auth 서버에 토큰을 검증받는다. getSession()은 쿠키를 그대로
   // 믿기 때문에 인가 판단에 쓰면 안 된다.

@@ -78,7 +78,7 @@ async function getDraftContent(): Promise<SiteContent> {
   const { createServerSupabase } = await import('@/lib/supabase-server');
   const published = await getPublishedContent();
   try {
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const { data, error } = await db.from('site_drafts').select('key, data');
     if (error || !data) return published;
 
@@ -101,7 +101,7 @@ async function getDraftContent(): Promise<SiteContent> {
 export async function getSiteContent(): Promise<SiteContent> {
   let isDraft = false;
   try {
-    isDraft = draftMode().isEnabled;
+    isDraft = (await draftMode()).isEnabled;
   } catch {
     // draftMode()를 쓸 수 없는 컨텍스트(정적 생성 등) — 발행본으로 간다
   }

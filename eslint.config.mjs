@@ -17,11 +17,13 @@
 // 14는 peer가 `eslint ^7 || ^8`이다. 말 그대로 ESLint 9를 지원하지 않아서,
 // 설정을 어떻게 감싸도 규칙 자체가 죽는다(@next/eslint-plugin-next@14의
 // no-duplicate-head가 ESLint 9에서 사라진 context.getAncestors()를 부른다).
-// 그래서 lint 전용 devDependency인 eslint-config-next만 15로 올렸다 —
-// Next 런타임은 14 그대로다. 15의 규칙셋은 14와 사실상 같고 App Router
-// 기준이라 이 코드베이스에 그대로 맞는다.
+// 그래서 lint 전용 devDependency인 eslint-config-next만 먼저 15로 올렸고,
+// 이후 Next 런타임도 15로 올려 지금은 둘 다 15.5.22로 맞다.
 //
 // 15도 아직 플랫 설정을 내보내지 않으므로 FlatCompat으로 감싼다.
+// (플랫 설정을 직접 내보내는 것은 16부터다. 그때 이 파일은
+//  `import nextVitals from 'eslint-config-next/core-web-vitals'` 형태로
+//  단순해지고 @eslint/eslintrc 의존도 뺄 수 있다.)
 //
 // 짝이 되는 수정: package.json의 overrides에서 eslint-plugin-react-hooks를
 // v5 안정판으로 올린다 — 14가 묶어 둔 2023년 canary도 같은 이유로 죽는다

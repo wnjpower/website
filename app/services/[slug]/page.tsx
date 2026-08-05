@@ -26,8 +26,11 @@ export function generateStaticParams() {
   return servicePages.map((page) => ({ slug: page.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const page = getServicePage(params.slug);
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> },
+): Promise<Metadata> {
+  const { slug } = await params;
+  const page = getServicePage(slug);
   if (!page) return {};
 
   return {
@@ -56,8 +59,11 @@ const SHELL = { maxWidth: 1280, margin: '0 auto' } as const;
 const SECTION_PAD = 'clamp(40px,5vw,64px) clamp(16px,4vw,48px)';
 const HAIRLINE = '1px solid var(--color-divider)';
 
-export default function ServiceDetailPage({ params }: { params: { slug: string } }) {
-  const page = getServicePage(params.slug);
+export default async function ServiceDetailPage(
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  const { slug } = await params;
+  const page = getServicePage(slug);
   if (!page) notFound();
 
   const ctaSlot = `service_cta_${page.slug}`;

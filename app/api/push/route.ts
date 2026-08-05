@@ -40,7 +40,7 @@ export async function GET() {
   const admin = await getAdminUser();
   if (!admin) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  const db = createServerSupabase();
+  const db = await createServerSupabase();
 
   const [settingsRes, devicesRes] = await Promise.all([
     db.from('notification_settings')
@@ -111,7 +111,7 @@ export async function PUT(req: NextRequest) {
   // 한쪽만 설정된 방해금지 구간은 의미가 없다. 둘 다 있을 때만 저장한다.
   const quietComplete = s.quietStart !== null && s.quietEnd !== null;
 
-  const db = createServerSupabase();
+  const db = await createServerSupabase();
   const { error } = await db.from('notification_settings').upsert(
     {
       id: true,

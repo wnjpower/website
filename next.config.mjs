@@ -1,5 +1,16 @@
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  /*
+   * Next 15는 lockfile을 찾아 워크스페이스 루트를 추론하는데, 이 환경에는
+   * 홈 디렉터리(C:\Users\...)에도 package-lock.json이 있어서 그쪽을 루트로
+   * 잡는다. 그러면 서버리스 번들에 넣을 파일을 추적하는 범위가 어긋난다.
+   * 이 저장소가 루트임을 명시해 둔다.
+   */
+  outputFileTracingRoot: dirname(fileURLToPath(import.meta.url)),
+
   async redirects() {
     return [
       // apex(wnjpower.com) → www 정규화.

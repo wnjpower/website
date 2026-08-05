@@ -9,6 +9,68 @@
 
 ---
 
+## 2026-08-05 — Next.js 14 → 15 업그레이드
+
+[공식 업그레이드 가이드](https://nextjs.org/docs/app/guides/upgrading/version-15)를 먼저 읽고,
+문서가 열거한 파괴적 변경 전부를 코드베이스에 대조한 뒤 진행했다.
+
+`next` **14.2.35 → 15.5.22**, `react`·`react-dom` **18.3.1 → 19.2.8**,
+`@types/react(-dom)` 19. `eslint-config-next`는 앞선 작업에서 이미 15.5.22였다.
+
+### 문서가 열거한 변경 vs 이 저장소
+
+| 파괴적 변경 | 이 저장소 |
+|---|---|
+| **비동기 요청 API** (`cookies`·`headers`·`draftMode`) | **해당** — 5곳 |
+| **`params`·`searchParams`가 Promise** | **해당** — 14곳 |
+| React 19 최소 요구 | **해당** — 올림 |
+| `runtime: 'experimental-edge'` 제거 | 해당 없음 (`'nodejs'`만 씀) |
+| `NextRequest`의 `geo`·`ip` 제거 | 해당 없음 |
+| `experimental.serverComponentsExternalPackages` 개명 | 해당 없음 (`next.config.mjs`에 experimental 없음) |
+| `@next/font` 제거 | 해당 없음 (이미 `next/font/google`) |
+| Speed Insights 자동 계측 제거 | 해당 없음 (`@vercel/analytics`를 명시적으로 씀) |
+| `fetch` 기본 캐시 해제 | 실질 영향 없음 — 호출 두 곳이 빌드 1회(OG 폰트)와 POST(IndexNow)다 |
+| Route Handler `GET` 기본 캐시 해제 | 실질 영향 없음 — 전부 `force-dynamic`이거나 `revalidate`를 명시 |
+| 클라이언트 캐시에서 페이지 세그먼트 재사용 안 함 | 기본값 수용 |
+
+### 손댄 곳
+
+**`createServerSupabase()`가 async가 됐다** — `cookies()`가 비동기라 어쩔 수 없다.
+호출처 **25곳**에 `await`를 붙였다. 나머지는 `lib/cta/get.ts`의 `cookies()`,
+`lib/content/get.ts`와 미리보기 라우트 두 곳의 `draftMode()`.
+
+`params`·`searchParams`는 타입을 `Promise<…>`로 바꾸고 `await`했다.
+`app/services/[slug]/page.tsx`는 동기 함수였어서 `generateMetadata`와 본체를
+async로 바꿨다.
+
+> **타입 검사가 안전망이었다.** Next 15의 타입이 이 값들을 Promise로 바꾸므로
+> 빠뜨린 곳은 컴파일이 잡는다. 실제로 `npx tsc --noEmit`은 통과했는데 빌드의
+> 라우트 타입 검사가 `admin/leads`의 `searchParams`를 잡아냈다 — 두 검사가
+> 보는 범위가 달라서, **둘 다 돌려야 한다.**
+
+**`outputFileTracingRoot` 추가** — Next 15는 lockfile로 워크스페이스 루트를
+추론하는데, 이 환경은 홈 디렉터리에도 `package-lock.json`이 있어 그쪽을 루트로
+잡았다. 서버리스 번들에 넣을 파일 추적 범위가 어긋나므로 저장소를 루트로 명시했다.
+
+**`scripts/patch-og-windows.mjs` 삭제** — Next 15의 `@vercel/og`는 문제의 세 줄이
+이미 `new URL("./파일", import.meta.url)`로 고쳐져 있다(직접 확인: `join(import.meta.url)`
+0개). 패치가 하던 일을 업스트림이 했으므로 스크립트와 `postinstall`을 걷어냈다.
+
+### 감수한 것
+
+**First Load JS 87.3 kB → 103 kB (+15.7 kB).** React 19 런타임이 커진 몫이고
+애플리케이션 코드가 늘어서가 아니다. 되돌릴 방법은 없다 — Next 15가 React 19를
+요구한다.
+
+### 확인
+
+`npx tsc --noEmit` · `npm run lint` · `npm run build`(30/30, 경고 0) 통과.
+실 데이터로 홈 · 서비스 상세(동기→비동기 전환) · 실적 상세 · 개인정보처리방침과,
+로그인한 어드민의 대시보드 · 견적문의(`?status=new` 필터) · 히어로 편집 화면
+(미리보기 iframe 포함)을 띄워 dev 로그에 오류가 없는 것까지 확인했다.
+
+---
+
 ## 2026-08-05 — 1b 재구축이 남긴 죽은 코드 정리 (4단계)
 
 사이트를 «1b 블루프린트»로 다시 지으면서 옛 화면을 만들던 코드가 그대로 남아 있었다.

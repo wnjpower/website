@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
     return fail('link_expired');
   }
 
-  const supabase = createServerSupabase();
+  const supabase = await createServerSupabase();
 
   if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({
