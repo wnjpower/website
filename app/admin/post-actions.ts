@@ -74,7 +74,7 @@ export async function savePost(input: PostInput): Promise<ActionResult & { id?: 
       coverAlt: input.coverAlt,
     });
 
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const isPublishing = input.status === 'published';
 
     const row: Record<string, unknown> = {
@@ -145,7 +145,7 @@ export async function savePost(input: PostInput): Promise<ActionResult & { id?: 
 export async function deletePost(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const { error } = await db.from('posts').delete().eq('id', id);
     if (error) return { ok: false, error: error.message };
 

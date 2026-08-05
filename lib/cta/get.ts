@@ -50,7 +50,7 @@ export async function resolveCtas(): Promise<Record<CtaSlot, Cta>> {
 
   let sessionId = 'anon';
   try {
-    sessionId = cookies().get('wnj_sid')?.value ?? 'anon';
+    sessionId = (await cookies()).get('wnj_sid')?.value ?? 'anon';
   } catch {
     // 정적 렌더링 컨텍스트 — 기본 변형으로 간다
   }

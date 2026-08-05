@@ -21,12 +21,15 @@ export async function generateStaticParams() {
   ];
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const item = getPortfolioItem(params.slug);
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> },
+): Promise<Metadata> {
+  const { slug } = await params;
+  const item = getPortfolioItem(slug);
 
   // 파일 원장에 없으면 어드민에서 올린 현장 글이다
   if (!item) {
-    const post = await getPublishedPost('portfolio', params.slug);
+    const post = await getPublishedPost('portfolio', slug);
     if (!post) return {};
     const title = post.metaTitle || `${post.title} | 시공사례 | 우앤주전력`;
     const description = post.metaDescription || postSummary(post, 160);
@@ -59,12 +62,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function PortfolioDetailPage({ params }: { params: { slug: string } }) {
-  const item = getPortfolioItem(params.slug);
+export default async function PortfolioDetailPage(
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  const { slug } = await params;
+  const item = getPortfolioItem(slug);
 
   // 어드민에서 사진과 함께 올린 현장 글
   if (!item) {
-    const post = await getPublishedPost('portfolio', params.slug);
+    const post = await getPublishedPost('portfolio', slug);
     if (!post) notFound();
 
     return (

@@ -33,7 +33,7 @@ export async function getSectionState(key: ContentKey): Promise<SectionState> {
   const base = CONTENT_DEFAULTS[key] as unknown as Obj;
 
   try {
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const [pub, draft] = await Promise.all([
       db.from('site_content').select('data, published_at').eq('key', key).maybeSingle(),
       db.from('site_drafts').select('data, updated_at').eq('key', key).maybeSingle(),
@@ -65,7 +65,7 @@ export async function getAllSectionStates(): Promise<
   const out: Record<string, { hasDraft: boolean; publishedAt: string | null }> = {};
 
   try {
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const [pub, drafts] = await Promise.all([
       db.from('site_content').select('key, data, published_at'),
       db.from('site_drafts').select('key, data'),

@@ -32,7 +32,7 @@ export async function saveDraft(key: string, data: unknown): Promise<ActionResul
     const user = await requireAdmin();
     if (!(key in CONTENT_DEFAULTS)) return { ok: false, error: '알 수 없는 섹션입니다.' };
 
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const { error } = await db
       .from('site_drafts')
       .upsert({ key, data, updated_by: user.id, updated_at: new Date().toISOString() }, { onConflict: 'key' });
@@ -51,7 +51,7 @@ export async function publishSection(key: string, data: unknown): Promise<Action
     const user = await requireAdmin();
     if (!(key in CONTENT_DEFAULTS)) return { ok: false, error: '알 수 없는 섹션입니다.' };
 
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const now = new Date().toISOString();
 
     // 발행 = 초안을 발행본으로 승격. 초안도 같은 값으로 맞춰 두어야
@@ -87,7 +87,7 @@ export async function publishSection(key: string, data: unknown): Promise<Action
 export async function discardDraft(key: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const { error } = await db.from('site_drafts').delete().eq('key', key);
     if (error) return { ok: false, error: error.message };
 
@@ -104,7 +104,7 @@ export async function resetSection(key: string): Promise<ActionResult> {
     await requireAdmin();
     if (!(key in CONTENT_DEFAULTS)) return { ok: false, error: '알 수 없는 섹션입니다.' };
 
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     await Promise.all([
       db.from('site_content').delete().eq('key', key),
       db.from('site_drafts').delete().eq('key', key),
@@ -147,7 +147,7 @@ export async function saveCta(input: CtaInput): Promise<ActionResult> {
     if (!input.label.trim()) return { ok: false, error: '버튼 문구를 입력하세요.' };
     if (!input.href.trim())  return { ok: false, error: '링크를 입력하세요.' };
 
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const row = {
       slot:     input.slot,
       variant:  input.variant.trim().toUpperCase().slice(0, 10) || 'A',
@@ -185,7 +185,7 @@ export async function saveCta(input: CtaInput): Promise<ActionResult> {
 export async function deleteCta(id: string): Promise<ActionResult> {
   try {
     await requireAdmin();
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const { error } = await db.from('ctas').delete().eq('id', id);
     if (error) return { ok: false, error: error.message };
 
@@ -220,7 +220,7 @@ export async function updateLead(
 
     if (Object.keys(update).length === 0) return { ok: true };
 
-    const db = createServerSupabase();
+    const db = await createServerSupabase();
     const { error } = await db.from('quotes').update(update).eq('id', id);
     if (error) return { ok: false, error: error.message };
 

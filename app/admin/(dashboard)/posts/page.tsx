@@ -14,11 +14,11 @@ interface Row {
 export default async function PostsPage({
   searchParams,
 }: {
-  searchParams: { type?: string };
+  searchParams: Promise<{ type?: string }>;
 }) {
-  const type = searchParams.type;
+  const type = (await searchParams).type;
 
-  const db = createServerSupabase();
+  const db = await createServerSupabase();
   let query = db
     .from('posts')
     .select('id, type, slug, title, status, published_at, updated_at, seo_score, focus_keyword')

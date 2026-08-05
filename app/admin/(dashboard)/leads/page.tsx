@@ -13,11 +13,11 @@ const FILTERS: { value: string; label: string }[] = [
 export default async function LeadsPage({
   searchParams,
 }: {
-  searchParams: { status?: string };
+  searchParams: Promise<{ status?: string }>;
 }) {
-  const status = searchParams.status ?? 'all';
+  const status = (await searchParams).status ?? 'all';
 
-  const db = createServerSupabase();
+  const db = await createServerSupabase();
   let query = db
     .from('quotes')
     .select(

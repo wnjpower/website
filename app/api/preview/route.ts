@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   const raw = req.nextUrl.searchParams.get('path') ?? '/';
   const path = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/';
 
-  draftMode().enable();
+  (await draftMode()).enable();
 
   const target = req.nextUrl.clone();
   target.pathname = path.split('#')[0].split('?')[0];

@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 /** 미리보기 모드를 끄고 실제 사이트로 돌아간다. */
 export async function GET(req: NextRequest) {
-  draftMode().disable();
+  (await draftMode()).disable();
 
   const raw = req.nextUrl.searchParams.get('path') ?? '/';
   const path = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/';

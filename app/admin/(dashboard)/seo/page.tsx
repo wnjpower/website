@@ -8,7 +8,7 @@ import { portfolioItems } from '@/content/portfolio';
 import { getPublishedPosts, postPath } from '@/lib/posts';
 
 export default async function SeoPage() {
-  const db = createServerSupabase();
+  const db = await createServerSupabase();
 
   const [{ data: pings }, posts] = await Promise.all([
     db
