@@ -287,8 +287,6 @@ export const CONTENT_DEFAULTS = {
 export type SiteContent = typeof CONTENT_DEFAULTS;
 export type ContentKey = keyof SiteContent;
 
-export const CONTENT_KEYS = Object.keys(CONTENT_DEFAULTS) as ContentKey[];
-
 // ─────────────────────────────────────────────
 //  어드민 폼 정의 — 이 배열로 편집 화면이 자동 생성된다
 // ─────────────────────────────────────────────

@@ -351,38 +351,126 @@
   box-shadow: var(--shadow-md);
 }
 
-/* ── 게시글 본문(마크다운) ──
-   .prose-wnj 의 기본 정의는 globals.css에 있고 구 브랜드 토큰(네이비·앰버)을 쓴다.
-   블루프린트 안에서는 그 색이 그대로 뜨면 두 팔레트가 한 화면에 섞이므로,
-   색과 모서리만 이 시스템 값으로 덮는다. 여백·자간은 그대로 둔다. */
-.blueprint-theme .prose-wnj { color: #334155; }
-.blueprint-theme .prose-wnj h2,
-.blueprint-theme .prose-wnj h3,
-.blueprint-theme .prose-wnj strong { color: var(--color-text); }
-.blueprint-theme .prose-wnj h2 { border-top-color: var(--color-divider); }
-.blueprint-theme .prose-wnj a { color: var(--color-accent-700); }
+/* ── 게시글 본문(마크다운 → HTML) ──
+   @tailwindcss/typography를 쓰지 않고 직접 정의한다. 플러그인은 영문 기준
+   여백·줄간격이라 한국어 본문에서 답답해 보이고, 필요한 건 아래 몇 가지뿐이라
+   의존성을 하나 늘릴 이유가 없다.
+
+   [한곳으로 합친 이유]
+   이관 중에는 뼈대(여백·글자 크기)가 globals.css에 있고 색만 여기서 덮어썼다.
+   옛 팔레트가 아직 살아 있어 두 시스템이 한 화면에 섞이는 것을 막아야 했기
+   때문이다. 지금은 사이트 전체가 블루프린트로 넘어와 그 위험이 사라졌고,
+   한 요소를 고치려고 두 파일을 오가는 비용만 남아서 이리로 합쳤다. */
+.blueprint-theme .prose-wnj {
+  color: #334155;
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.blueprint-theme .prose-wnj > * + * { margin-top: 1.25em; }
+
+.blueprint-theme .prose-wnj h2 {
+  margin-top: 2.5em;
+  margin-bottom: 0.75em;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-divider);
+}
+.blueprint-theme .prose-wnj h3 {
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+.blueprint-theme .prose-wnj h2:first-child,
+.blueprint-theme .prose-wnj h3:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.blueprint-theme .prose-wnj a {
+  color: var(--color-accent-700);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
 .blueprint-theme .prose-wnj a:hover { color: var(--color-accent-800); }
+
+.blueprint-theme .prose-wnj strong { font-weight: 700; color: var(--color-text); }
+
+.blueprint-theme .prose-wnj ul,
+.blueprint-theme .prose-wnj ol { padding-left: 1.35em; }
+.blueprint-theme .prose-wnj ul { list-style: disc; }
+.blueprint-theme .prose-wnj ol { list-style: decimal; }
+.blueprint-theme .prose-wnj li + li { margin-top: 0.5em; }
 .blueprint-theme .prose-wnj li::marker { color: var(--color-accent-600); }
+
 .blueprint-theme .prose-wnj blockquote {
-  border-left-color: var(--color-accent);
+  border-left: 3px solid var(--color-accent);
+  padding: 0.25em 0 0.25em 1.15em;
   background: rgba(89, 128, 166, 0.06);
   color: #475569;
 }
-.blueprint-theme .prose-wnj img,
-.blueprint-theme .prose-wnj pre { border-radius: 0; }
-.blueprint-theme .prose-wnj img { border-color: var(--color-divider); }
-.blueprint-theme .prose-wnj code {
-  background: var(--color-surface);
+
+.blueprint-theme .prose-wnj img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--color-divider);
   border-radius: 0;
 }
-.blueprint-theme .prose-wnj pre { background: var(--color-accent-900); }
+
+.blueprint-theme .prose-wnj code {
+  background: var(--color-surface);
+  padding: 0.15em 0.4em;
+  border-radius: 0;
+  font-size: 0.9em;
+}
+.blueprint-theme .prose-wnj pre {
+  background: var(--color-accent-900);
+  color: #e2e8f0;
+  padding: 1.15rem;
+  border-radius: 0;
+  overflow-x: auto;
+}
+.blueprint-theme .prose-wnj pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* 표는 좁은 화면에서 가로 스크롤로 처리한다. 축소해서 넣으면 글자가 읽히지 않는다. */
+.blueprint-theme .prose-wnj table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
 .blueprint-theme .prose-wnj th,
-.blueprint-theme .prose-wnj td { border-color: var(--color-divider); }
+.blueprint-theme .prose-wnj td {
+  border: 1px solid var(--color-divider);
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+}
 .blueprint-theme .prose-wnj th {
   background: rgba(89, 128, 166, 0.06);
+  font-weight: 700;
   color: var(--color-text);
+  white-space: nowrap;
 }
-.blueprint-theme .prose-wnj hr { border-top-color: var(--color-divider); }
+.blueprint-theme .prose-wnj hr {
+  border: 0;
+  border-top: 1px solid var(--color-divider);
+  margin: 2.5em 0;
+}
 
 /* ── 실적 원장 행 ── */
 .blueprint-theme .ledger-row {

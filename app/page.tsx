@@ -62,42 +62,43 @@ export default async function Home() {
   const bannerOn = bannerIsOn(content.banner);
 
   return (
-    <>
+    <div
+      className={`blueprint-theme ${blueprintFontClass}`}
+      style={{
+        ['--banner-h' as string]: bannerOn ? BANNER_HEIGHT : '0px',
+        paddingTop: bannerOn ? BANNER_HEIGHT : undefined,
+      }}
+    >
+      {/* 배너는 테마 안에 둔다 — 액센트 토큰이 .blueprint-theme 아래 정의돼 있다.
+          fixed라서 어디에 두든 화면 최상단에 그려지는 것은 같다. */}
       <Banner content={content.banner} />
-      <div
-        className={`blueprint-theme ${blueprintFontClass}`}
-        style={{
-          ['--banner-h' as string]: bannerOn ? BANNER_HEIGHT : '0px',
-          paddingTop: bannerOn ? BANNER_HEIGHT : undefined,
-        }}
-      >
-        {/*
-          노출형 FAQ에 FAQPage 스키마를 함께 낸다 — 스펙 §7-1.
-          답변이 화면에 그대로 있고 스키마가 같은 내용을 가리키므로
-          AI 검색·구글 스니펫이 인용할 근거가 된다.
-        */}
-        <FaqSchema items={content.faq.items} />
 
-        <ScrollReveal />
-        <BlueprintHeader content={content.header} ctaHref="#quote" />
+      {/*
+        노출형 FAQ에 FAQPage 스키마를 함께 낸다 — 스펙 §7-1.
+        답변이 화면에 그대로 있고 스키마가 같은 내용을 가리키므로
+        AI 검색·구글 스니펫이 인용할 근거가 된다.
+      */}
+      <FaqSchema items={content.faq.items} />
 
-        <main>
-          <Hero content={content.hero} ctas={ctas} />
-          <QuickQuoteBar content={content.quickForm} />
-          <Services content={content.services} />
-          <Process content={content.process} />
-          <PortfolioLedger />
-          <Credentials content={content.whyus} />
-          <Pricing content={content.pricing} />
-          <HomeFaq content={content.faq} />
-          <QuoteBlock content={content.quote} ctas={ctas} source="main_form" />
-          <Contact content={content.contact} />
-        </main>
+      <ScrollReveal />
+      <BlueprintHeader content={content.header} ctaHref="#quote" />
 
-        <BlueprintFooter />
-        <BlueprintDesktopDock quoteHref="#quote" />
-        <BlueprintMobileBar quoteHref="#quote" ctaSlot="floating_quote" />
-      </div>
-    </>
+      <main>
+        <Hero content={content.hero} ctas={ctas} />
+        <QuickQuoteBar content={content.quickForm} />
+        <Services content={content.services} />
+        <Process content={content.process} />
+        <PortfolioLedger />
+        <Credentials content={content.whyus} />
+        <Pricing content={content.pricing} />
+        <HomeFaq content={content.faq} />
+        <QuoteBlock content={content.quote} ctas={ctas} source="main_form" />
+        <Contact content={content.contact} />
+      </main>
+
+      <BlueprintFooter />
+      <BlueprintDesktopDock quoteHref="#quote" />
+      <BlueprintMobileBar quoteHref="#quote" ctaSlot="floating_quote" />
+    </div>
   );
 }

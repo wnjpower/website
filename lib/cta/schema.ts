@@ -85,17 +85,14 @@ export function ctaSlotLabel(slot: string): string {
  * 버튼 색.
  *
  * 1b 블루프린트에는 강조색이 하나뿐이라(액센트) 실제 화면은 이 값을 읽지 않는다.
- * 어드민 편집 화면에서도 뺐다. 타입과 DB 컬럼은 남겨 둔다 — 저장된 값이 있고,
- * 색을 다시 쓰게 되면 여기서 되살리면 된다.
+ * 어드민 편집 화면에서도 뺐다.
+ *
+ * 타입과 DB 컬럼(ctas.style)은 남겨 둔다 — 저장된 값이 있고, 지우려면 마이그레이션이
+ * 필요한데 읽지 않는 컬럼이 남아 있는 비용이 그보다 작다. 사람에게 보여 줄 이름표
+ * (CTA_STYLE_LABELS)는 고를 화면이 없어졌으므로 지웠다. 색 선택을 되살릴 일이
+ * 생기면 그때 이름표도 다시 쓰면 된다.
  */
 export type CtaStyle = 'primary' | 'signal' | 'outline' | 'ghost';
-
-export const CTA_STYLE_LABELS: Record<CtaStyle, string> = {
-  primary: '액센트 채움 (기본)',
-  signal:  '강조',
-  outline: '테두리만',
-  ghost:   '투명 (어두운 배경용)',
-};
 
 export interface Cta {
   id: string;
