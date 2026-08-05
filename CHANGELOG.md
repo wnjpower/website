@@ -9,6 +9,82 @@
 
 ---
 
+## 2026-08-05 — 1b 재구축이 남긴 죽은 코드 정리 (3단계)
+
+사이트를 «1b 블루프린트»로 다시 지으면서 옛 화면을 만들던 코드가 그대로 남아 있었다.
+빌드에는 들어가지 않지만 저장소에 남아 **«어느 쪽이 진짜인지» 헷갈리게 한다** —
+`components/sections/Hero.tsx`와 `components/redesign/home/Hero.tsx`가 나란히 있으면
+다음 사람은 둘 다 읽어야 한다.
+
+### 어떻게 찾았나
+
+`app/` 아래 전 파일과 `middleware.ts`를 뿌리로 `import` · `export … from` · 동적
+`import()` · `require()` · CSS `@import`를 따라가며 도달 가능한 파일을 표시하고,
+남은 것을 죽은 파일로 봤다. `@/` 별칭과 확장자 생략, `index` 파일을 모두 해석한다.
+
+### 지운 것 — 파일 29개 · 2,799줄 · 패키지 4개
+
+삭제에는 **순서가 있다.** 1단계를 지워야 2단계가 고아가 되고, 2단계를 지워야 패키지가
+떨어진다. 거꾸로 하면 «아직 쓰는 데가 있다»고 나온다.
+
+| 단계 | 무엇 | 규모 |
+|---|---|---|
+| 1 | 어디서도 import되지 않는 파일 | 16개 · 1,583줄 |
+| 2 | 1단계 파일만이 쓰던 파일 | 13개 · 1,216줄 |
+| 3 | 2단계 파일만이 쓰던 패키지 | 4개 (전이 포함 11개) |
+
+1단계의 대체 관계 — 옛것이 어디로 갔는지:
+
+| 지운 것 | 지금 그 일을 하는 것 |
+|---|---|
+| `sections/Hero.tsx` | `redesign/home/Hero.tsx` |
+| `Header.tsx` | `redesign/HeaderBar.tsx` + `MobileNav.tsx` |
+| `sections/Services · Process · Pricing · Contact · WhyUs · Credentials` | `redesign/home/Sections.tsx` |
+| `sections/Faq.tsx` | `redesign/home/HomeFaq.tsx` |
+| `sections/Portfolio.tsx` | `redesign/portfolio/Ledger.tsx` |
+| `sections/QuoteSection.tsx` | `redesign/home/QuoteBlock.tsx` |
+| `sections/Footer.tsx` · `FloatingCta.tsx` | `redesign/Chrome.tsx` |
+| `sections/About.tsx` | `app/about/page.tsx`가 직접 조립 |
+| `ui/select.tsx` | 폼이 네이티브 `<select>`로 |
+| `CountUp.tsx` | 대체 없이 참조만 끊김 |
+
+3단계에서 빠진 패키지는 전부 shadcn 계열이다 — `@base-ui/react`(13.6MB) ·
+`tailwind-merge` · `class-variance-authority` · `clsx`. 1b는 `blueprint.css`의
+손으로 쓴 클래스로 갈아탔다.
+
+`components/sections/`는 통째로 없어졌고 `components/ui/`에는 `sonner.tsx`만 남는다.
+
+> **번들 크기는 그대로다** (First Load JS 87.3 kB). 죽은 코드는 이미 트리셰이킹으로
+> 빠져 있었다. 줄어드는 것은 설치 용량과 잠금 파일이지 사용자가 받는 바이트가 아니다.
+> 얻는 것은 저장소를 읽는 사람이 «진짜 화면을 만드는 코드»만 보게 되는 것이다.
+
+### 비어 보이지만 남긴 것
+
+- **`react-dom`** — import 구문이 한 곳도 없지만 Next가 화면을 그리는 데 반드시 필요하다.
+  의존성 검사 도구가 가장 흔히 틀리는 항목이라 적어 둔다.
+- **`shadcn`(devDependency) · `components.json`** — `globals.css`가
+  `@import "shadcn/tailwind.css"`를 쓰고, 토스트(`ui/sonner.tsx`)도 계속 쓴다.
+  `components.json`의 `utils` 별칭이 사라진 `lib/utils.ts`를 가리키게 되지만 CLI가
+  컴포넌트를 새로 받을 때만 보는 값이라 그대로 뒀다.
+- **`next.config.mjs` · `postcss.config.mjs` · `public/sw.js`** — import되지 않는 게
+  정상이다. 빌드 도구와 브라우저가 규약으로 직접 읽는다.
+
+### 아직 남은 잔재 (판단이 필요해 손대지 않음)
+
+- **`app/globals.css`의 옛 팔레트** — `--color-brand`·`--color-ink`·`--sidebar-*`는
+  살아있는 사용처가 0이다. 다만 **홈 상단 공지 띠**(`components/Banner.tsx`)만 아직
+  옛 강조색 `--color-signal`(번트 앰버)을 쓴다. 경고색으로 일부러 남긴 것인지
+  이관에서 빠뜨린 것인지는 의도의 문제다.
+- **미사용 export 6개** — `app/admin/actions.ts`의 미리보기 액션 3개(API 라우트로
+  옮겨간 뒤 남음), `CTA_STYLE_LABELS`, `CONTENT_KEYS`, `portfolioByCategory`.
+- **DB** — `ctas.style` 컬럼과 `site_content` JSON의 옛 키(`eyebrow`·`segments`·
+  `footer`·`ogImageHeadline`). 코드와 달리 되돌리기 어렵고 남아 있어도 비용이 거의
+  없으니, 지우더라도 한참 뒤에 따로 하는 편이 안전하다.
+
+각 단계마다 `npx tsc --noEmit` · `npm run lint` · `npm run build`(40/40)로 확인했다.
+
+---
+
 ## 2026-08-05 — 한 번도 돌지 않던 `npm run build`·`npm run lint` 복구
 
 이 저장소는 처음부터 **두 검증 명령이 모두 죽어 있었다.** 로컬에서 빌드가 통과한 적이
