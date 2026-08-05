@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Quote } from 'lucide-react';
 import SubPageShell from '@/components/SubPageShell';
 import PageHero from '@/components/PageHero';
-import { CornerMarks, SectionHead } from '@/components/redesign/Chrome';
+import { SectionHead } from '@/components/redesign/Chrome';
 import { Credentials, Process } from '@/components/redesign/home/Sections';
 import { COMPANY } from '@/lib/site';
 import { getSiteContent } from '@/lib/content/get';
@@ -98,7 +98,6 @@ export default async function AboutPage() {
         <div style={{ ...SHELL, padding: PAD }}>
           <SectionHead no="02" title="대표 인사말" />
           <div data-reveal className="blueprint" style={{ position: 'relative', padding: 'clamp(22px,3vw,34px)' }}>
-            <CornerMarks />
             <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap' }}>
               {/* 대표 사진 확보 전까지 인용부호로 대신한다 — 스톡 사진을 쓰지 않는다 */}
               <span

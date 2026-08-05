@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Phone } from 'lucide-react';
 import MobileNav from '@/components/redesign/MobileNav';
-import { CornerMarks } from '@/components/redesign/CornerMarks';
 import { COMPANY } from '@/lib/site';
 
 type NavItem = { label: string; href: string };
@@ -190,7 +189,7 @@ export default function HeaderBar({
         <Link
           href={ctaHref}
           data-desktop-nav
-          className="display blueprint btn-solid is-solid"
+          className="display blueprint btn-solid"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -198,7 +197,6 @@ export default function HeaderBar({
             padding: '9px 18px',
           }}
         >
-          <CornerMarks />
           무료 현장 견적
         </Link>
 

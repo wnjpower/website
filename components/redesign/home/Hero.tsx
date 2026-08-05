@@ -1,14 +1,13 @@
 import Link from 'next/link';
 import { ArrowRight, Phone } from 'lucide-react';
-import { CornerMarks } from '@/components/redesign/Chrome';
 import type { SiteContent } from '@/lib/content/schema';
 import type { Cta, CtaSlot } from '@/lib/cta/schema';
 
 /**
- * 히어로 — 2컬럼(카피 + 단선결선도) + 신뢰 지표 4칸.
+ * 히어로 — 2컬럼(카피 + 공장 배선 평면도) + 신뢰 지표 4칸.
  *
  * 오른쪽 도면은 사진 대신 쓰는 장치다. 현장 사진이 아직 없는데 스톡 사진을 넣으면
- * 실제 시공 사진으로 오인되므로(사실 원칙), 이 업의 언어인 단선결선도를 그린다.
+ * 실제 시공 사진으로 오인되므로(사실 원칙), 이 업의 언어인 도면을 그린다.
  * 순수 SVG라 파일을 받지 않고 어떤 화면에서도 선명하다.
  */
 export default function Hero({
@@ -22,7 +21,7 @@ export default function Hero({
   const hasPhoto = Boolean(content.backgroundImage);
 
   return (
-    <section id="top" className="grid-field">
+    <section id="top" className="sheet">
       <div
         style={{
           maxWidth: 1280,
@@ -47,12 +46,8 @@ export default function Hero({
                 textTransform: 'uppercase',
                 color: 'var(--color-accent-700)',
                 margin: '0 0 18px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
               }}
             >
-              <PlusMark />
               {content.eyebrow}
             </p>
 
@@ -76,13 +71,12 @@ export default function Hero({
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
               <Link
                 href={ctas.hero_primary.href}
-                className="display blueprint btn-solid is-solid"
+                className="display blueprint btn-solid"
                 data-cta-slot={ctas.hero_primary.slot}
                 data-cta-variant={ctas.hero_primary.variant}
                 data-cta-id={ctas.hero_primary.id}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontSize: 18, padding: '15px 30px' }}
               >
-                <CornerMarks />
                 {ctas.hero_primary.label}
                 <ArrowRight size={17} strokeWidth={1.5} />
               </Link>
@@ -102,7 +96,6 @@ export default function Hero({
 
           {hasPhoto ? (
             <figure className="blueprint" style={{ position: 'relative', padding: 14, margin: 0 }}>
-              <CornerMarks />
               {/* 사장님이 어드민에서 올린 사진. 액센트 단색조로 덮어 도면 톤과 맞춘다 */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -113,7 +106,7 @@ export default function Hero({
               />
             </figure>
           ) : (
-            <SingleLineDiagram />
+            <FactoryLayoutPlan />
           )}
         </div>
 
@@ -153,79 +146,137 @@ export default function Hero({
   );
 }
 
-/** 히어로 머리말 앞의 작은 "+" 정합 마크 */
-function PlusMark() {
-  return (
-    <span style={{ width: 11, height: 11, position: 'relative', display: 'inline-block', flex: 'none' }} aria-hidden>
-      <span style={{ position: 'absolute', left: 5, top: 0, width: 1, height: '100%', background: 'currentColor' }} />
-      <span style={{ position: 'absolute', top: 5, left: 0, width: '100%', height: 1, background: 'currentColor' }} />
-    </span>
-  );
-}
-
 /**
- * 수전설비 단선결선도.
+ * 공장 전기 배선 평면도.
  *
- * 22.9kV 인입 → MOF → 변압기 → 주차단기 → 모선 → 동력/분전/조명 분기.
- * 실제 수전 구성을 따르는 도식이라, 이 업을 아는 발주처에게는 사진보다
- * 강한 신호가 된다. 장식이 아니므로 aria-label로 내용을 밝혀 둔다.
+ * 원래 이 자리에는 수전설비 단선결선도가 있었다. 결선도는 전기를 하는 사람에게는
+ * 읽히지만, 공장을 짓는 발주처 눈에는 "내 건물"로 보이지 않는다. 평면도로 바꾸면
+ * 전기실이 어디에 앉고, 간선이 어느 경로로 지나가고, 생산설비까지 어떻게
+ * 내려오는지가 한 장에 보인다 — 우리가 파는 것이 곧 이 그림이다.
+ *
+ * 특정 현장의 도면이 아니므로 캡션에 "예시"를 명시한다(사실 원칙).
+ * 현장 사진을 받으면 이 자리를 사진이 대신한다.
  */
-function SingleLineDiagram() {
+function FactoryLayoutPlan() {
+  /** 동력 분기 3계통 — 간선에서 차단기를 거쳐 생산설비로 내려간다 */
+  const feeders = [
+    { x: 250, label: '생산설비 #1' },
+    { x: 330, label: '생산설비 #2' },
+    { x: 410, label: '생산설비 #3' },
+  ];
+  /** 조명·전열 회로에 달리는 등기구 */
+  const lamps = [235, 285, 335];
+
   return (
     <figure
       className="blueprint"
       style={{
         position: 'relative',
         padding: 'clamp(16px,2vw,26px) clamp(16px,2vw,26px) 14px',
-        background: 'rgba(242,242,243,0.6)',
+        background: 'var(--color-bg)',
         margin: 0,
       }}
     >
-      <CornerMarks />
       <svg
-        viewBox="0 0 520 380"
+        viewBox="0 0 520 360"
         style={{ width: '100%', color: 'var(--color-accent-600)' }}
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
         role="img"
-        aria-label="수전설비 단선결선도 — 22.9kV 한전 인입에서 MOF, 변압기, 주차단기를 거쳐 동력 MCC·분전반·조명 회로로 분기되는 구성"
+        aria-label="공장 전기 배선 평면도 예시 — 전기실의 수전반·변압기에서 나온 간선이 생산동을 가로지르고, 차단기를 거쳐 생산설비 동력반 3계통과 조명·전열 분전반, 사무동 분전반으로 분기되는 구성"
       >
-        <text x="10" y="18" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="12" letterSpacing="2">
-          SINGLE LINE DIAGRAM — 22.9kV RECEIVING
+        {/* 도면 표제 */}
+        <text x="10" y="16" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="12" letterSpacing="2">
+          ELECTRICAL LAYOUT PLAN — 22.9kV / 380V
         </text>
-        <path d="M60 40 v28" />
-        <circle cx="60" cy="80" r="12" />
-        <text x="80" y="84" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="11">MOF</text>
-        <path d="M60 92 v26" />
-        <circle cx="60" cy="132" r="14" />
-        <circle cx="60" cy="152" r="14" />
-        <text x="84" y="146" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="11">TR 500kVA 22.9kV/380V</text>
-        <path d="M60 166 v26" />
-        <rect x="52" y="192" width="16" height="22" />
-        <path d="M52 192 l16 22 M68 192 l-16 22" />
-        <text x="84" y="207" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="11">MCCB 800A</text>
-        <path d="M60 214 v26 M40 240 h420" strokeWidth="2.5" />
-        <text x="466" y="234" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="11">BUS</text>
-        <path d="M120 240 v34 M240 240 v34 M360 240 v34" />
-        <rect x="112" y="274" width="16" height="18" />
-        <path d="M112 274 l16 18 M128 274 l-16 18" />
-        <rect x="232" y="274" width="16" height="18" />
-        <path d="M232 274 l16 18 M248 274 l-16 18" />
-        <rect x="352" y="274" width="16" height="18" />
-        <path d="M352 274 l16 18 M368 274 l-16 18" />
-        <path d="M120 292 v22 M240 292 v22 M360 292 v22" />
-        <circle cx="120" cy="330" r="16" />
-        <text x="114" y="335" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="13">M</text>
-        <text x="100" y="366" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10.5">동력 MCC</text>
-        <rect x="222" y="314" width="36" height="30" />
-        <path d="M230 322 h20 M230 330 h20 M230 338 h20" />
-        <text x="216" y="366" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10.5">분전반 L-1</text>
-        <circle cx="360" cy="330" r="16" />
-        <path d="M352 330 h16 M360 322 v16" />
-        <text x="338" y="366" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10.5">조명·전열</text>
-        <path d="M60 40 h400" strokeDasharray="5 6" opacity=".5" />
-        <text x="466" y="44" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="11" opacity=".7">한전 인입</text>
+        <text x="510" y="16" textAnchor="end" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10" opacity=".6">
+          N.T.S.
+        </text>
+
+        {/* 건물 외벽 — 이중선. 하단 372~432 구간은 출입 셔터로 비워 둔다 */}
+        <path d="M40 312 V40 H470 V312 H432 M372 312 H40" />
+        <path d="M45 307 V45 H465 V307 H432 M372 307 H45" />
+        <path d="M372 307 V312 M432 307 V312" />
+        <path d="M372 309.5 H432" strokeWidth="1" opacity=".45" />
+
+        {/* 전기실 — 수전반 + 변압기. 외벽에 붙은 방이라 칸막이(ㄴ자)만 그린다 */}
+        <path d="M45 140 H170 V45" />
+        <text x="54" y="68" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10.5">전기실 · 수전반</text>
+        <rect x="58" y="80" width="26" height="34" />
+        <path d="M58 90 H84 M58 100 H84" strokeWidth="1" opacity=".7" />
+        <circle cx="110" cy="92" r="10" />
+        <circle cx="110" cy="106" r="10" />
+        <text x="54" y="132" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="9.5" opacity=".85">
+          TR 500kVA 22.9kV/380V
+        </text>
+
+        {/* 간선 — 변압기에서 나와 생산동을 가로지르고, 사무동 분전반까지 내려간다 */}
+        <path d="M122 106 H140 V258" />
+        <path d="M140 182 H452" strokeWidth="3" />
+        <circle cx="140" cy="182" r="3" fill="currentColor" stroke="none" />
+        <text x="170" y="176" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10.5">BUS DUCT 800A</text>
+        <text x="196" y="150" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="11" opacity=".7">생산동</text>
+
+        {/* 동력 분기 — 간선 → 차단기 → 생산설비 */}
+        {feeders.map((f) => (
+          <g key={f.x}>
+            <path d={`M${f.x} 182 V214 M${f.x} 234 V252`} />
+            <rect x={f.x - 8} y="214" width="16" height="20" />
+            <path d={`M${f.x - 8} 214 l16 20 M${f.x + 8} 214 l-16 20`} />
+            <circle cx={f.x} cy="266" r="14" />
+            <text x={f.x} y="271" textAnchor="middle" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="13">M</text>
+            <text x={f.x} y="296" textAnchor="middle" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10">{f.label}</text>
+          </g>
+        ))}
+
+        {/* 조명·전열 분전반과 회로 */}
+        <path d="M390 182 V120" />
+        <rect x="372" y="92" width="36" height="28" />
+        <path d="M380 100 H400 M380 106 H400 M380 112 H400" strokeWidth="1" opacity=".7" />
+        <text x="366" y="86" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10">분전반 L-1</text>
+        {/* 회로는 마지막 등기구에서 끝난다 — 허공으로 뻗은 꼬리를 만들지 않는다 */}
+        <path d="M372 106 H235" strokeDasharray="5 6" opacity=".65" />
+        {lamps.map((x) => (
+          <g key={x}>
+            <circle cx={x} cy="106" r="7" fill="var(--color-bg)" />
+            <path d={`M${x - 5} 101 l10 10 M${x + 5} 101 l-10 10`} />
+          </g>
+        ))}
+        <text x="228" y="128" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10" opacity=".8">조명·전열 회로</text>
+
+        {/* 사무·부속동 — 여기도 외벽에 붙은 방이라 칸막이만 그린다 */}
+        <path d="M45 246 H170 V307" />
+        <text x="54" y="262" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10.5">사무·부속동</text>
+        <rect x="124" y="258" width="34" height="26" />
+        <path d="M131 266 H151 M131 273 H151" strokeWidth="1" opacity=".7" />
+        <text x="118" y="298" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="9.5" opacity=".85">분전반 L-2</text>
+
+        {/* 치수선 */}
+        <g strokeWidth="1" opacity=".45">
+          <path d="M40 312 V342 M470 312 V342" />
+          <path d="M470 40 H500 M470 312 H500" />
+        </g>
+        <g strokeWidth="1" opacity=".7">
+          <path d="M40 336 H470 M33 343 l14 -14 M463 343 l14 -14" />
+          <path d="M494 40 V312 M487 47 l14 -14 M487 319 l14 -14" />
+        </g>
+        <text x="255" y="331" textAnchor="middle" fill="currentColor" stroke="none" fontFamily="var(--font-display)" fontSize="10.5" opacity=".8">
+          60,000
+        </text>
+        <text
+          x="508"
+          y="176"
+          transform="rotate(-90 508 176)"
+          textAnchor="middle"
+          fill="currentColor"
+          stroke="none"
+          fontFamily="var(--font-display)"
+          fontSize="10.5"
+          opacity=".8"
+        >
+          36,000
+        </text>
       </svg>
       <figcaption
         className="display"
@@ -238,7 +289,7 @@ function SingleLineDiagram() {
           color: 'rgba(29,31,32,0.55)',
         }}
       >
-        <span>FIG.01 — 수전설비 단선결선도</span>
+        <span>FIG.01 — 공장 전기 배선 평면도 (예시)</span>
         <span>WNJ-2026-A</span>
       </figcaption>
     </figure>

@@ -1,11 +1,8 @@
 import Link from 'next/link';
 import { Phone } from 'lucide-react';
 import HeaderBar from '@/components/redesign/HeaderBar';
-import { CornerMarks } from '@/components/redesign/CornerMarks';
 import { COMPANY } from '@/lib/site';
 import type { SiteContent } from '@/lib/content/schema';
-
-export { CornerMarks };
 
 /**
  * 1b 블루프린트 페이지 골격 — 헤더 / 푸터 / 모바일 하단 바.
@@ -175,7 +172,7 @@ export function BlueprintDesktopDock({ quoteHref = '#quote' }: { quoteHref?: str
       <a
         href={`tel:${COMPANY.mobile}`}
         aria-label={`전화 상담 ${COMPANY.mobile}`}
-        className="blueprint elev-md"
+        className="blueprint blueprint-strong elev-md"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -186,13 +183,12 @@ export function BlueprintDesktopDock({ quoteHref = '#quote' }: { quoteHref?: str
           color: 'var(--color-text)',
         }}
       >
-        <CornerMarks />
         <Phone size={20} strokeWidth={1.5} />
       </a>
       <Link
         href={quoteHref}
         aria-label="무료 견적 신청"
-        className="blueprint elev-md btn-solid is-solid"
+        className="blueprint elev-md btn-solid"
         data-cta-slot="floating_quote"
         data-cta-variant="A"
         style={{
@@ -203,7 +199,6 @@ export function BlueprintDesktopDock({ quoteHref = '#quote' }: { quoteHref?: str
           height: 52,
         }}
       >
-        <CornerMarks />
         <FileIcon />
       </Link>
     </div>

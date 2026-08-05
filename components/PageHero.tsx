@@ -27,7 +27,7 @@ export default function PageHero({
   bgImage?: string;
 }) {
   return (
-    <section className="grid-field" style={{ borderBottom: '1px solid var(--color-divider)' }}>
+    <section className="sheet" style={{ borderBottom: '1px solid var(--color-divider)' }}>
       <div
         style={{
           maxWidth: 1280,

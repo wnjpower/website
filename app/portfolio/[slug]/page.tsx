@@ -7,7 +7,7 @@ import PageHero from '@/components/PageHero';
 import { portfolioItems, getPortfolioItem } from '@/content/portfolio';
 import { services } from '@/content/services';
 import { PostArticle } from '@/components/PostViews';
-import { CornerMarks, SectionHead } from '@/components/redesign/Chrome';
+import { SectionHead } from '@/components/redesign/Chrome';
 import { getPublishedPost, getPublishedPosts, postSummary, formatPostDate } from '@/lib/posts';
 
 const SECTION_PAD = 'clamp(36px,5vw,60px) clamp(16px,4vw,48px)';
@@ -210,7 +210,6 @@ export default async function PortfolioDetailPage(
             >
               {item.work.map((step, i) => (
                 <li key={step} style={{ position: 'relative', padding: '0 0 20px 26px' }}>
-                  <span className="rail-node" aria-hidden />
                   <p style={{ fontSize: 14, lineHeight: 1.7, margin: 0 }}>
                     <span className="display" style={{ color: 'var(--color-accent-700)', marginRight: 10 }}>
                       {String(i + 1).padStart(2, '0')}
@@ -229,7 +228,6 @@ export default async function PortfolioDetailPage(
               className="blueprint"
               style={{ position: 'relative', padding: 24, marginBottom: 44 }}
             >
-              <CornerMarks />
               <p
                 className="text-muted display"
                 style={{ fontSize: 12, letterSpacing: '.14em', textTransform: 'uppercase', margin: '0 0 8px' }}
@@ -277,7 +275,6 @@ export default async function PortfolioDetailPage(
                     className="blueprint post-card"
                     style={{ position: 'relative', display: 'block', padding: 18, height: '100%' }}
                   >
-                    <CornerMarks />
                     <span className="tag" style={{ fontSize: 10.5 }}>{other.categoryLabel}</span>
                     <p style={{ fontWeight: 700, fontSize: 14.5, lineHeight: 1.4, margin: '10px 0 4px' }}>
                       {other.title}

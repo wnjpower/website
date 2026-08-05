@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Check, ExternalLink, Factory, CircuitBoard, Lamp } from 'lucide-react';
 import { COMPANY, VERIFY_LINKS } from '@/lib/site';
 import { portfolioItems } from '@/content/portfolio';
-import { CornerMarks, SectionHead } from '@/components/redesign/Chrome';
+import { SectionHead } from '@/components/redesign/Chrome';
 import type { SiteContent } from '@/lib/content/schema';
 
 const SHELL = { maxWidth: 1280, margin: '0 auto' } as const;
@@ -48,7 +48,6 @@ export function Services({ content }: { content: SiteContent['services'] }) {
                   background: primary ? 'rgba(89,128,166,0.06)' : undefined,
                 }}
               >
-                <CornerMarks />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 14 }}>
                   <Icon size={30} strokeWidth={1.5} style={{ color: 'var(--color-accent-700)' }} />
                   <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -121,7 +120,9 @@ export function Services({ content }: { content: SiteContent['services'] }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   02 진행 절차 — 카드 대신 헤어라인 + "+" 노드
+   02 진행 절차 — 카드 대신 헤어라인 한 줄로 나눈다.
+   각 칸 머리의 "+" 노드는 뺐다. 바로 아래 큰 단계 번호(01·02…)가 이미
+   그 자리를 가리키고 있어서, 마크는 같은 말을 한 번 더 하는 장식이었다.
    ═══════════════════════════════════════════════════════════ */
 
 export function Process({ content }: { content: SiteContent['process'] }) {
@@ -142,7 +143,6 @@ export function Process({ content }: { content: SiteContent['process'] }) {
         >
           {content.steps.map((step) => (
             <li key={step.step} style={{ position: 'relative', paddingTop: 26 }}>
-              <span className="rail-node" style={{ top: -6, left: 0 }} aria-hidden />
               <p className="display" style={{ fontSize: 32, margin: '0 0 4px', color: 'var(--color-accent-700)' }}>
                 {step.step}
               </p>
@@ -201,7 +201,6 @@ export function PortfolioLedger() {
           className="blueprint"
           style={{ position: 'relative', padding: '6px clamp(12px,2vw,22px) 10px', background: 'rgba(242,242,243,0.6)' }}
         >
-          <CornerMarks />
           <div className="bp-table-scroll">
             <table className="bp-table" style={{ minWidth: 760 }}>
               <thead>
@@ -303,7 +302,6 @@ export function Credentials({ content }: { content: SiteContent['whyus'] }) {
               className="blueprint bp-on-dark"
               style={{ position: 'relative', padding: 24 }}
             >
-              <CornerMarks />
               <p
                 className="display"
                 style={{
@@ -435,7 +433,6 @@ export function Pricing({ content }: { content: SiteContent['pricing'] }) {
           </div>
 
           <div className="blueprint" style={{ position: 'relative', padding: '6px clamp(12px,2vw,22px) 10px' }}>
-            <CornerMarks />
             <div className="bp-table-scroll">
               <table className="bp-table" style={{ minWidth: 520 }}>
                 <thead>
@@ -524,7 +521,6 @@ export function Contact({ content }: { content: SiteContent['contact'] }) {
         </div>
 
         <figure className="blueprint" style={{ position: 'relative', padding: 14, margin: 0 }}>
-          <CornerMarks />
           <svg
             viewBox="0 0 360 150"
             style={{ width: '100%', color: 'var(--color-accent-600)' }}

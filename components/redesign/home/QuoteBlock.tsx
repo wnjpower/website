@@ -15,7 +15,7 @@ import {
 import { gtagEvent } from '@/components/GoogleAnalytics';
 import { track } from '@/components/analytics/Tracker';
 import { COMPANY } from '@/lib/site';
-import { CornerMarks, SectionHead } from '@/components/redesign/Chrome';
+import { SectionHead } from '@/components/redesign/Chrome';
 import type { SiteContent } from '@/lib/content/schema';
 import type { Cta, CtaSlot } from '@/lib/cta/schema';
 
@@ -179,7 +179,7 @@ export default function QuoteBlock({
   }
 
   return (
-    <section id="quote" className="grid-field" style={{ borderTop: '1px solid var(--color-divider)' }}>
+    <section id="quote" className="sheet" style={{ borderTop: '1px solid var(--color-divider)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(44px,6vw,72px) clamp(16px,4vw,48px)' }}>
         <SectionHead no="07" title={content.title} note={content.lead} gap={40} />
 
@@ -193,11 +193,9 @@ export default function QuoteBlock({
         >
           {/* ── 폼 ── */}
           <div
-            className="blueprint elev-md"
+            className="blueprint blueprint-strong elev-md"
             style={{ position: 'relative', background: 'var(--color-bg)', padding: 'clamp(20px,3vw,30px)' }}
           >
-            <CornerMarks />
-
             {submitted ? (
               <div
                 role="status"
@@ -405,7 +403,7 @@ export default function QuoteBlock({
                   data-cta-slot={submitCta.slot}
                   data-cta-variant={submitCta.variant}
                   data-cta-id={submitCta.id}
-                  className="display blueprint btn-solid is-solid"
+                  className="display blueprint btn-solid"
                   style={{
                     width: '100%',
                     display: 'flex',
@@ -419,7 +417,6 @@ export default function QuoteBlock({
                     opacity: isSubmitting ? 0.6 : 1,
                   }}
                 >
-                  <CornerMarks />
                   {isSubmitting ? <Loader2 size={17} strokeWidth={1.5} className="bp-spin" /> : null}
                   {isSubmitting ? '접수 중…' : submitCta.label}
                   {!isSubmitting && <ArrowRight size={17} strokeWidth={1.5} />}
@@ -451,7 +448,6 @@ export default function QuoteBlock({
             </div>
 
             <div className="blueprint" style={{ position: 'relative', marginTop: 24, padding: 20 }}>
-              <CornerMarks />
               <p className="text-muted" style={{ fontSize: 12, margin: '0 0 4px' }}>
                 {content.callNote}
               </p>

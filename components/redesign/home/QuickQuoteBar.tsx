@@ -5,7 +5,6 @@ import { ArrowRight, CheckCircle2, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { gtagEvent } from '@/components/GoogleAnalytics';
 import { track } from '@/components/analytics/Tracker';
-import { CornerMarks } from '@/components/redesign/Chrome';
 import { COMPANY } from '@/lib/site';
 import type { SiteContent } from '@/lib/content/schema';
 
@@ -123,7 +122,7 @@ export default function QuickQuoteBar({ content }: { content: SiteContent['quick
 
   return (
     // id는 어드민 미리보기가 이 영역으로 바로 스크롤하기 위한 것이다
-    <section id="quick" className="grid-field">
+    <section id="quick" className="sheet">
       <div
         style={{
           maxWidth: 1280,
@@ -132,11 +131,9 @@ export default function QuickQuoteBar({ content }: { content: SiteContent['quick
         }}
       >
         <div
-          className="blueprint elev-md"
+          className="blueprint blueprint-strong elev-md"
           style={{ position: 'relative', background: 'var(--color-bg)', padding: '22px clamp(16px,2vw,26px)' }}
         >
-          <CornerMarks />
-
           {done ? (
             <div
               role="status"

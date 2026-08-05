@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ArrowRight, Home, Phone } from 'lucide-react';
-import { CornerMarks } from '@/components/redesign/Chrome';
 import { COMPANY } from '@/lib/site';
 import { blueprintFontClass } from '@/lib/fonts';
 import '@/components/redesign/blueprint.css';
@@ -30,7 +29,7 @@ export default function NotFound() {
       style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}
     >
       <div
-        className="grid-field"
+        className="sheet"
         style={{ width: '100%', padding: 'clamp(48px,8vw,96px) clamp(16px,4vw,48px)' }}
       >
         <div
@@ -43,8 +42,6 @@ export default function NotFound() {
             background: 'var(--color-bg)',
           }}
         >
-          <CornerMarks />
-
           <p
             className="display mono-num"
             style={{
@@ -67,10 +64,9 @@ export default function NotFound() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 28 }}>
             <Link
               href="/#quote"
-              className="display blueprint btn-solid is-solid"
+              className="display blueprint btn-solid"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 9, fontSize: 16, padding: '13px 24px' }}
             >
-              <CornerMarks />
               무료 견적문의
               <ArrowRight size={15} strokeWidth={1.5} />
             </Link>

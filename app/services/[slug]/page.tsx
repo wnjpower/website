@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowRight, Phone } from 'lucide-react';
 import SubPageShell from '@/components/SubPageShell';
-import { CornerMarks, SectionHead } from '@/components/redesign/Chrome';
+import { SectionHead } from '@/components/redesign/Chrome';
 import { servicePages, getServicePage } from '@/content/service-pages';
 import { COMPANY, SITE_URL } from '@/lib/site';
 
@@ -111,7 +111,7 @@ export default async function ServiceDetailPage(
       />
 
       {/* ── 브레드크럼 + 공종 탭 ── */}
-      <div className="grid-field" style={{ borderBottom: HAIRLINE }}>
+      <div className="sheet" style={{ borderBottom: HAIRLINE }}>
         <div style={{ ...SHELL, padding: 'clamp(24px,3vw,36px) clamp(16px,4vw,48px) 0' }}>
           <nav aria-label="위치" className="text-muted" style={{ fontSize: 12.5, marginBottom: 18 }}>
             <Link href="/">홈</Link>
@@ -171,12 +171,12 @@ export default async function ServiceDetailPage(
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
             <Link
               href="#quote"
-              className="display blueprint btn-solid is-solid"
+              className="display blueprint btn-solid"
               data-cta-slot={ctaSlot}
               data-cta-variant="A"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontSize: 17, padding: '13px 26px' }}
             >
-              <CornerMarks />이 공사 무료 견적 신청
+              이 공사 무료 견적 신청
               <ArrowRight size={16} strokeWidth={1.5} />
             </Link>
             <a
@@ -225,7 +225,6 @@ export default async function ServiceDetailPage(
           >
             {page.process.map((step) => (
               <li key={step.step} style={{ position: 'relative', padding: '0 0 26px 28px' }}>
-                <span className="rail-node" aria-hidden />
                 <h3 className="display" style={{ fontSize: 19, letterSpacing: 0 }}>
                   <span className="mono-num" style={{ color: 'var(--color-accent-700)', marginRight: 10 }}>
                     {String(step.step).padStart(2, '0')}
@@ -252,7 +251,6 @@ export default async function ServiceDetailPage(
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 24 }}>
             {page.considerations.map((item, i) => (
               <div key={item.title} className="blueprint" style={{ padding: 20 }}>
-                <CornerMarks />
                 <p
                   className="display"
                   style={{ fontSize: 14, letterSpacing: '.1em', color: 'var(--color-accent-700)', margin: '0 0 8px' }}
@@ -288,10 +286,10 @@ export default async function ServiceDetailPage(
       </section>
 
       {/* ── CTA 플레이트 — 바로 아래 견적폼으로 보낸다 ── */}
-      <section className="grid-field" style={{ borderTop: HAIRLINE }}>
+      <section className="sheet" style={{ borderTop: HAIRLINE }}>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
           <div
-            className="blueprint elev-md"
+            className="blueprint blueprint-strong elev-md"
             style={{
               background: 'var(--color-bg)',
               padding: 'clamp(24px,3vw,36px)',
@@ -302,7 +300,6 @@ export default async function ServiceDetailPage(
               justifyContent: 'space-between',
             }}
           >
-            <CornerMarks />
             <div>
               <p className="display" style={{ fontSize: 'clamp(22px,2.4vw,28px)', margin: '0 0 4px' }}>
                 {page.ctaTitle}
@@ -314,12 +311,11 @@ export default async function ServiceDetailPage(
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
               <Link
                 href="#quote"
-                className="display blueprint btn-solid is-solid"
+                className="display blueprint btn-solid"
                 data-cta-slot={ctaSlot}
                 data-cta-variant="A"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontSize: 17, padding: '14px 28px' }}
               >
-                <CornerMarks />
                 아래 폼으로 견적 신청
               </Link>
               <a

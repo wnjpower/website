@@ -130,7 +130,7 @@ export default function MobileNav({
                 <Link
                   href={ctaHref}
                   onClick={() => setOpen(false)}
-                  className="display blueprint btn-solid is-solid"
+                  className="display blueprint btn-solid"
                   style={{
                     display: 'flex',
                     alignItems: 'center',

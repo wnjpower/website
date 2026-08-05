@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { ArrowRight, Calendar } from 'lucide-react';
 import { renderMarkdown, postSummary, formatPostDate, postPath, type Post } from '@/lib/posts';
 import { SITE_URL, COMPANY } from '@/lib/site';
-import { CornerMarks } from '@/components/redesign/Chrome';
 
 /**
  * 게시판 목록 카드 — 1b 블루프린트.
@@ -32,7 +31,6 @@ export function PostList({ posts, emptyMessage }: { posts: Post[]; emptyMessage:
           className="blueprint post-card"
           style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}
         >
-          <CornerMarks />
           {post.coverImage && (
             // Storage에 올린 외부 URL이라 next/image 도메인 등록 없이 쓸 수 있도록 img를 쓴다
             // eslint-disable-next-line @next/next/no-img-element
@@ -122,7 +120,6 @@ export function PostArticle({ post }: { post: Post }) {
       >
         {post.coverImage && (
           <figure className="blueprint" style={{ position: 'relative', padding: 12, margin: '0 0 32px' }}>
-            <CornerMarks />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={post.coverImage}

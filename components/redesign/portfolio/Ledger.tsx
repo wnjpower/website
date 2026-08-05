@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { CornerMarks } from '@/components/redesign/Chrome';
 import type { PortfolioItem } from '@/content/portfolio';
 
 /**
@@ -101,7 +100,6 @@ export default function Ledger({ items }: { items: PortfolioItem[] }) {
           className="blueprint"
           style={{ position: 'relative', padding: '4px 18px 8px', background: 'rgba(242,242,243,0.6)' }}
         >
-          <CornerMarks />
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {visible.map((item, i) => {
               const active = item.slug === selected.slug;
@@ -169,7 +167,6 @@ export default function Ledger({ items }: { items: PortfolioItem[] }) {
           className="blueprint elev-md"
           style={{ position: 'relative', background: 'var(--color-bg)', padding: 'clamp(20px,2.5vw,30px)' }}
         >
-          <CornerMarks />
           <p
             className="display"
             style={{
@@ -240,7 +237,6 @@ export default function Ledger({ items }: { items: PortfolioItem[] }) {
           >
             {selected.work.map((step, i) => (
               <li key={step} style={{ position: 'relative', padding: '0 0 14px 22px' }}>
-                <span className="rail-node" style={{ left: -5, top: 4, width: 9, height: 9 }} aria-hidden />
                 <p style={{ fontSize: 13, lineHeight: 1.55, margin: 0 }}>
                   <span className="display" style={{ color: 'var(--color-accent-700)', marginRight: 8 }}>
                     {String(i + 1).padStart(2, '0')}
@@ -266,12 +262,11 @@ export default function Ledger({ items }: { items: PortfolioItem[] }) {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
             <Link
               href="#quote"
-              className="display blueprint btn-solid is-solid"
+              className="display blueprint btn-solid"
               data-cta-slot={`portfolio_cta_${selected.category}`}
               data-cta-variant="A"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 15.5, padding: '12px 22px' }}
             >
-              <CornerMarks />
               비슷한 공사 견적 문의
             </Link>
             <Link
