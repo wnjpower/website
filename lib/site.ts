@@ -60,6 +60,68 @@ export const COMPANY = {
   geo: { lat: 35.8772, lng: 128.5678 },
 } as const;
 
+/**
+ * 영업시간 — 여기가 단일 소스다.
+ *
+ * 이 값 하나에서 세 곳이 파생된다.
+ *   1) 사이트 표시 문구      — HOURS_TEXT
+ *   2) 구조화 데이터         — SchemaOrg의 openingHoursSpecification
+ *   3) 네이버 플레이스 등록  — docs/네이버_스마트플레이스_등록.md
+ *
+ * 예전에는 표시 문구가 콘텐츠 기본값에, 구조화 데이터가 SchemaOrg에 따로 있었다.
+ * 그래서 **사이트는 «토 09:00–13:00»을 보여주는데 구조화 데이터에는 토요일이
+ * 아예 없는** 상태였다. 로컬 검색은 구조화 데이터의 영업시간으로 «영업 중»을
+ * 판정하므로, 토요일에 검색한 발주처에게 닫힌 업체로 보였다는 뜻이다.
+ *
+ * 로컬 SEO에서 NAP(이름·주소·전화)와 영업시간은 **사이트·구조화 데이터·플레이스
+ * 세 곳이 글자 단위로 같아야** 검색엔진이 동일 업체로 묶는다. 값을 한 곳에 둬야
+ * 어긋날 수 없다.
+ */
+export const BUSINESS_HOURS = [
+  {
+    days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as const,
+    label: '평일',
+    opens: '09:00',
+    closes: '18:00',
+  },
+  {
+    days: ['Saturday'] as const,
+    label: '토',
+    opens: '09:00',
+    closes: '13:00',
+  },
+] as const;
+
+/** 휴무 안내 — 영업시간 문구 뒤에 붙는다. */
+export const HOURS_NOTE = '일요일·공휴일 휴무 (긴급 A/S는 상시 접수)';
+
+/** 사이트에 표시되는 영업시간 한 줄. 예: `평일 09:00–18:00 · 토 09:00–13:00` */
+export const HOURS_TEXT = BUSINESS_HOURS
+  .map((h) => `${h.label} ${h.opens}–${h.closes}`)
+  .join(' · ');
+
+/**
+ * 시공 가능 지역.
+ *
+ * `areaServed` 구조화 데이터와 사이트 표시 문구가 같은 목록에서 나온다.
+ * 로컬 검색은 «대구 전기공사»뿐 아니라 «경산 전기공사»처럼 시군구 단위로도
+ * 들어오므로, 뭉뚱그린 '경상북도'보다 실제 시군을 나열하는 편이 유리하다.
+ */
+export const SERVICE_AREAS = {
+  primary: '대구광역시',
+  cities: ['경산시', '영천시', '칠곡군', '성주군', '고령군', '구미시'],
+} as const;
+
+/** 사이트에 표시되는 시공 가능 지역 한 줄. */
+export const SERVICE_AREA_TEXT =
+  `${SERVICE_AREAS.primary} 전 지역 · 경상북도(${SERVICE_AREAS.cities
+    .map((c) => c.replace(/(시|군)$/, ''))
+    .join('·')} 등)`;
+
+/** 카카오맵 길찾기 링크 — Contact 약도와 구조화 데이터 hasMap이 같은 값을 쓴다. */
+export const MAP_URL =
+  `https://map.kakao.com/link/map/${encodeURIComponent(COMPANY.name)},${COMPANY.geo.lat},${COMPANY.geo.lng}`;
+
 /** 공적 자격 검증 링크 — 발주처가 직접 조회할 수 있는 실제 조회 화면. */
 export const VERIFY_LINKS = {
   /** 대한전기공사협회 전기공사종합정보시스템 — 전기공사업체 조회 */

@@ -51,10 +51,24 @@ export const metadata: Metadata = {
       'max-video-preview': -1,
     },
   },
+  /*
+   * 검색엔진 소유확인.
+   *
+   * 네이버 서치어드바이저는 등록을 마쳐 코드가 박혀 있다. 구글 서치콘솔은
+   * 아직인데, 소유확인 코드는 사이트마다 다르므로 환경변수로 받는다.
+   * Vercel에 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION을 넣고 재배포하면
+   * meta 태그가 자동으로 붙는다 — 코드를 고칠 필요가 없다.
+   *
+   * (값이 없으면 google 키 자체를 넣지 않는다. 빈 문자열로 두면 구글이
+   *  «잘못된 확인 코드»로 읽어 소유확인이 오히려 실패한다.)
+   */
   verification: {
     other: {
       'naver-site-verification': ['f7b584dc796aff64d9a1fe441b6d9df228316a23'],
     },
+    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+      : {}),
   },
   metadataBase: new URL(SITE_URL),
   formatDetection: { telephone: true, address: false, email: false },
