@@ -7,7 +7,7 @@ import { COMPANY } from '@/lib/site';
  * 서브페이지 공통 머리 — 1b 블루프린트.
  *
  * 홈 히어로가 다크 네이비였을 때는 서브페이지도 같은 톤을 썼지만, 이 시스템의
- * 지배색은 밝은 그라운드(#f2f2f3)다. 도면 격자 위에 브레드크럼 → 제목 → 설명만
+ * 지배색은 밝은 그라운드다. 흰 시트 위에 브레드크럼 → 제목 → 설명만
  * 두고 높이를 낮춰 본문이 빨리 시작되게 한다.
  *
  * 전화·견적 버튼은 여기서 뺐다. 헤더에 항상 떠 있고 데스크톱 독·모바일 하단 바가
@@ -49,18 +49,27 @@ export default function PageHero({
           ))}
         </nav>
 
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 18, flexWrap: 'wrap', marginBottom: lead ? 14 : 0 }}>
-          {eyebrow && (
+        {/*
+          eyebrow는 제목 옆에 나란히 두지 않는다. 섹션 머리(SectionHead)와 같은
+          "짧은 액센트 막대 + 작은 라벨" 형태로 제목 위에 얹는다.
+          나란히 두던 때는 /portfolio처럼 라벨과 제목이 같은 말로 시작하는 곳에서
+          큰 글씨가 두 번 반복돼 보였다. 위아래로 나누면 라벨은 분류, 제목은
+          이름이라는 역할이 분명해진다.
+        */}
+        {eyebrow && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <span aria-hidden style={{ width: 30, height: 2, flex: 'none', background: 'var(--color-accent)' }} />
             <span
               className="display"
-              // 제목(clamp 30~46px)과 한 쌍으로 읽히도록 같이 늘고 줄게 한다
-              style={{ fontSize: 'clamp(19px,2.2vw,28px)', letterSpacing: '.12em', color: 'var(--color-accent-700)' }}
+              style={{ fontSize: 12.5, letterSpacing: '.2em', color: 'var(--color-accent-700)' }}
             >
               {eyebrow}
             </span>
-          )}
-          <h1 style={{ fontSize: 'clamp(30px,3.6vw,46px)', lineHeight: 1.1 }}>{title}</h1>
-        </div>
+          </div>
+        )}
+        <h1 style={{ fontSize: 'clamp(30px,3.6vw,46px)', lineHeight: 1.1, marginBottom: lead ? 14 : 0 }}>
+          {title}
+        </h1>
 
         {lead && (
           <p style={{ fontSize: 'clamp(14px,1.2vw,16px)', lineHeight: 1.7, maxWidth: 820, margin: 0 }}>

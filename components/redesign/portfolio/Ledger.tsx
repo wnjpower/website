@@ -123,12 +123,26 @@ export default function Ledger({ items }: { items: PortfolioItem[] }) {
                       gap: 14,
                       alignItems: 'center',
                       padding: '15px 6px',
-                      borderBottom: '1px solid rgba(29,31,32,0.08)',
-                      background: active ? 'rgba(89,128,166,0.10)' : 'transparent',
+                      borderBottom: '1px solid rgba(10,10,10,0.08)',
+                      background: active ? 'rgba(0,71,255,0.07)' : 'transparent',
                     }}
                   >
-                    <span className="display" style={{ fontSize: 15, color: 'var(--color-accent-700)', flex: 'none', width: 44 }}>
-                      W-{String(i + 1).padStart(2, '0')}
+                    {/* 대형 번호 — 원장 행을 세로로 훑을 때 순번이 먼저 잡히게 한다.
+                        W- 접두는 통째로 반복되는 글자라 시각적으로 걷어내고,
+                        스크린리더에는 aria-label로 남긴다. */}
+                    <span
+                      className="display"
+                      aria-label={`실적 번호 W-${String(i + 1).padStart(2, '0')}`}
+                      style={{
+                        fontSize: 26,
+                        lineHeight: 1,
+                        letterSpacing: '-.02em',
+                        color: active ? 'var(--color-accent)' : 'var(--color-text-4)',
+                        flex: 'none',
+                        width: 40,
+                      }}
+                    >
+                      {String(i + 1).padStart(2, '0')}
                     </span>
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'block', fontWeight: 600, fontSize: 14.5, lineHeight: 1.35 }}>
@@ -304,7 +318,7 @@ function Spec({ label, value, confirmed }: { label: string; value?: string; conf
         style={{
           fontSize: 17,
           margin: 0,
-          color: isConfirmed ? 'var(--color-accent-700)' : 'rgba(29,31,32,0.45)',
+          color: isConfirmed ? 'var(--color-accent-700)' : 'var(--color-text-4)',
         }}
       >
         {shown}

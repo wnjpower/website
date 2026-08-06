@@ -286,7 +286,7 @@ function FactoryLayoutPlan() {
           letterSpacing: '.1em',
           textTransform: 'uppercase',
           fontSize: 11,
-          color: 'rgba(29,31,32,0.55)',
+          color: 'var(--color-text-3)',
         }}
       >
         <span>FIG.01 — 공장 전기 배선 평면도 (예시)</span>

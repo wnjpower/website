@@ -27,6 +27,7 @@ export default function HomeFaq({ content }: { content: SiteContent['faq'] }) {
     <section id="faq" style={{ borderTop: '1px solid var(--color-divider)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(44px,6vw,72px) clamp(16px,4vw,48px)' }}>
         <SectionHead
+          kicker="FAQ"
           no="06"
           title={content.title}
           note={content.lead || '답변을 접지 않고 노출합니다'}

@@ -116,7 +116,7 @@ export default async function PortfolioDetailPage(
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: SECTION_PAD }}>
           {/* 공사 개요 */}
           <section data-reveal style={{ marginBottom: 44 }}>
-            <SectionHead no="01" title="공사 개요" />
+            <SectionHead kicker="OVERVIEW" no="01" title="공사 개요" />
             <dl
               style={{
                 display: 'grid',
@@ -133,7 +133,7 @@ export default async function PortfolioDetailPage(
                     style={{
                       fontSize: 16,
                       margin: 0,
-                      color: row.value ? 'var(--color-text)' : 'rgba(29,31,32,0.4)',
+                      color: row.value ? 'var(--color-text)' : 'var(--color-text-4)',
                     }}
                   >
                     {row.value ?? '확인 중'}
@@ -152,7 +152,7 @@ export default async function PortfolioDetailPage(
 
           {/* 공사 범위 */}
           <section data-reveal style={{ marginBottom: 44 }}>
-            <SectionHead no="02" title="공사 범위" />
+            <SectionHead kicker="SCOPE" no="02" title="공사 범위" />
             <ul
               style={{
                 display: 'grid',
@@ -181,7 +181,7 @@ export default async function PortfolioDetailPage(
 
           {/* 이 공사에서 중요한 것 */}
           <section data-reveal style={{ marginBottom: 44 }}>
-            <SectionHead no="03" title="이 공사에서 중요한 것" />
+            <SectionHead kicker="KEY POINTS" no="03" title="이 공사에서 중요한 것" />
             <p
               style={{
                 fontSize: 15,
@@ -197,7 +197,7 @@ export default async function PortfolioDetailPage(
 
           {/* 시공 진행 */}
           <section data-reveal style={{ marginBottom: 44 }}>
-            <SectionHead no="04" title="시공 진행" />
+            <SectionHead kicker="PROGRESS" no="04" title="시공 진행" />
             <ol
               style={{
                 display: 'flex',
@@ -257,7 +257,7 @@ export default async function PortfolioDetailPage(
 
           {/* 다른 사례 */}
           <section data-reveal>
-            <SectionHead no="05" title="다른 시공 사례" />
+            <SectionHead kicker="MORE WORKS" no="05" title="다른 시공 사례" />
             <ul
               style={{
                 display: 'grid',

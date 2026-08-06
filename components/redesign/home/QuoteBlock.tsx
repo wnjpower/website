@@ -181,7 +181,7 @@ export default function QuoteBlock({
   return (
     <section id="quote" className="sheet" style={{ borderTop: '1px solid var(--color-divider)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: 'clamp(44px,6vw,72px) clamp(16px,4vw,48px)' }}>
-        <SectionHead no="07" title={content.title} note={content.lead} gap={40} />
+        <SectionHead kicker="REQUEST A QUOTE" no="07" title={content.title} note={content.lead} gap={40} />
 
         <div
           style={{

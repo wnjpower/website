@@ -79,7 +79,7 @@ export default function MobileNav({
             style={{
               position: 'fixed',
               inset: '64px 0 0',
-              background: 'rgba(29,31,32,0.35)',
+              background: 'rgba(10,10,10,0.4)',
             }}
           />
 

@@ -64,7 +64,7 @@ export default async function AboutPage() {
       {/* 01 법인 개요 */}
       <section>
         <div style={{ ...SHELL, padding: PAD }}>
-          <SectionHead no="01" title="법인 개요" note="공공기관에서 그대로 조회되는 값입니다" />
+          <SectionHead kicker="COMPANY" no="01" title="법인 개요" note="공공기관에서 그대로 조회되는 값입니다" />
           <dl
             data-reveal
             style={{
@@ -96,7 +96,7 @@ export default async function AboutPage() {
       {/* 02 대표 인사말 */}
       <section style={{ borderTop: HAIRLINE }}>
         <div style={{ ...SHELL, padding: PAD }}>
-          <SectionHead no="02" title="대표 인사말" />
+          <SectionHead kicker="MESSAGE" no="02" title="대표 인사말" />
           <div data-reveal className="blueprint" style={{ position: 'relative', padding: 'clamp(22px,3vw,34px)' }}>
             <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap' }}>
               {/* 대표 사진 확보 전까지 인용부호로 대신한다 — 스톡 사진을 쓰지 않는다 */}

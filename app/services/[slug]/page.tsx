@@ -198,7 +198,7 @@ export default async function ServiceDetailPage(
       {/* ── 01 시공 범위 ── */}
       <section>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
-          <SectionHead no="01" title="시공 범위" />
+          <SectionHead kicker="SCOPE" no="01" title="시공 범위" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: '0 56px' }}>
             {page.scope.map((item) => (
               <div key={item.title} style={{ padding: '20px 0', borderTop: HAIRLINE }}>
@@ -215,7 +215,7 @@ export default async function ServiceDetailPage(
       {/* ── 02 진행 절차 ── */}
       <section style={{ borderTop: HAIRLINE }}>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
-          <SectionHead no="02" title="진행 절차" note="현장 조사부터 준공 인계까지" />
+          <SectionHead kicker="PROCESS" no="02" title="진행 절차" note="현장 조사부터 준공 인계까지" />
           <ol
             style={{
               display: 'flex',
@@ -248,6 +248,7 @@ export default async function ServiceDetailPage(
       <section style={{ borderTop: HAIRLINE }}>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
           <SectionHead
+            kicker="COST FACTORS"
             no="03"
             title="비용·기간을 좌우하는 변수"
             note="이 항목들을 미리 알려주시면 견적 정확도가 올라갑니다"
@@ -274,7 +275,7 @@ export default async function ServiceDetailPage(
       {/* ── 04 FAQ ── */}
       <section style={{ borderTop: HAIRLINE }}>
         <div style={{ ...SHELL, padding: SECTION_PAD }}>
-          <SectionHead no="04" title="이 공사에 대한 질문" />
+          <SectionHead kicker="FAQ" no="04" title="이 공사에 대한 질문" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: '0 56px' }}>
             {page.faqs.map((faq) => (
               <div key={faq.question} style={{ padding: '20px 0', borderTop: HAIRLINE }}>

@@ -19,21 +19,40 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 .blueprint-theme {
-  --color-bg: #f2f2f3;
-  --color-surface: #e9e9ea;
-  --color-text: #1d1f20;
-  --color-accent: #5980a6;
-  --color-accent-600: #597ea3;
-  --color-accent-700: #416180;
-  --color-accent-800: #2c455d;
-  --color-accent-900: #1d2d3d;
-  --color-neutral-100: #f5f5f8;
-  --color-neutral-800: #424244;
-  --color-divider: rgba(29, 31, 32, 0.16);
-  /* 글이 얹히는 띠(히어로·서브 머리·견적)의 바탕 — 페이지 바탕보다 한 단계 밝다 */
+  /* ── 면 ──
+     밝은 면 두 단계(흰 시트 / 회색 바탕)와 검은 밴드 하나로 리듬을 만든다.
+     검은 면은 파랑 계열이 아니라 먹색이다 — 액센트가 강해진 만큼 밴드까지
+     파랗게 두면 화면 전체가 파랑 한 색으로 눌린다. */
+  --color-bg: #f4f5f6;
   --color-sheet: #ffffff;
+  --color-surface: #e9eaec;
+  --color-ink: #0a0a0a;
+  --color-ink-deep: #050505;
 
-  --shadow-md: 0 3px 10px rgba(43, 43, 45, 0.16);
+  /* ── 글자 4단 램프 ──
+     본문·보조·설명·비활성. 전에는 본문색과 55% 투명도 둘뿐이라 정보 위계를
+     굵기와 크기로만 만들어야 했다. */
+  --color-text: #0a0a0a;
+  --color-text-2: #525252;
+  --color-text-3: #737373;
+  --color-text-4: #a3a3a3;
+
+  /* ── 액센트 ── 일렉트릭 블루 계열
+     accent-900은 이름과 달리 예전에 다크 밴드 바탕으로도 쓰였다. 밴드는
+     --color-ink로 분리했고, 여기 900은 깊은 파랑(어드민 레일 등)으로 남는다. */
+  --color-accent: #0047ff;
+  --color-accent-600: #3366ff;
+  --color-accent-700: #0039cc;
+  --color-accent-800: #002e9e;
+  --color-accent-900: #001f6b;
+  --color-accent-300: #adc4ff;
+  --color-accent-100: #e8eeff;
+
+  --color-neutral-100: #f4f5f6;
+  --color-neutral-800: #525252;
+  --color-divider: rgba(10, 10, 10, 0.14);
+
+  --shadow-md: 0 3px 10px rgba(10, 10, 10, 0.14);
 
   /* 헤딩은 Barlow Condensed, 한글은 Pretendard로 떨어진다.
      원본은 한글 폴백으로 IBM Plex Sans KR을 쓰지만, 이 사이트는 이미
@@ -50,15 +69,19 @@
   line-height: 1.55;
 }
 
+/* 제목은 700에 자간을 더 조인다. 600/-0.015em은 큰 크기에서 힘이 빠져
+   부제처럼 읽혔다. 작은 h3까지 -0.03em을 주면 답답해지므로 h1·h2만 조인다. */
 .blueprint-theme h1,
 .blueprint-theme h2,
 .blueprint-theme h3 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.015em;
-  line-height: 1.12;
+  line-height: 1.1;
   margin: 0;
 }
+.blueprint-theme h1,
+.blueprint-theme h2 { letter-spacing: -0.03em; }
 
 /* 고정 헤더(64px)에 제목이 가리지 않도록 */
 .blueprint-theme section[id] {
@@ -81,10 +104,10 @@
 }
 
 /* 손이 가는 판(견적폼·빠른 접수 등) — 마크가 사라진 자리를 선 굵기로 메운다 */
-.blueprint-theme .blueprint-strong { border-color: rgba(29, 31, 32, 0.3); }
+.blueprint-theme .blueprint-strong { border-color: rgba(10, 10, 10, 0.3); }
 
 /* 다크 필드(자격 섹션) 위의 프레임 — 어두운 선은 배경에 묻혀 보이지 않는다 */
-.blueprint-theme .bp-on-dark { border-color: rgba(242, 242, 243, 0.25); }
+.blueprint-theme .bp-on-dark { border-color: rgba(255, 255, 255, 0.22); }
 
 /* ── 시트 배경 ──
    히어로·서브페이지 머리·견적 섹션처럼 "글이 얹히는 띠"에 쓴다.
@@ -100,8 +123,8 @@
 }
 
 /* ── 타이포 유틸 ── */
-.blueprint-theme .text-muted { color: rgba(29, 31, 32, 0.55); }
-.blueprint-theme .display { font-family: var(--font-display); font-weight: 600; }
+.blueprint-theme .text-muted { color: var(--color-text-3); }
+.blueprint-theme .display { font-family: var(--font-display); font-weight: 700; }
 .blueprint-theme .mono-num {
   font-family: var(--font-display);
   letter-spacing: 0.02em;
@@ -136,7 +159,7 @@
   border: 1px solid var(--color-divider);
   transition: background 0.15s ease;
 }
-.blueprint-theme .btn-outline:hover { background: rgba(29, 31, 32, 0.07); }
+.blueprint-theme .btn-outline:hover { background: rgba(10, 10, 10, 0.06); }
 
 /* ── 스티키 헤더 ── */
 .blueprint-theme .bp-header {
@@ -147,7 +170,7 @@
    backdrop-filter를 모르는 브라우저는 위의 불투명 배경을 그대로 쓴다. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .blueprint-theme .bp-header[data-scrolled] {
-    background: rgba(242, 242, 243, 0.82);
+    background: rgba(244, 245, 246, 0.82);
     -webkit-backdrop-filter: blur(10px) saturate(1.4);
     backdrop-filter: blur(10px) saturate(1.4);
   }
@@ -209,7 +232,7 @@
 .blueprint-theme .bp-label {
   display: block;
   font-size: 11.5px;
-  color: rgba(29, 31, 32, 0.6);
+  color: var(--color-text-2);
   margin-bottom: 4px;
 }
 
@@ -227,13 +250,13 @@
   color: var(--color-text);
   caret-color: var(--color-accent);
   background-color: var(--color-sheet);
-  border: 1px solid rgba(29, 31, 32, 0.28);
+  border: 1px solid rgba(10, 10, 10, 0.26);
   border-radius: 0;
   -webkit-appearance: none;
   appearance: none;
 }
-.blueprint-theme .bp-input::placeholder { color: rgba(29, 31, 32, 0.42); }
-.blueprint-theme .bp-input:hover { border-color: rgba(29, 31, 32, 0.45); }
+.blueprint-theme .bp-input::placeholder { color: var(--color-text-4); }
+.blueprint-theme .bp-input:hover { border-color: rgba(10, 10, 10, 0.45); }
 .blueprint-theme .bp-input:focus-visible {
   border-color: var(--color-accent);
   outline: 2px solid var(--color-accent);
@@ -260,7 +283,7 @@
   display: flex;
   flex-wrap: wrap;
   background-color: var(--color-sheet);
-  border: 1px solid rgba(29, 31, 32, 0.28);
+  border: 1px solid rgba(10, 10, 10, 0.26);
 }
 .blueprint-theme .bp-seg-opt {
   flex: 1 1 auto;
@@ -278,7 +301,7 @@
   white-space: nowrap;
 }
 .blueprint-theme .bp-seg-opt + .bp-seg-opt { border-left: 1px solid var(--color-divider); }
-.blueprint-theme .bp-seg-opt:hover { background: rgba(29, 31, 32, 0.07); }
+.blueprint-theme .bp-seg-opt:hover { background: rgba(10, 10, 10, 0.06); }
 .blueprint-theme .bp-seg-opt[data-active] {
   background: var(--color-accent);
   color: var(--color-bg);
@@ -376,7 +399,7 @@
    때문이다. 지금은 사이트 전체가 블루프린트로 넘어와 그 위험이 사라졌고,
    한 요소를 고치려고 두 파일을 오가는 비용만 남아서 이리로 합쳤다. */
 .blueprint-theme .prose-wnj {
-  color: #334155;
+  color: var(--color-text-2);
   font-size: 1.0625rem;
   line-height: 1.85;
   word-break: keep-all;
@@ -430,8 +453,8 @@
 .blueprint-theme .prose-wnj blockquote {
   border-left: 3px solid var(--color-accent);
   padding: 0.25em 0 0.25em 1.15em;
-  background: rgba(89, 128, 166, 0.06);
-  color: #475569;
+  background: rgba(0, 71, 255, 0.05);
+  color: var(--color-text-2);
 }
 
 .blueprint-theme .prose-wnj img {
@@ -449,7 +472,7 @@
 }
 .blueprint-theme .prose-wnj pre {
   background: var(--color-accent-900);
-  color: #e2e8f0;
+  color: #f4f5f6;
   padding: 1.15rem;
   border-radius: 0;
   overflow-x: auto;
@@ -475,7 +498,7 @@
   text-align: left;
 }
 .blueprint-theme .prose-wnj th {
-  background: rgba(89, 128, 166, 0.06);
+  background: rgba(0, 71, 255, 0.05);
   font-weight: 700;
   color: var(--color-text);
   white-space: nowrap;
@@ -491,7 +514,7 @@
   color: inherit;
   transition: background 0.12s ease;
 }
-.blueprint-theme .ledger-row:hover { background: rgba(89, 128, 166, 0.08) !important; }
+.blueprint-theme .ledger-row:hover { background: rgba(0, 71, 255, 0.07) !important; }
 
 /* ── 표 ── */
 .blueprint-theme .bp-table {
@@ -504,17 +527,17 @@
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(29, 31, 32, 0.6);
+  color: var(--color-text-2);
   padding: 10px 8px;
   border-bottom: 1px solid var(--color-divider);
   white-space: nowrap;
 }
 .blueprint-theme .bp-table td {
   padding: 11px 8px;
-  border-bottom: 1px solid rgba(29, 31, 32, 0.08);
+  border-bottom: 1px solid rgba(10, 10, 10, 0.08);
   vertical-align: top;
 }
-.blueprint-theme .bp-table tbody tr:hover { background: rgba(29, 31, 32, 0.04); }
+.blueprint-theme .bp-table tbody tr:hover { background: rgba(10, 10, 10, 0.04); }
 
 /* 좁은 화면에서 표는 가로 스크롤로 처리한다. 축소하면 글자가 읽히지 않는다. */
 .blueprint-theme .bp-table-scroll { overflow-x: auto; }
@@ -570,6 +593,15 @@
   width: 9px;
   height: 9px;
   background: var(--color-accent);
+}
+
+/* 검은 밴드 위 — 레일은 밝은 선으로, 노드·화살표는 밝은 액센트로 뒤집는다.
+   그대로 두면 어두운 선이 검은 면에 묻혀 흐름이 통째로 사라진다. */
+.blueprint-theme .bp-on-ink .bp-flow-step::before { background: rgba(255, 255, 255, 0.22); }
+.blueprint-theme .bp-on-ink .bp-flow-node { background: var(--color-accent-300); }
+.blueprint-theme .bp-on-ink .bp-flow-step:not(:last-child)::after {
+  border-top-color: var(--color-accent-300);
+  border-right-color: var(--color-accent-300);
 }
 
 @media (max-width: 900px) {

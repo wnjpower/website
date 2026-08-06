@@ -47,8 +47,8 @@ export function BlueprintFooter() {
   return (
     <footer
       style={{
-        background: 'var(--color-accent-900)',
-        color: '#f2f2f3',
+        background: 'var(--color-ink)',
+        color: '#f4f5f6',
         padding: '26px clamp(16px,4vw,48px)',
       }}
     >
@@ -69,10 +69,10 @@ export function BlueprintFooter() {
           {COMPANY.bizNumber} · 전기공사업 {COMPANY.license}
         </span>
         <span style={{ display: 'flex', gap: 18, opacity: 0.75 }}>
-          <Link href="/privacy" style={{ color: '#f2f2f3' }}>
+          <Link href="/privacy" style={{ color: '#f4f5f6' }}>
             개인정보처리방침
           </Link>
-          <Link href="/" style={{ color: '#f2f2f3' }}>
+          <Link href="/" style={{ color: '#f4f5f6' }}>
             홈으로 →
           </Link>
         </span>
@@ -104,7 +104,9 @@ export function BlueprintMobileBar({
         left: 0,
         right: 0,
         zIndex: 70,
-        borderTop: '1px solid var(--color-divider)',
+        /* 흰 면 위에서도 먹색 밴드 위에서도 바의 윗변이 보여야 한다.
+           divider(어두운 헤어라인)는 검은 섹션 위에서 통째로 사라졌다. */
+        borderTop: '1px solid rgba(255,255,255,0.3)',
         boxShadow: '0 -4px 16px rgba(0,0,0,.1)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
@@ -119,8 +121,10 @@ export function BlueprintMobileBar({
           justifyContent: 'center',
           gap: 8,
           fontSize: 16,
+          /* 먹색이 아니라 깊은 파랑 — 진행 절차 같은 먹색 섹션 위에 바가
+             떠 있을 때 바닥과 같은 색이면 바가 통째로 사라져 보인다. */
           background: 'var(--color-accent-900)',
-          color: '#f2f2f3',
+          color: '#f4f5f6',
           padding: 16,
         }}
       >
@@ -218,12 +222,20 @@ function FileIcon() {
 }
 
 /**
- * 섹션 머리 — 번호 + 제목 + 보조 설명, 좌측 정렬.
+ * 섹션 머리 — 액센트 룰 + 영문 라벨 / 번호 + 제목 + 보조 설명, 좌측 정렬.
  * 스펙 §5가 지적한 P5(중앙 정렬 SectionHeading)를 대체한다.
  * action은 우측 끝에 붙는 링크 자리(예: "전체 실적 보기 →").
+ *
+ * [머리 위 한 줄을 더 둔 이유]
+ * 번호와 제목만 있으면 섹션이 바뀌었다는 신호가 제목 크기 하나뿐이라, 길게
+ * 스크롤할 때 구획이 흐려진다. 짧은 액센트 막대 + 영문 라벨을 위에 얹어
+ * "여기서 새 장이 시작된다"를 색으로 먼저 알린다. 라벨은 표시 서체(라틴)의
+ * 대문자 자간을 살리는 자리이기도 하다.
+ * kicker를 안 넘기면 막대만 그린다 — 법령 조문처럼 영문 라벨이 어색한 곳.
  */
 export function SectionHead({
   no,
+  kicker,
   title,
   note,
   action,
@@ -231,6 +243,8 @@ export function SectionHead({
   dark = false,
 }: {
   no: string;
+  /** 액센트 막대 옆 영문 라벨 (예: SERVICES) */
+  kicker?: string;
   title: string;
   note?: string;
   action?: React.ReactNode;
@@ -238,38 +252,57 @@ export function SectionHead({
   dark?: boolean;
 }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'baseline',
-        gap: '10px 18px',
-        flexWrap: 'wrap',
-        marginBottom: gap,
-      }}
-    >
-      {/* 번호는 제목과 한 쌍으로 읽혀야 한다. 15px 고정이던 때는 제목이
-          38px까지 커지는 동안 혼자 작아 보여, 짝이 아니라 떨어진 꼬리표처럼
-          보였다. 제목의 60% 안팎으로 같이 늘고 줄게 한다(baseline 정렬). */}
-      <span
-        className="display"
-        style={{
-          fontSize: 'clamp(18px,1.9vw,24px)',
-          letterSpacing: '.12em',
-          color: dark ? 'var(--color-accent-300, #b5d9fd)' : 'var(--color-accent-700)',
-        }}
-      >
-        {no}
-      </span>
-      <h2 style={{ fontSize: 'clamp(28px,3vw,38px)', letterSpacing: '-.01em' }}>{title}</h2>
-      {note && (
+    <div style={{ marginBottom: gap }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
         <span
-          className={dark ? undefined : 'text-muted'}
-          style={{ fontSize: 13.5, opacity: dark ? 0.65 : undefined }}
+          aria-hidden
+          style={{
+            width: 30,
+            height: 2,
+            flex: 'none',
+            background: dark ? 'var(--color-accent-300)' : 'var(--color-accent)',
+          }}
+        />
+        {kicker && (
+          <span
+            className="display"
+            style={{
+              fontSize: 12.5,
+              letterSpacing: '.2em',
+              textTransform: 'uppercase',
+              color: dark ? 'var(--color-accent-300)' : 'var(--color-accent-700)',
+            }}
+          >
+            {kicker}
+          </span>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px 18px', flexWrap: 'wrap' }}>
+        {/* 번호는 제목과 한 쌍으로 읽혀야 한다. 15px 고정이던 때는 제목이
+            38px까지 커지는 동안 혼자 작아 보여, 짝이 아니라 떨어진 꼬리표처럼
+            보였다. 제목의 60% 안팎으로 같이 늘고 줄게 한다(baseline 정렬). */}
+        <span
+          className="display"
+          style={{
+            fontSize: 'clamp(18px,1.9vw,24px)',
+            letterSpacing: '.12em',
+            color: dark ? 'var(--color-accent-300)' : 'var(--color-accent-700)',
+          }}
         >
-          {note}
+          {no}
         </span>
-      )}
-      {action && <span style={{ marginLeft: 'auto' }}>{action}</span>}
+        <h2 style={{ fontSize: 'clamp(30px,3.2vw,44px)' }}>{title}</h2>
+        {note && (
+          <span
+            className={dark ? undefined : 'text-muted'}
+            style={{ fontSize: 13.5, opacity: dark ? 0.7 : undefined }}
+          >
+            {note}
+          </span>
+        )}
+        {action && <span style={{ marginLeft: 'auto' }}>{action}</span>}
+      </div>
     </div>
   );
 }

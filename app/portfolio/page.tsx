@@ -57,7 +57,7 @@ export default async function PortfolioIndexPage() {
               padding: 'clamp(40px,5vw,64px) clamp(16px,4vw,48px)',
             }}
           >
-            <SectionHead no="＋" title="현장 사진" note="최근 진행한 현장" />
+            <SectionHead kicker="PHOTOS" no="＋" title="현장 사진" note="최근 진행한 현장" />
             <PostList posts={posts} emptyMessage="" />
           </div>
         </section>

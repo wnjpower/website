@@ -25,7 +25,7 @@ export function Services({ content }: { content: SiteContent['services'] }) {
   return (
     <section id="services" style={{ borderTop: HAIRLINE }}>
       <div style={{ ...SHELL, padding: PAD }}>
-        <SectionHead no="01" title={content.title} note={content.lead} gap={34} />
+        <SectionHead kicker="SERVICES" no="01" title={content.title} note={content.lead} gap={34} />
         <div
           style={{
             display: 'grid',
@@ -45,22 +45,42 @@ export function Services({ content }: { content: SiteContent['services'] }) {
                   padding: 26,
                   display: 'flex',
                   flexDirection: 'column',
-                  background: primary ? 'rgba(89,128,166,0.06)' : undefined,
+                  background: primary ? 'rgba(0,71,255,0.04)' : undefined,
+                  overflow: 'hidden',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 14 }}>
-                  <Icon size={30} strokeWidth={1.5} style={{ color: 'var(--color-accent-700)' }} />
+                {/* 대형 고스트 번호 — 카드 뒤에 크게 깔아 순서를 색이 아니라
+                    덩어리로 알린다. 읽는 글자가 아니므로 스크린리더에서 뺀다. */}
+                <span
+                  aria-hidden
+                  className="display"
+                  style={{
+                    position: 'absolute',
+                    top: -18,
+                    right: 6,
+                    fontSize: 116,
+                    lineHeight: 1,
+                    letterSpacing: '-.05em',
+                    color: 'rgba(10,10,10,0.05)',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+
+                <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 14 }}>
+                  <Icon size={30} strokeWidth={1.5} style={{ color: 'var(--color-accent)' }} />
                   <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {svc.tier === 'primary' && (
                       <span className="tag display" style={{ letterSpacing: '.08em' }}>주력</span>
                     )}
-                    <span className="display" style={{ fontSize: 24, color: 'rgba(29,31,32,0.3)' }}>
+                    <span className="display" style={{ fontSize: 15, letterSpacing: '.12em', color: 'var(--color-text-4)' }}>
                       A-{String(i + 1).padStart(2, '0')}
                     </span>
                   </span>
                 </div>
 
-                <h3 style={{ fontSize: 24, margin: '0 0 8px' }}>{svc.title}</h3>
+                <h3 style={{ position: 'relative', fontSize: 24, margin: '0 0 8px' }}>{svc.title}</h3>
                 <p style={{ fontSize: 14, lineHeight: 1.6, margin: '0 0 16px', opacity: 0.85 }}>{svc.detail}</p>
 
                 <ul style={{ display: 'flex', flexDirection: 'column', gap: 7, flex: 1, margin: '0 0 14px', padding: 0, listStyle: 'none', fontSize: 13.5 }}>
@@ -131,9 +151,16 @@ export function Services({ content }: { content: SiteContent['services'] }) {
 
 export function Process({ content }: { content: SiteContent['process'] }) {
   return (
-    <section id="process" style={{ borderTop: HAIRLINE }}>
+    /* 검은 밴드. 밝은 면이 계속 이어지면 스크롤이 한 덩어리로 흘러가는데,
+       "우리가 일하는 방식"은 잠깐 멈춰 읽어야 하는 대목이라 면을 뒤집어
+       구획을 만든다. 자격 섹션(04)과 함께 이 페이지의 두 검은 띠다. */
+    <section
+      id="process"
+      className="bp-on-ink"
+      style={{ background: 'var(--color-ink)', color: '#f4f5f6' }}
+    >
       <div style={{ ...SHELL, padding: PAD }}>
-        <SectionHead no="02" title={content.title} note={content.lead} gap={44} />
+        <SectionHead kicker="PROCESS" no="02" title={content.title} note={content.lead} gap={44} dark />
         {/* 칸 수를 CSS로 넘긴다 — 단계가 늘거나 줄어도 레일이 그대로 맞는다 */}
         <ol
           className="bp-flow"
@@ -142,10 +169,10 @@ export function Process({ content }: { content: SiteContent['process'] }) {
           {content.steps.map((step) => (
             <li key={step.step} className="bp-flow-step">
               <span className="bp-flow-node" aria-hidden />
-              <p className="display" style={{ fontSize: 32, margin: '0 0 4px', color: 'var(--color-accent-700)' }}>
+              <p className="display" style={{ fontSize: 40, margin: '0 0 6px', color: 'var(--color-accent-300)' }}>
                 {step.step}
               </p>
-              <h3 style={{ fontSize: 20, margin: '0 0 4px' }}>{step.title}</h3>
+              <h3 style={{ fontSize: 20, margin: '0 0 6px' }}>{step.title}</h3>
               {/* 소요 기간은 이 단계에 머무는 시간이다. 흐름 위에서 읽히도록
                   테두리를 둘러 다음 단계로 넘어가는 구간처럼 보이게 한다. */}
               <p
@@ -154,16 +181,15 @@ export function Process({ content }: { content: SiteContent['process'] }) {
                   display: 'inline-block',
                   fontSize: 12.5,
                   letterSpacing: '.06em',
-                  color: 'var(--color-accent-800)',
-                  background: 'var(--color-sheet)',
-                  border: '1px solid var(--color-divider)',
+                  color: 'var(--color-accent-300)',
+                  border: '1px solid rgba(255,255,255,0.22)',
                   padding: '2px 8px',
                   margin: '0 0 10px',
                 }}
               >
                 {step.duration}
               </p>
-              <p style={{ fontSize: 13.5, lineHeight: 1.6, margin: 0, opacity: 0.8 }}>{step.description}</p>
+              <p style={{ fontSize: 13.5, lineHeight: 1.6, margin: 0, opacity: 0.72 }}>{step.description}</p>
             </li>
           ))}
         </ol>
@@ -180,7 +206,7 @@ export function Process({ content }: { content: SiteContent['process'] }) {
 
 /** 공종별 태그 색 — 주력(공장)만 액센트, 나머지는 아웃라인·중립으로 위계를 준다 */
 const TAG_STYLE: Record<string, React.CSSProperties> = {
-  factory: { background: 'var(--color-accent-100, #eef6ff)', color: 'var(--color-accent-800)' },
+  factory: { background: 'var(--color-accent-100)', color: 'var(--color-accent-800)' },
   power:   { border: '1px solid var(--color-accent)', color: 'var(--color-accent-700)' },
   panel:   { border: '1px solid var(--color-accent)', color: 'var(--color-accent-700)' },
   interior:{ background: 'var(--color-neutral-100)', color: 'var(--color-neutral-800)' },
@@ -191,6 +217,7 @@ export function PortfolioLedger() {
     <section id="portfolio" style={{ borderTop: HAIRLINE }}>
       <div style={{ ...SHELL, padding: PAD }}>
         <SectionHead
+          kicker="WORKS"
           no="03"
           title="시공 실적"
           note="실제 진행한 공사 원장 — 현장 사진 순차 공개"
@@ -289,9 +316,9 @@ export function Credentials({ content }: { content: SiteContent['whyus'] }) {
   ];
 
   return (
-    <section id="credentials" style={{ background: 'var(--color-accent-900)', color: '#f2f2f3' }}>
+    <section id="credentials" style={{ background: 'var(--color-ink)', color: '#f4f5f6' }}>
       <div style={{ ...SHELL, padding: PAD }}>
-        <SectionHead no="04" title={content.title} note={content.lead} gap={40} dark />
+        <SectionHead kicker="CREDENTIALS" no="04" title={content.title} note={content.lead} gap={40} dark />
 
         <div
           style={{
@@ -313,7 +340,7 @@ export function Credentials({ content }: { content: SiteContent['whyus'] }) {
                   fontSize: 12,
                   letterSpacing: '.14em',
                   textTransform: 'uppercase',
-                  color: '#b5d9fd',
+                  color: 'var(--color-accent-300)',
                   margin: '0 0 10px',
                 }}
               >
@@ -336,7 +363,7 @@ export function Credentials({ content }: { content: SiteContent['whyus'] }) {
                     alignItems: 'center',
                     gap: 7,
                     fontSize: 14,
-                    color: '#f2f2f3',
+                    color: '#f4f5f6',
                     border: '1px solid rgba(242,242,243,.35)',
                     padding: '8px 14px',
                   }}
@@ -390,7 +417,7 @@ export function Pricing({ content }: { content: SiteContent['pricing'] }) {
   return (
     <section id="pricing" style={{ borderTop: HAIRLINE }}>
       <div style={{ ...SHELL, padding: PAD }}>
-        <SectionHead no="05" title={content.title} gap={40} />
+        <SectionHead kicker="PRICING" no="05" title={content.title} gap={40} />
 
         <div
           style={{
@@ -429,7 +456,7 @@ export function Pricing({ content }: { content: SiteContent['pricing'] }) {
                   margin: '18px 0 0',
                   padding: '14px 16px',
                   border: HAIRLINE,
-                  background: 'rgba(89,128,166,0.06)',
+                  background: 'rgba(0,71,255,0.04)',
                 }}
               >
                 <strong>약속</strong> — {content.promise}
@@ -555,7 +582,7 @@ export function Contact({ content }: { content: SiteContent['contact'] }) {
               display: 'flex',
               justifyContent: 'space-between',
               fontSize: 11,
-              color: 'rgba(29,31,32,0.55)',
+              color: 'var(--color-text-3)',
             }}
           >
             <span>MAP — 평리동</span>
