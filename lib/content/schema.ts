@@ -24,14 +24,14 @@ export const CONTENT_DEFAULTS = {
     linkHref: '',
   },
 
+  /*
+   * 상단 유틸리티 띠(topBar*)와 로고 아래 한 줄(logoSub)이 여기 있었다.
+   * 1b 블루프린트는 헤더를 한 줄로 눌러 띠를 없앴고, 로고는 심볼 + 한글 상호로 끝난다.
+   * 편집 화면에서 뺀 뒤에도 기본값에는 남아 «고쳐도 화면이 그대로인 값»이었다.
+   * 저장돼 있던 값도 DB에서 지웠으므로(migrations/20260805) 기본값에서도 걷어낸다.
+   */
   header: {
-    topBarEnabled: true,
-    topBarTrust: '전기공사업 등록 법인',
-    topBarRegion: '대구·경북 전 지역 시공',
-    topBarHours: '평일 09:00–18:00 · 토 09:00–13:00',
-    topBarFree: '현장 견적 무료',
     logoText: '우앤주전력',
-    logoSub: '공장·산업 전기공사 전문',
     nav: [
       { label: '사업영역', href: '/#services' },
       { label: '비용안내', href: '/#pricing' },
@@ -53,13 +53,12 @@ export const CONTENT_DEFAULTS = {
     leadHighlight: '전기공사업 등록 법인',
     note: '현장 방문 견적 무료 · 출장비 없음 · 1영업일 내 회신',
     backgroundImage: '',
-    segments: [
-      { label: '공장·산업 전기공사', sub: '신축·증축·수전·배전반', href: '#services' },
-      { label: '인테리어·일반 전기', sub: '상가·병원·주택', href: '#services' },
-    ],
     /**
      * 신뢰 지표 4칸. label이 크게, sub가 그 아래 설명으로 나온다.
      * 형용사가 아니라 조회 가능한 번호·기간을 넣는 것이 이 자리의 원칙이다.
+     *
+     * 1b 재구축 전에는 이 자리가 «부문 바로가기» 두 칸(segments)이었다. 부문 진입은
+     * 바로 아래 사업영역 카드가 이미 맡고 있어 중복이었고, 그 필드는 이제 없앴다.
      */
     trustStats: [
       { icon: 'ShieldCheck',   label: COMPANY.license, sub: '전기공사업 등록번호',            mono: true  },
@@ -83,8 +82,12 @@ export const CONTENT_DEFAULTS = {
     successNote: '급하시면 010-8552-9994로 바로 전화 주세요.',
   },
 
+  /*
+   * 여기서부터 각 섹션에 있던 '작은 머리말'(eyebrow)을 걷어냈다.
+   * 1b 블루프린트의 섹션 머리는 «번호 + 제목 + 보조 설명»(SectionHead)이라
+   * 머리말이 들어갈 자리가 없다. 히어로만 예외로 eyebrow를 계속 렌더한다.
+   */
   services: {
-    eyebrow: '사업영역',
     title: '3대 전문 분야',
     lead: '공장·산업 전기공사를 주력으로, 인테리어 전기와 배전반 설계·설치까지 직접 시공합니다. 계약전력 증설·수전설비는 공장 전기공사와 함께 진행합니다.',
     /**
@@ -138,45 +141,21 @@ export const CONTENT_DEFAULTS = {
   /**
    * 자격 — "믿을 수 있나"에 답하는 다크 필드.
    *
-   * 1b 재구축에서 기존 '차별점 4가지'(reasons)는 뺐다. 같은 주장이 히어로 신뢰 지표와
-   * 사업영역 카드에 이미 두 번 나와 세 번째 반복이었기 때문이다(P3).
-   * 이 자리는 조회 가능한 등록번호 3종과 회사 개요 사실 표만 담당한다.
-   * reasons·verifyTitle은 저장된 값을 잃지 않도록 남겨두되 화면에는 쓰이지 않는다.
+   * 1b 재구축에서 기존 '차별점 4가지'(reasons)와 그 머리말(verifyTitle)은 뺐다.
+   * 같은 주장이 히어로 신뢰 지표와 사업영역 카드에 이미 두 번 나와 세 번째
+   * 반복이었기 때문이다(P3). 이 자리는 조회 가능한 등록번호 3종과 회사 개요
+   * 사실 표만 담당한다. 기본값에 남겨 두었던 두 필드도 이제 걷어냈다 —
+   * DB에 저장된 whyus 값이 없어 잃는 데이터가 없다.
    */
   whyus: {
-    eyebrow: '검증 가능한 자격',
     title: '검증 가능한 자격',
     lead: '말이 아니라 공공기관 조회로 확인하세요',
-    verifyTitle: '공적 자격, 직접 확인하세요',
-    reasons: [
-      {
-        icon: 'Layers',
-        title: '원스톱 직접 시공',
-        desc: '공장 신축·증축·증설부터 수전설비·계약전력 증설·동력설비까지, 협력업체 조율 없이 한 법인이 설계 검토부터 준공까지 담당합니다.',
-      },
-      {
-        icon: 'CircuitBoard',
-        title: '배전반·분전반 설계·설치',
-        desc: '현장 규격·회로 수에 맞춰 직접 설계하고, 제작은 협력 제작소, 반입·설치·결선·시운전은 우앤주전력이 맡습니다. 설계한 업체가 설치까지 이어 책임 소재가 나뉘지 않습니다.',
-      },
-      {
-        icon: 'ShieldCheck',
-        title: '검증 가능한 면허 법인',
-        desc: '전기공사업 등록 법인입니다. 등록번호·사업자번호로 공공기관에서 실체와 실적을 직접 조회하실 수 있습니다.',
-      },
-      {
-        icon: 'Wrench',
-        title: '신속한 A/S',
-        desc: '대구·경북 지역 전담으로 문제 발생 시 당일 출동을 원칙으로 합니다. 준공 후 1년간 사후관리를 책임집니다.',
-      },
-    ],
     corpNote: '2023년 3월 법인 설립 · 대표 현장경력 20년+ · 계약 시 면허증 사본 제공',
     /** 회사 개요 사실 표 — LocalBusiness JSON-LD와 1:1로 맞춘다 (스펙 §7-2) */
     industry: '전기공사업 (공장·산업 전기 전문)',
   },
 
   process: {
-    eyebrow: '진행 절차',
     title: '문의부터 사후관리까지, 4단계',
     lead: '각 단계에 걸리는 기간을 미리 알려드립니다.',
     steps: [
@@ -194,11 +173,9 @@ export const CONTENT_DEFAULTS = {
    * 변수 3개를 먼저 공개하고, 표는 항목별 '산정 기준'을 밝히는 쪽으로 바꿨다.
    */
   pricing: {
-    eyebrow: '비용 기준',
     title: '비용은 이렇게 정해집니다',
     lead: '전기공사는 규격 상품이 아니라 현장마다 사양이 다른 공사입니다. 일률 정찰가 대신, 무엇이 비용을 결정하는지 공개합니다.',
     leadHighlight: '현장마다 사양이 다른 공사',
-    tableTitle: '표준 작업 항목표',
     footnote: '* 견적서에는 항목별 자재·노무 내역이 분리 기재됩니다.',
     promise:
       '현장 방문 견적은 무료이며, 견적서 확인 후 진행 여부는 고객이 결정합니다. 어떠한 강요도 없습니다.',
@@ -219,7 +196,6 @@ export const CONTENT_DEFAULTS = {
   },
 
   faq: {
-    eyebrow: '자주 묻는 질문',
     title: '궁금한 점을 미리 확인하세요',
     lead: '',
     items: [
@@ -241,7 +217,6 @@ export const CONTENT_DEFAULTS = {
   },
 
   quote: {
-    eyebrow: '견적 문의',
     title: '무료 현장 견적 신청',
     lead: '필수 입력 3개 — 30초면 접수됩니다',
     privacyNote: '개인정보 수집·이용에 동의합니다. (수집 항목: 성함·연락처·문의 내용 / 보유 기간: 문의 처리 후 1년)',
@@ -257,19 +232,24 @@ export const CONTENT_DEFAULTS = {
     callNote: '폼 작성이 번거로우시면 바로 통화',
   },
 
+  /*
+   * 연락처만 title·lead가 없다.
+   * 이 섹션은 SectionHead(번호+제목)를 쓰지 않고 «연락처 | 오시는 길» 2열 안에
+   * 각각 고정 h2를 두는 구조라 편집 대상 제목이 없다(Sections.tsx의 Contact).
+   * 기본값에 남아 있던 두 값은 화면에 도달하지 못해 걷어냈다.
+   */
   contact: {
-    eyebrow: '오시는 길·연락처',
-    title: '언제든 연락 주세요',
-    lead: '전화가 가장 빠릅니다. 현장 사진을 문자로 보내주시면 상담이 더 정확해집니다.',
     hours: '평일 09:00–18:00 · 토 09:00–13:00',
     hoursNote: '일요일·공휴일 휴무 (긴급 A/S는 상시 접수)',
     serviceArea: '대구광역시 전 지역 · 경상북도(경산·영천·칠곡·성주·고령·구미 등)',
   },
 
-  footer: {
-    tagline: '대구·경북 공장·산업 전기공사 전문 · 전기공사업 등록 법인',
-    note: '',
-  },
+  /*
+   * footer 섹션(tagline·note)이 여기 있었다.
+   * 1b 블루프린트의 푸터는 사업자정보 고정 블록이라 편집 대상이 아니다 —
+   * 내용은 lib/site.ts의 COMPANY 한 곳에서 온다. 편집 화면에도, 화면에도
+   * 도달하지 않는 값이었고 저장돼 있던 행도 DB에서 지웠다(migrations/20260805).
+   */
 
   /** 홈 메타데이터 — 검색 결과에 노출되는 제목·설명 */
   seo: {
@@ -280,7 +260,10 @@ export const CONTENT_DEFAULTS = {
       '대구 공장 전기공사', '경북 공장 전기', '수전설비 공사', '계약전력 증설',
       '배전반 설치', '분전반 설치', '동력설비 공사', '전기공사업', '우앤주전력', '대구 서구',
     ],
-    ogImageHeadline: '대구·경북 공장 전기공사',
+    /*
+     * ogImageHeadline이 여기 있었다. OG 이미지는 app/opengraph-image.tsx가
+     * 고정 문구로 그리므로 이 값을 고쳐도 미리보기가 바뀌지 않았다.
+     */
   },
 };
 
@@ -340,7 +323,9 @@ export interface SectionDef {
  * 1b 블루프린트에서 섹션 머리는 «번호 + 제목 + 보조 설명»이다(SectionHead).
  * 번호는 순서로 결정되고, 옛 디자인의 '작은 머리말(eyebrow)'은 자리가 없어졌다.
  * 그래서 편집 화면에서도 뺐다 — 고쳐도 화면이 그대로인 칸은 "저장이 안 된다"는
- * 오해를 만든다. 저장된 값 자체는 기본값에 남아 있으므로 데이터는 잃지 않는다.
+ * 오해를 만든다. 기본값에 남겨 두었던 각 섹션의 eyebrow도 이제 걷어냈다.
+ * 히어로만 예외다. 히어로 머리는 SectionHead가 아니라 자체 레이아웃이고
+ * eyebrow(등록번호 한 줄)를 실제로 렌더하므로 편집 대상으로 남는다.
  */
 const HEADING_FIELDS: FieldDef[] = [
   { key: 'title',   label: '섹션 제목',   type: 'text', maxLength: 80 },
@@ -392,7 +377,7 @@ export const SECTION_DEFS: SectionDef[] = [
       { key: 'leadHighlight', label: '설명 중 강조할 부분', type: 'text', maxLength: 60, help: '설명 문구 안에 이 글자가 있으면 굵게 표시됩니다' },
       { key: 'note',    label: '설명 아래 한 줄', type: 'text', maxLength: 80, help: '예: 현장 방문 견적 무료 · 출장비 없음' },
       { key: 'backgroundImage', label: '오른쪽 사진', type: 'image',
-        help: '비우면 수전설비 단선결선도 도면이 표시됩니다. 실제 시공 사진이 생기면 올려주세요' },
+        help: '비우면 공장 전기 배선 평면도가 표시됩니다. 실제 시공 사진이 생기면 올려주세요' },
       {
         key: 'trustStats', label: '신뢰 지표 (4칸)', type: 'list', itemTitleKey: 'label', maxItems: 4,
         help: '숫자·등록번호처럼 확인 가능한 값일수록 신뢰도가 올라갑니다',

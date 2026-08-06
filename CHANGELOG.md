@@ -9,6 +9,77 @@
 
 ---
 
+## 2026-08-06 — TODO 잔여 항목 정리 (코드 잔재 소진)
+
+TODO.md의 «🟠 이번 정리에서 남긴 코드 잔재» 항목과, 미뤄 뒀던 DB 한 줄을 끝냈다.
+
+### ① `ctas.style` 컬럼 삭제 — 미뤄 뒀던 마지막 한 줄
+
+2026-08-05에 코드 경로는 전부 걷어냈지만 컬럼 자체는 남겨 뒀었다. DDL이라
+`service_role`로는 안 되고 Management API PAT가 필요한데 `.env.local`에 없었기
+때문이다. 이번에는 **Supabase MCP가 동작해** 적용했다.
+
+적용 직전 확인: `ctas` **0행** · `style` 컬럼 존재. 적용 후 남은 컬럼이 코드의
+`Cta` 타입과 정확히 일치한다 — `id·slot·variant·label·sublabel·href·icon·weight·
+active·note·created_at·updated_at`.
+
+> 이로써 [`migrations/20260805_drop_legacy_content.sql`](supabase/migrations/20260805_drop_legacy_content.sql)의
+> 두 항목이 모두 적용 완료 상태가 됐다.
+
+### ② `CONTENT_DEFAULTS` 죽은 필드 22개 제거 (76 → 54)
+
+**단어 단위 grep으로는 못 잡는 것이 있었다.** `title`·`lead` 같은 이름은 다른
+섹션에서 쓰이므로 «어딘가에서 쓰인다»로만 나온다. 그래서 `SECTION_DEFS`(편집 화면
+정의)와 `CONTENT_DEFAULTS`(실제 값)를 **런타임에 양방향으로 대조**해 확인했다.
+
+| 걷어낸 것 | 왜 죽었나 |
+|---|---|
+| `header.topBar*` 5개 | 1b가 헤더를 한 줄로 눌러 상단 유틸리티 띠가 사라짐 |
+| `header.logoSub` | 로고가 심볼 + 한글 상호로 끝나게 바뀜 |
+| `hero.segments` | 그 자리를 신뢰 지표 4칸이 가져감 |
+| `whyus.verifyTitle` · `whyus.reasons` | 같은 주장의 세 번째 반복이라 섹션째 정리됨(P3) |
+| `pricing.tableTitle` | 표에 캡션을 두지 않는 구조로 바뀜 |
+| `contact.title` · `contact.lead` | 연락처는 SectionHead가 아니라 고정 h2 2열 구조 |
+| 섹션 `eyebrow` 7개 | SectionHead가 «번호+제목+설명»이라 머리말 자리가 없음 (히어로만 유지) |
+| `footer.tagline` · `footer.note` | 푸터는 `lib/site.ts`의 사업자정보 고정 블록 (섹션째 제거) |
+| `seo.ogImageHeadline` | OG 이미지가 고정 문구로 바뀜 |
+
+이제 **양방향 모두 빈틈이 없다** — 편집 화면의 모든 칸이 실제 값에 대응하고,
+기본값의 모든 값이 편집 가능하다. 「고쳐도 화면이 그대로인 칸」이 0개다.
+
+### ③ `public/` 미참조 파일 6개 삭제
+
+`next.svg` · `vercel.svg` · `file.svg` · `globe.svg` · `window.svg` ·
+`images/ceo-placeholder.png` — create-next-app이 넣어 둔 것들로 참조 0건.
+남은 `public/` 파일은 전부 참조처가 확인됐다(`app-icon-512.png`→manifest,
+`logo*.png`·`factory-electrical.jpg`·`switchgear.jpg`→SchemaOrg/헤더,
+`sw.js`→푸시, IndexNow 키 파일).
+
+### ④ 어드민 좌측 레일의 마지막 "+" 정합 마크 제거
+
+사장님 요청으로 사이트(`cb99ba0`)와 어드민(`d7912c8`)의 "+" 마크를 전부 뺐는데
+`components/admin/AdminNav.tsx`만 누락돼 레일 머리에 하나가 남아 있었다.
+
+### 확인한 것 — Supabase 보안 권고 5건 중 4건은 악용 불가
+
+`get_advisors`가 `SECURITY DEFINER` 함수 3종을 경고했으나 전부 실제 위험이 없다.
+
+- **`rls_auto_enable()`** — 이벤트 트리거 함수라 권한과 무관하게 직접 호출이
+  거부된다. 실제로 호출해 확인: `ERROR 0A000: trigger functions can only be
+  called as triggers`
+- **`prune_events(keep_days)`** — 첫 문장이 `is_admin()` 검사이고 아니면 `42501`
+- **`is_admin()`** — 호출자 본인의 관리자 여부만 돌려준다
+
+남은 1건(**유출 비밀번호 차단 비활성**)은 실제 미조치 상태이며 대시보드 토글이라
+TODO에 남는다.
+
+### 검증
+
+`npx tsc --noEmit` · `npm run lint` · `npm run build` 모두 통과 (30/30 페이지 생성).
+First Load JS 103 kB — 변동 없음.
+
+---
+
 ## 2026-08-05 — 1b 잔재 DB 정리
 
 코드 잔재를 정리하며 «되돌릴 수 없으니 남긴다»고 미뤄 뒀던 DB 두 가지를 정리했다.
@@ -263,8 +334,9 @@ fs.readFileSync(fileURLToPath(join(import.meta.url, "../yoga.wasm")))
 > 한동안 «사용자 경로에 공백이 있어서»로 알고 있었으나 **틀린 진단이었다.**
 > 공백 없는 경로에서도 똑같이 터진다 — Windows면 무조건이다.
 
-- [`scripts/patch-og-windows.mjs`](scripts/patch-og-windows.mjs) — 문제의 세 줄을
+- `scripts/patch-og-windows.mjs` — 문제의 세 줄을
   `new URL("./파일", import.meta.url)` 형태로 바꾼다. `postinstall`로 자동 실행.
+  (이 파일은 이후 Next 15가 같은 수정을 업스트림에 담으면서 삭제됐다 — 아래 참조)
 - **운영 동작은 한 바이트도 바뀌지 않는다.** 치환된 코드는 리눅스에서 정확히 같은
   파일을 가리키고, OG 이미지는 지금처럼 빌드 시점에 정적으로 생성된다
   (`○ /opengraph-image`). 요청 시점 생성(`runtime = 'edge'`)이나 정적 PNG 커밋도
