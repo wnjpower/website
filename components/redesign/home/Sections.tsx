@@ -120,9 +120,13 @@ export function Services({ content }: { content: SiteContent['services'] }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   02 진행 절차 — 카드 대신 헤어라인 한 줄로 나눈다.
-   각 칸 머리의 "+" 노드는 뺐다. 바로 아래 큰 단계 번호(01·02…)가 이미
-   그 자리를 가리키고 있어서, 마크는 같은 말을 한 번 더 하는 장식이었다.
+   02 진행 절차 — 4단계를 "흐름"으로 그린다(.bp-flow).
+
+   전에는 헤어라인 아래 4칸을 늘어놓기만 해서 순서가 아니라 목록으로 읽혔다.
+   문의 → 견적 → 시공 → 사후관리는 순서 자체가 파는 내용이므로, 칸 위로
+   레일을 통과시키고 각 단계의 시작점에 노드를, 칸 사이에 진행 방향 화살표를
+   둔다. 레일과 화살표는 blueprint.css에 있고, 좁은 화면에서는 같은 규칙이
+   세로로 돈다.
    ═══════════════════════════════════════════════════════════ */
 
 export function Process({ content }: { content: SiteContent['process'] }) {
@@ -130,30 +134,31 @@ export function Process({ content }: { content: SiteContent['process'] }) {
     <section id="process" style={{ borderTop: HAIRLINE }}>
       <div style={{ ...SHELL, padding: PAD }}>
         <SectionHead no="02" title={content.title} note={content.lead} gap={44} />
+        {/* 칸 수를 CSS로 넘긴다 — 단계가 늘거나 줄어도 레일이 그대로 맞는다 */}
         <ol
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))',
-            gap: 28,
-            borderTop: HAIRLINE,
-            padding: 0,
-            margin: 0,
-            listStyle: 'none',
-          }}
+          className="bp-flow"
+          style={{ '--flow-cols': content.steps.length } as React.CSSProperties}
         >
           {content.steps.map((step) => (
-            <li key={step.step} style={{ position: 'relative', paddingTop: 26 }}>
+            <li key={step.step} className="bp-flow-step">
+              <span className="bp-flow-node" aria-hidden />
               <p className="display" style={{ fontSize: 32, margin: '0 0 4px', color: 'var(--color-accent-700)' }}>
                 {step.step}
               </p>
               <h3 style={{ fontSize: 20, margin: '0 0 4px' }}>{step.title}</h3>
+              {/* 소요 기간은 이 단계에 머무는 시간이다. 흐름 위에서 읽히도록
+                  테두리를 둘러 다음 단계로 넘어가는 구간처럼 보이게 한다. */}
               <p
                 className="display"
                 style={{
-                  fontSize: 13,
-                  letterSpacing: '.08em',
-                  color: 'var(--color-accent-700)',
-                  margin: '0 0 8px',
+                  display: 'inline-block',
+                  fontSize: 12.5,
+                  letterSpacing: '.06em',
+                  color: 'var(--color-accent-800)',
+                  background: 'var(--color-sheet)',
+                  border: '1px solid var(--color-divider)',
+                  padding: '2px 8px',
+                  margin: '0 0 10px',
                 }}
               >
                 {step.duration}

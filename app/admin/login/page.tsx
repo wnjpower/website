@@ -22,10 +22,11 @@ export default function LoginPage() {
   );
 }
 
-/** 로그인·재설정 화면 공통 껍데기 — 도면 격자 위에 놓인 한 장의 카드 */
+/** 로그인·재설정 화면 공통 껍데기 — 페이지 바탕 위에 놓인 흰 카드 한 장.
+    바탕에 .sheet(흰 면)를 깔면 카드와 같은 색이 되어 카드가 사라진다. */
 function AuthShell({ subtitle, children }: { subtitle: string; children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-5 py-12 sheet">
+    <div className="min-h-screen flex items-center justify-center px-5 py-12">
       <div className="w-full max-w-sm">
         <div className="text-center mb-7">
           <p className="display" style={{ fontSize: 26, letterSpacing: '-.01em' }}>우앤주전력</p>

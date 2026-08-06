@@ -95,8 +95,9 @@ export default function ResetPasswordPage() {
     }
   }
 
+  // 바탕은 페이지 색 그대로 둔다 — 흰 면(.sheet)을 깔면 아래 흰 카드가 사라진다
   return (
-    <div className="min-h-screen flex items-center justify-center px-5 py-12 sheet">
+    <div className="min-h-screen flex items-center justify-center px-5 py-12">
       <div className="w-full max-w-sm">
         <div className="text-center mb-7">
           <p className="display" style={{ fontSize: 26, letterSpacing: '-.01em' }}>우앤주전력</p>

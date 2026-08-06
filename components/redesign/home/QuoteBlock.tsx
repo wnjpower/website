@@ -296,26 +296,32 @@ export default function QuoteBlock({
                 <input type="hidden" {...register('source')} />
                 <input type="hidden" {...register('category')} />
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, marginBottom: 18 }}>
-                  <div style={{ flex: 1, minWidth: 240 }}>
-                    <span className="bp-label">공사 유형 (필수)</span>
-                    <div className="bp-seg" role="group" aria-label="공사 유형">
-                      {CUSTOMER_TYPES.map((t) => (
-                        <button
-                          key={t}
-                          type="button"
-                          onClick={() => setValue('customerType', t)}
-                          aria-pressed={customerType === t}
-                          className="bp-seg-opt"
-                          data-active={customerType === t ? 'true' : undefined}
-                        >
-                          {t === 'industrial' ? '공장·산업' : t === 'interior' ? '인테리어·일반' : '잘 모르겠어요'}
-                        </button>
-                      ))}
-                    </div>
+                {/*
+                  공사 유형과 공사 종류를 한 줄에 나눠 담았더니 선택지 셋이 칸을
+                  넘겨 마지막 글자가 잘렸다. 유형은 아래 종류 목록을 결정하는
+                  상위 질문이므로 한 줄을 통째로 준다 — 잘림도 없어지고
+                  "유형을 먼저 고르면 종류가 바뀐다"는 순서도 눈에 보인다.
+                */}
+                <div style={{ marginBottom: 18 }}>
+                  <span className="bp-label">공사 유형 (필수)</span>
+                  <div className="bp-seg" role="group" aria-label="공사 유형">
+                    {CUSTOMER_TYPES.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setValue('customerType', t)}
+                        aria-pressed={customerType === t}
+                        className="bp-seg-opt"
+                        data-active={customerType === t ? 'true' : undefined}
+                      >
+                        {t === 'industrial' ? '공장·산업' : t === 'interior' ? '인테리어·일반' : '잘 모르겠어요'}
+                      </button>
+                    ))}
                   </div>
+                </div>
 
-                  <label style={{ flex: 1, minWidth: 200 }}>
+                <div style={{ marginBottom: 18 }}>
+                  <label style={{ display: 'block' }}>
                     <span className="bp-label">공사 종류</span>
                     <select
                       className="bp-input"

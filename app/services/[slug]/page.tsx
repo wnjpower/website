@@ -152,7 +152,11 @@ export default async function ServiceDetailPage(
       <section style={{ borderBottom: HAIRLINE }}>
         <div style={{ ...SHELL, padding: 'clamp(36px,5vw,60px) clamp(16px,4vw,48px)' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 18, flexWrap: 'wrap', marginBottom: 16 }}>
-            <span className="display" style={{ fontSize: 15, letterSpacing: '.14em', color: 'var(--color-accent-700)' }}>
+            {/* 공종 코드는 제목(clamp 32~52px)과 한 쌍이다 — 같이 늘고 줄게 한다 */}
+            <span
+              className="display"
+              style={{ fontSize: 'clamp(20px,2.4vw,31px)', letterSpacing: '.12em', color: 'var(--color-accent-700)' }}
+            >
               {page.code}
             </span>
             <h1 style={{ fontSize: 'clamp(32px,4vw,52px)', lineHeight: 1.08 }}>{page.h1}</h1>

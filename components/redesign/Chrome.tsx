@@ -247,11 +247,14 @@ export function SectionHead({
         marginBottom: gap,
       }}
     >
+      {/* 번호는 제목과 한 쌍으로 읽혀야 한다. 15px 고정이던 때는 제목이
+          38px까지 커지는 동안 혼자 작아 보여, 짝이 아니라 떨어진 꼬리표처럼
+          보였다. 제목의 60% 안팎으로 같이 늘고 줄게 한다(baseline 정렬). */}
       <span
         className="display"
         style={{
-          fontSize: 15,
-          letterSpacing: '.14em',
+          fontSize: 'clamp(18px,1.9vw,24px)',
+          letterSpacing: '.12em',
           color: dark ? 'var(--color-accent-300, #b5d9fd)' : 'var(--color-accent-700)',
         }}
       >

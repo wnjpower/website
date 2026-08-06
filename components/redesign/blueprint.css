@@ -213,6 +213,11 @@
   margin-bottom: 4px;
 }
 
+/* 입력면은 담고 있는 판보다 밝게 둔다 — 폼 카드가 var(--color-bg)라
+   입력칸도 같은 색이면 얇은 테두리 하나로만 구분돼, "여기에 적어야 한다"가
+   한눈에 안 왔다(사장님 지적). 흰 면이면 적을 곳이 스스로 드러난다.
+   background-color만 지정한다 — select의 화살표를 background-image로
+   얹기 때문에 shorthand를 쓰면 그 그림이 지워진다. */
 .blueprint-theme .bp-input {
   width: 100%;
   min-height: 38px;
@@ -221,12 +226,13 @@
   font-size: max(16px, 1em);
   color: var(--color-text);
   caret-color: var(--color-accent);
-  background: var(--color-bg);
-  border: 1px solid var(--color-divider);
+  background-color: var(--color-sheet);
+  border: 1px solid rgba(29, 31, 32, 0.28);
   border-radius: 0;
   -webkit-appearance: none;
   appearance: none;
 }
+.blueprint-theme .bp-input::placeholder { color: rgba(29, 31, 32, 0.42); }
 .blueprint-theme .bp-input:hover { border-color: rgba(29, 31, 32, 0.45); }
 .blueprint-theme .bp-input:focus-visible {
   border-color: var(--color-accent);
@@ -235,15 +241,32 @@
 }
 .blueprint-theme textarea.bp-input { min-height: 92px; resize: vertical; }
 
-/* 분절 선택(세그먼트) — 라디오 대신 버튼으로 만들어 터치 영역을 넓힌다 */
+/* appearance:none이 select의 화살표까지 지운다. 다시 그리지 않으면 텍스트
+   입력칸과 구분되지 않아 "고를 수 있는 칸"인 줄 모른다. */
+.blueprint-theme select.bp-input {
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d1f20' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  background-size: 13px;
+  cursor: pointer;
+}
+
+/* 분절 선택(세그먼트) — 라디오 대신 버튼으로 만들어 터치 영역을 넓힌다.
+   inline-flex + overflow:hidden 이던 때는 선택지 셋의 폭이 칸을 넘으면
+   마지막 글자가 잘려 나갔다("잘 모르겠어요" → "잘 모르겠어"). 폭에 맞춰
+   줄바꿈하도록 바꾸고, 잘라내던 overflow는 걷어낸다. */
 .blueprint-theme .bp-seg {
-  display: inline-flex;
-  border: 1px solid var(--color-divider);
-  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  background-color: var(--color-sheet);
+  border: 1px solid rgba(29, 31, 32, 0.28);
 }
 .blueprint-theme .bp-seg-opt {
+  flex: 1 1 auto;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 9px 14px;
   font: inherit;
@@ -495,6 +518,81 @@
 
 /* 좁은 화면에서 표는 가로 스크롤로 처리한다. 축소하면 글자가 읽히지 않는다. */
 .blueprint-theme .bp-table-scroll { overflow-x: auto; }
+
+/* ── 진행 절차 흐름 ──────────────────────────────────────────────────
+   4단계를 그냥 4칸으로 늘어놓으면 "목록"으로 읽힌다. 문의 → 견적 → 시공 →
+   사후관리는 순서 자체가 내용이므로, 칸 위로 레일을 하나 통과시키고 각 칸이
+   시작되는 지점에 노드를, 칸과 칸 사이에 진행 방향 갈매기표를 둔다.
+
+   칸 사이 gap을 0으로 두고 오른쪽 여백을 padding으로 주는 이유 — gap을 쓰면
+   레일이 칸마다 끊겨 흐름이 아니라 토막으로 보인다. 여백은 안쪽에서 만든다.
+
+   넓은 화면은 왼→오른쪽, 900px 이하는 위→아래로 같은 규칙이 돈다. */
+.blueprint-theme .bp-flow {
+  display: grid;
+  grid-template-columns: repeat(var(--flow-cols, 4), minmax(0, 1fr));
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.blueprint-theme .bp-flow-step {
+  position: relative;
+  padding: 30px 30px 0 0;
+}
+/* 레일 */
+.blueprint-theme .bp-flow-step::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-divider);
+}
+/* 진행 방향 — 다음 칸으로 넘어가는 갈매기표 */
+.blueprint-theme .bp-flow-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: 13px;
+  width: 8px;
+  height: 8px;
+  border-top: 1px solid var(--color-accent);
+  border-right: 1px solid var(--color-accent);
+  transform: rotate(45deg);
+}
+/* 노드 — 이 단계가 시작되는 지점 */
+.blueprint-theme .bp-flow-node {
+  position: absolute;
+  top: -4px;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  background: var(--color-accent);
+}
+
+@media (max-width: 900px) {
+  .blueprint-theme .bp-flow { grid-template-columns: minmax(0, 1fr); }
+  .blueprint-theme .bp-flow-step { padding: 0 0 26px 26px; }
+  .blueprint-theme .bp-flow-step:last-child { padding-bottom: 0; }
+  .blueprint-theme .bp-flow-step::before {
+    top: 0;
+    bottom: 0;
+    left: 4px;
+    right: auto;
+    width: 1px;
+    height: auto;
+  }
+  .blueprint-theme .bp-flow-node { top: 2px; left: 0; }
+  .blueprint-theme .bp-flow-step:not(:last-child)::after {
+    top: auto;
+    bottom: 7px;
+    right: auto;
+    left: 0;
+    transform: rotate(135deg);
+  }
+}
 
 /* ── 반응형 (스펙 §6: 브레이크포인트 900px) ── */
 /* 햄버거 버튼과 그 패널은 좁은 화면 전용 */

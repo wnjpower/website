@@ -413,14 +413,9 @@ body:has(.admin-theme) {
 
 /* ── 폼 보강 ────────────────────────────────────────────────────────── */
 
-/* .bp-input은 appearance:none이라 select의 화살표까지 지운다. 다시 그린다. */
-.admin-theme select.bp-input {
-  padding-right: 32px;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d1f20' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 9px center;
-  background-size: 13px;
-}
+/* select 화살표는 blueprint.css로 옮겼다 — 사이트 쪽 select에도 없어서
+   텍스트 입력칸과 구분이 안 되던 문제가 있었고, 같은 규칙을 두 곳에
+   둘 이유가 없다. */
 .admin-theme .bp-input:disabled {
   opacity: 0.55;
   cursor: not-allowed;

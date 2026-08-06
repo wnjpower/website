@@ -53,7 +53,8 @@ export default function PageHero({
           {eyebrow && (
             <span
               className="display"
-              style={{ fontSize: 15, letterSpacing: '.14em', color: 'var(--color-accent-700)' }}
+              // 제목(clamp 30~46px)과 한 쌍으로 읽히도록 같이 늘고 줄게 한다
+              style={{ fontSize: 'clamp(19px,2.2vw,28px)', letterSpacing: '.12em', color: 'var(--color-accent-700)' }}
             >
               {eyebrow}
             </span>
