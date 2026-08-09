@@ -14,15 +14,15 @@
 --   · data - '키'                — 이미 없으면 값이 그대로다
 --   · delete ... where key=...   — 이미 없으면 0행이다
 --
--- ── 적용 현황 (2026-08-05) ────────────────────────────────────────────────
---   [x] ② site_content / site_drafts 옛 키 정리 — service_role로 적용 완료.
+-- ── 적용 현황 ─────────────────────────────────────────────────────────────
+--   [x] ② site_content / site_drafts 옛 키 정리 (2026-08-05) — service_role로 적용.
 --          결과: 두 테이블 모두 header(8키)·services(3키)·seo(3키)만 남음.
 --          footer 행은 site_content에서 1행 삭제(site_drafts에는 원래 없었음).
---   [ ] ① alter table ... drop column style — 미적용.
---          DDL이라 service_role로는 안 되고 Management API PAT 또는 대시보드가
---          필요하다. .env.local에 SUPABASE_ACCESS_TOKEN이 없어 남겨 둔다.
---          남아 있어도 무해하다 — 컬럼에 not null default 'primary'가 걸려 있고
---          코드가 더 이상 INSERT에 넣지 않으므로 기본값이 채워진다.
+--   [x] ① alter table ... drop column style (2026-08-06) — Supabase MCP로 적용.
+--          service_role로는 DDL이 안 돼 미뤄 뒀던 한 줄이다. 적용 직전 확인:
+--          ctas 0행 · style 컬럼 존재. 적용 후 남은 컬럼이 코드의 Cta 타입과
+--          정확히 일치한다(id·slot·variant·label·sublabel·href·icon·weight·
+--          active·note·created_at·updated_at).
 --
 -- 되돌리기: 파일 맨 아래 주석 참조.
 

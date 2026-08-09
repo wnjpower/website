@@ -3,7 +3,7 @@
 > **프로덕션**: https://www.wnjpower.com (apex → www 308 리다이렉트)
 > **GitHub**: https://github.com/wnjpower/website · **Vercel**: `wnjpower-erp` 팀 / `wnj-website`
 > **Supabase**: `wnj-website` (서울 `ap-northeast-2`, ref `wtlvbilsakoktcrrqlfi`)
-> **최종 업데이트**: 2026-08-05
+> **최종 업데이트**: 2026-08-06
 
 > ✅ **완료된 변경 이력은 [`CHANGELOG.md`](CHANGELOG.md)** 참조.
 > 이 문서는 아직 끝나지 않은 항목만 추적한다.
@@ -37,23 +37,34 @@
 
 ---
 
+## 2026-08-06 세션 — 코드 잔재가 소진됐다
+
+TODO에 남아 있던 «코드로 처리 가능한» 항목을 전부 끝냈다. 상세는
+[`CHANGELOG.md`](CHANGELOG.md) 2026-08-06 항목.
+
+| | 한 일 | 비고 |
+|---|---|---|
+| ① | `ctas.style` 컬럼 삭제 | Supabase MCP가 이번엔 동작해 적용 — 마이그레이션 2/2 완료 |
+| ② | `CONTENT_DEFAULTS` 죽은 필드 22개 제거 (76 → 54) | 「고쳐도 화면이 그대로인 칸」 0개 |
+| ③ | `public/` 미참조 파일 6개 삭제 | 남은 파일은 전부 참조처 확인 |
+| ④ | 어드민 레일의 마지막 "+" 정합 마크 제거 | `d7912c8`이 놓친 파일 |
+
+**이 문서에서 지운 항목** — 위 작업으로 해소: `ctas.style` 삭제 ·
+`public/` 기본 파일 6개 · `CONTENT_DEFAULTS` 죽은 필드.
+
+> **남은 것은 대부분 «사장님·외부 계정이 있어야 하는 일»이다.** 아래 🔴 3건과
+> 🟡 콘텐츠·SEO 항목이 그렇다. 코드 쪽은 판단 대기(디자인·기획) 항목만 남았다.
+
+---
+
 ## 🔴 지금 바로
 
-- [ ] **`ctas.style` 컬럼 삭제** — 이번 정리에서 유일하게 남은 한 줄.
-      Supabase 대시보드 → SQL Editor에 붙여넣으면 끝난다.
-      ```sql
-      alter table public.ctas drop column if exists style;
-      ```
-      코드는 이미 이 컬럼을 읽지도 쓰지도 않는다(배포 완료). **급하지 않다** —
-      `not null default 'primary'`가 걸려 있어 남아 있어도 무해하다.
-      전체 마이그레이션: [`supabase/migrations/20260805_drop_legacy_content.sql`](supabase/migrations/20260805_drop_legacy_content.sql) (멱등)
-      > `.env.local`에 `SUPABASE_ACCESS_TOKEN=sbp_...`을 넣어 두면 다음부터
-      > Management API로 자동 적용할 수 있다.
-
 - [ ] **🔴 Supabase 유출 비밀번호 차단(Leaked Password Protection) 켜기**
-      현재 꺼져 있다. 관리자 계정이 견적문의 DB 전체의 유일한 관문인데
-      HaveIBeenPwned에 올라온 비밀번호도 그대로 통과된다.
-      Supabase → Authentication → Policies → 활성화. 클릭 한 번.
+      **2026-08-06에도 꺼져 있음을 재확인했다**(보안 권고 조회). 관리자 계정이
+      견적문의 DB 전체의 유일한 관문인데 HaveIBeenPwned에 올라온 비밀번호도
+      그대로 통과된다. Supabase → Authentication → Policies → 활성화. 클릭 한 번.
+      > 이건 대시보드 전용 설정이라 코드·MCP로는 켤 수 없다. **지금 남은 보안
+      > 권고 중 실제로 조치가 필요한 유일한 항목이다** (아래 «확인 완료» 참조).
 
 - [ ] **실시간 알림 기기 등록** — `/admin/notifications`에서 **휴대폰·PC 각각**
       [이 기기에서 알림 받기] → [시험 알림 보내기]로 도착 확인.
@@ -69,23 +80,31 @@
 
 ---
 
-## 🟠 이번 정리에서 남긴 코드 잔재
+## 🟠 남긴 코드 잔재 — 이제 하나뿐
 
-의도적으로 남겼거나 범위 밖이라 손대지 않은 것들. 전부 무해하지만 다음 사람이
-«이건 왜 있지»를 다시 조사하게 만든다.
-
-- [ ] **`public/`의 create-next-app 기본 파일 6개** — `next.svg` · `vercel.svg` ·
-      `file.svg` · `globe.svg` · `window.svg` · `images/ceo-placeholder.png`.
-      어디서도 참조되지 않는다(조사에서 확인). 1b 이전부터 있던 것이라
-      코드 정리 단계에 포함하지 않았다. 지워도 안전하다.
-- [ ] **`CONTENT_DEFAULTS`의 죽은 필드** — 렌더되는 곳이 하나도 없다.
-      `footer`(푸터는 사업자정보 고정 블록) · `header.topBar*`(상단 유틸 띠 삭제) ·
-      `hero.segments` · `whyus.reasons` · `whyus.verifyTitle`.
-      편집 화면에서는 이미 뺐고 저장된 DB 값도 지웠다. 기본값에서도 지울지 결정할 것.
 - [ ] **`components.json`의 `utils` 별칭** — 사라진 `@/lib/utils`를 가리킨다.
       shadcn CLI가 컴포넌트를 새로 받을 때만 보는 값이라 그대로 뒀다
       (그때 CLI가 파일을 다시 만든다). `shadcn` devDependency와 이 파일은
       `globals.css`의 `@import "shadcn/tailwind.css"`와 토스트가 계속 쓰므로 유지.
+
+## ✅ 확인 완료 — 다시 조사하지 말 것
+
+조사해 보니 문제가 아니었던 것들. 같은 걸 두 번 파지 않도록 결론만 남긴다.
+
+- **Supabase 보안 권고의 `SECURITY DEFINER` 경고 3건은 악용 불가** (2026-08-06 확인)
+  - `rls_auto_enable()` — 이벤트 트리거 함수라 권한과 무관하게 직접 호출이 거부된다.
+    실제로 호출해 확인했다: `ERROR 0A000: trigger functions can only be called as triggers`
+  - `prune_events(keep_days)` — 첫 문장이 `is_admin()` 검사이고 아니면 `42501`로 중단
+  - `is_admin()` — 호출자 «본인»의 관리자 여부만 돌려준다
+- **`public/`에 남은 파일은 전부 참조처가 있다** (2026-08-06 확인) —
+  `app-icon-512.png`→manifest · `logo.png`·`logo-mark.png`→헤더/SchemaOrg ·
+  `factory-electrical.jpg`·`switchgear.jpg`→SchemaOrg · `sw.js`→푸시 ·
+  `7cc4061689…txt`→IndexNow 키
+- **편집 화면(`SECTION_DEFS`)과 기본값(`CONTENT_DEFAULTS`)은 양방향으로 일치한다**
+  (2026-08-06 확인) — 편집 칸이 가리키는 값이 전부 존재하고, 기본값의 모든 값이
+  편집 가능하다. 「고쳐도 화면이 그대로인 칸」이 0개다.
+  > ⚠️ **이건 `tsc`가 못 잡는다.** `FieldDef.key`가 `string`이라 없는 키를 가리켜도
+  > 타입 오류가 아니다. 스키마를 손볼 때는 런타임 대조로 확인할 것.
 
 ## 🟠 Next.js 15 이후 — 지켜볼 것
 
@@ -185,9 +204,14 @@
       렌더된다. 어드민 → CTA 버튼에서 한 자리에 변형을 2개 만들면 실험이 시작된다.
       히어로 주 버튼부터 권장
 - [ ] **이벤트 자동 정리 스케줄** — `prune_events(180)` 함수는 있으나 자동 실행 미설정.
-      Supabase `pg_cron`으로 하루 1회 돌리면 무료 tier 500MB를 안정적으로 유지
+      Supabase `pg_cron`으로 하루 1회 돌리면 무료 tier 500MB를 안정적으로 유지.
+      > **사장님 승인 대기.** 이제 MCP로 걸 수 있지만, «180일 지난 이벤트를 매일
+      > 자동 삭제»하는 상시 규칙이라 한 번 물어보고 걸어야 한다. 보관 기간을
+      > 180일이 아닌 값으로 하고 싶으면 그때 정하면 된다.
 - [ ] **Vercel MCP 재인증** — `wnjpower-erp` 팀 스코프 권한이 없어 MCP 도구로는 403.
       단 `npx vercel` CLI는 정상 동작하므로(2026-08-05 배포 확인에 사용) 급하지 않다
+      > 참고: **Supabase MCP는 2026-08-06 세션에서 정상 동작했다.** 이전에 OAuth가
+      > 실패해 PAT로 우회했었는데, 이제 DDL까지 MCP로 적용된다.
 - [ ] **로컬 `.env.local`의 `NEXT_PUBLIC_SITE_URL`이 `http://localhost:3210`**
       프로덕션은 정상. 다만 이 값으로 로컬에서 색인 제출을 실행하면 localhost 주소가
       IndexNow에 올라가 거부된다. 로컬 발행 테스트 전에 확인할 것
@@ -201,7 +225,7 @@
 
 ## 📁 주요 파일 위치 참조
 
-> 2026-08-05에 **실제 파일 존재를 확인하며** 다시 만들었다.
+> 2026-08-06에 **실제 파일 존재를 확인하며** 재검증했다(내부 링크 46개 전부 유효).
 > 1b 재구축으로 `components/sections/*`와 `components/ui/*`(sonner 제외)는 전부 없어졌다.
 
 | 목적 | 경로 |
@@ -214,7 +238,7 @@
 | 홈 히어로(단선결선도·신뢰지표) | [`components/redesign/home/Hero.tsx`](components/redesign/home/Hero.tsx) |
 | 홈 섹션(사업영역·절차·실적·자격·비용·오시는길) | [`components/redesign/home/Sections.tsx`](components/redesign/home/Sections.tsx) |
 | 헤더 · 모바일 내비 | [`components/redesign/HeaderBar.tsx`](components/redesign/HeaderBar.tsx) · [`components/redesign/MobileNav.tsx`](components/redesign/MobileNav.tsx) |
-| 푸터·하단바·정합마크·섹션머리 | [`components/redesign/Chrome.tsx`](components/redesign/Chrome.tsx) |
+| 푸터·하단바·섹션머리(SectionHead) | [`components/redesign/Chrome.tsx`](components/redesign/Chrome.tsx) |
 | 견적폼 · 빠른 접수 바 | [`components/redesign/home/QuoteBlock.tsx`](components/redesign/home/QuoteBlock.tsx) · [`components/redesign/home/QuickQuoteBar.tsx`](components/redesign/home/QuickQuoteBar.tsx) |
 | 서브페이지 골격 | [`components/SubPageShell.tsx`](components/SubPageShell.tsx) · [`components/PageHero.tsx`](components/PageHero.tsx) |
 | **어드민 전용 스타일·프리미티브** | [`components/admin/admin.css`](components/admin/admin.css) · [`components/admin/ui.tsx`](components/admin/ui.tsx) |

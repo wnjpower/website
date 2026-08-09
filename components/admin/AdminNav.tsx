@@ -74,7 +74,6 @@ export default function AdminNav({ userName }: { userName: string }) {
       {/* ── 사이드 레일 ── */}
       <aside className="a-rail" data-open={open ? '' : undefined}>
         <div className="a-rail-head">
-          <PlusMark />
           <Link href="/admin" className="min-w-0">
             <span className="display block" style={{ fontSize: 19, letterSpacing: '-.01em' }}>
               우앤주전력
@@ -131,15 +130,8 @@ export default function AdminNav({ userName }: { userName: string }) {
   );
 }
 
-/** 레일 머리의 도면 정합 마크 — 사이트 히어로 머리말과 같은 표식 */
-function PlusMark() {
-  return (
-    <span
-      style={{ width: 13, height: 13, position: 'relative', display: 'inline-block', flex: 'none', opacity: 0.7 }}
-      aria-hidden
-    >
-      <span style={{ position: 'absolute', left: 6, top: 0, width: 1, height: '100%', background: 'currentColor' }} />
-      <span style={{ position: 'absolute', top: 6, left: 0, width: '100%', height: 1, background: 'currentColor' }} />
-    </span>
-  );
-}
+/*
+ * 레일 머리에 "+" 정합 마크(PlusMark)가 있었다.
+ * 사장님 요청으로 사이트와 어드민의 "+" 마크를 전부 뺐는데(cb99ba0·d7912c8)
+ * 이 파일만 빠져 어드민 좌측 레일 머리에 하나가 남아 있었다. 같이 없앤다.
+ */
