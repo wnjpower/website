@@ -1,4 +1,4 @@
-import { COMPANY } from '@/lib/site';
+import { COMPANY, HOURS_NOTE, HOURS_TEXT, SERVICE_AREA_TEXT } from '@/lib/site';
 
 /**
  * 사이트 콘텐츠의 단일 정의 파일.
@@ -239,9 +239,17 @@ export const CONTENT_DEFAULTS = {
    * 기본값에 남아 있던 두 값은 화면에 도달하지 못해 걷어냈다.
    */
   contact: {
-    hours: '평일 09:00–18:00 · 토 09:00–13:00',
-    hoursNote: '일요일·공휴일 휴무 (긴급 A/S는 상시 접수)',
-    serviceArea: '대구광역시 전 지역 · 경상북도(경산·영천·칠곡·성주·고령·구미 등)',
+    /*
+     * 이 세 값의 기본값은 lib/site.ts에서 온다 — 구조화 데이터(SchemaOrg)와
+     * 네이버 플레이스 등록 시트가 같은 상수를 쓰기 때문이다. 로컬 검색은
+     * 사이트·구조화 데이터·플레이스의 영업시간이 같아야 동일 업체로 묶는다.
+     *
+     * 어드민에서 여기를 고치면 «사이트 표시만» 바뀌고 구조화 데이터는 그대로다.
+     * 영업시간을 실제로 바꿀 때는 lib/site.ts의 BUSINESS_HOURS를 고쳐야 한다.
+     */
+    hours: HOURS_TEXT,
+    hoursNote: HOURS_NOTE,
+    serviceArea: SERVICE_AREA_TEXT,
   },
 
   /*

@@ -1,6 +1,13 @@
 import Link from 'next/link';
 import { ArrowRight, Check, ExternalLink, Factory, CircuitBoard, Lamp } from 'lucide-react';
-import { COMPANY, VERIFY_LINKS } from '@/lib/site';
+import {
+  COMPANY,
+  KAKAO_CHANNEL_URL,
+  MAP_URL,
+  NAVER_BLOG_URL,
+  NAVER_PLACE_URL,
+  VERIFY_LINKS,
+} from '@/lib/site';
 import { portfolioItems } from '@/content/portfolio';
 import { SectionHead } from '@/components/redesign/Chrome';
 import type { SiteContent } from '@/lib/content/schema';
@@ -501,10 +508,52 @@ export function Pricing({ content }: { content: SiteContent['pricing'] }) {
    오시는 길 — 3컬럼(연락처 / 주소 / 약도)
    ═══════════════════════════════════════════════════════════ */
 
-export function Contact({ content }: { content: SiteContent['contact'] }) {
-  const { lat, lng } = COMPANY.geo;
-  const mapHref = `https://map.kakao.com/link/map/${encodeURIComponent(COMPANY.name)},${lat},${lng}`;
+/**
+ * 외부 채널 한 줄.
+ *
+ * 네이버 플레이스·카카오 채널은 개설 전까지 lib/site.ts에서 null이다.
+ * null이면 이 블록 자체가 렌더되지 않으므로 «준비 중» 같은 빈 버튼이 남지 않는다.
+ * URL을 확보해 lib/site.ts만 채우면 여기와 SchemaOrg의 sameAs에 동시에 반영된다.
+ *
+ * 플레이스 링크를 사이트에 거는 것은 단순 편의가 아니다. 로컬 검색에서 상호가
+ * 같은 업체로 묶이려면 사이트 → 플레이스 링크와 플레이스 → 사이트 링크가
+ * 서로를 가리켜야 한다. 리뷰 유도 동선이기도 하다.
+ */
+function ExternalChannels() {
+  const channels: { label: string; href: string; note: string }[] = [];
+  if (NAVER_PLACE_URL) channels.push({ label: '네이버 플레이스', href: NAVER_PLACE_URL, note: '길찾기·리뷰' });
+  if (KAKAO_CHANNEL_URL) channels.push({ label: '카카오톡 상담', href: KAKAO_CHANNEL_URL, note: '메시지로 문의' });
+  if (NAVER_BLOG_URL) channels.push({ label: '네이버 블로그', href: NAVER_BLOG_URL, note: '시공 사례' });
+  if (channels.length === 0) return null;
 
+  return (
+    <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+      {channels.map((c) => (
+        <a
+          key={c.href}
+          href={c.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-cta-slot={c.label === '카카오톡 상담' ? 'contact_kakao' : 'contact_place'}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'baseline',
+            gap: 7,
+            padding: '8px 12px',
+            fontSize: 13,
+            border: HAIRLINE,
+            color: 'var(--color-text)',
+          }}
+        >
+          {c.label}
+          <span className="text-muted" style={{ fontSize: 11.5 }}>{c.note}</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
+export function Contact({ content }: { content: SiteContent['contact'] }) {
   return (
     <section id="contact" style={{ borderTop: HAIRLINE }}>
       <div
@@ -539,6 +588,7 @@ export function Contact({ content }: { content: SiteContent['contact'] }) {
               이메일 <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
             </p>
           </div>
+          <ExternalChannels />
         </div>
 
         <div>
@@ -586,7 +636,7 @@ export function Contact({ content }: { content: SiteContent['contact'] }) {
             }}
           >
             <span>MAP — 평리동</span>
-            <a href={mapHref} target="_blank" rel="noopener noreferrer">카카오맵 열기 →</a>
+            <a href={MAP_URL} target="_blank" rel="noopener noreferrer">카카오맵 열기 →</a>
           </figcaption>
         </figure>
       </div>

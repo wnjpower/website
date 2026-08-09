@@ -65,6 +65,9 @@ const SLOT_PREFIXES: [string, string][] = [
 const EXTRA_SLOT_LABELS: Record<string, string> = {
   quick_bar_submit: '빠른 견적 접수 — 제출',
   mobile_bar:       '모바일 하단 바',
+  // 외부 채널 — lib/site.ts에 URL을 넣어야 화면에 나타난다(없으면 집계도 0)
+  contact_place:    '연락처 — 네이버 플레이스',
+  contact_kakao:    '연락처 — 카카오톡 상담',
 };
 
 /** 실시간 현황·리포트에서 슬롯 id를 사람이 읽는 이름으로 바꾼다. */
