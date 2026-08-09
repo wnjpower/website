@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, Pencil, ExternalLink, Quote } from 'lucide-react';
+import { Plus, Trash2, Pencil, ExternalLink, Quote, Download } from 'lucide-react';
 import {
   saveAeoKeyword,
   deleteAeoKeyword,
@@ -169,6 +169,8 @@ export default function AeoManager({
         </div>
       )}
 
+      {rows.length > 0 && <CsvExport observationCount={observations.length} />}
+
       <Panel
         title="추적 키워드"
         note="답변엔진에 물었을 때 우리가 나와야 하는 말을 등록하세요. 질문 문장까지 함께 적으면 진단이 정확해집니다."
@@ -240,6 +242,66 @@ export default function AeoManager({
         />
       )}
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  CSV 내보내기
+// ─────────────────────────────────────────────
+
+/**
+ * 구글 시트로 넘기기.
+ *
+ * 두 파일로 나눈다. 진단은 «오늘 기준 어떤 상태인가»라 내보낼 때마다 갱신되는
+ * 스냅샷이고, 관찰 기록은 «언제 무엇을 봤는가»라 쌓이는 시계열이다.
+ * 한 표에 섞으면 시트에서 둘 다 다루기 어려워진다.
+ *
+ * 링크는 평범한 <a download>다. 서버가 Content-Disposition으로 파일 이름을
+ * 주므로 브라우저가 알아서 내려받는다 — 자바스크립트로 Blob을 만들 이유가 없다.
+ */
+function CsvExport({ observationCount }: { observationCount: number }) {
+  return (
+    <Panel
+      title="구글 시트로 내보내기"
+      note="CSV로 내려받아 구글 시트에 올리면 됩니다. 진단표를 같은 시트에 계속 덧붙이면 «기준일» 칸으로 점수 추이를 볼 수 있습니다."
+    >
+      <div className="flex flex-wrap gap-2">
+        <a href="/api/admin/aeo/export?type=keywords" download className="a-btn a-btn--sm">
+          <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
+          키워드 진단표
+        </a>
+        <a href="/api/admin/aeo/export?type=observations" download className="a-btn a-btn--sm">
+          <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
+          관찰 기록
+          {observationCount > 0 && (
+            <span className="text-muted" style={{ fontSize: 11.5 }}>{observationCount}건</span>
+          )}
+        </a>
+      </div>
+
+      <details style={{ marginTop: 12 }}>
+        <summary className="a-link" style={{ fontSize: 12.5, cursor: 'pointer' }}>
+          구글 시트에 올리는 방법
+        </summary>
+        <ol
+          className="text-muted break-keep"
+          style={{ fontSize: 12.5, lineHeight: 1.85, margin: '8px 0 0', paddingLeft: 18 }}
+        >
+          <li>위 버튼으로 파일을 내려받습니다.</li>
+          <li>구글 시트에서 <strong>파일 → 가져오기 → 업로드</strong>로 그 파일을 올립니다.</li>
+          <li>
+            추이를 보려면 가져오기 위치를 <strong>「현재 시트에 추가」</strong>로 고르세요.
+            매달 같은 시트에 쌓이고, <strong>기준일</strong> 칸으로 피벗을 만들면 점수가
+            어떻게 움직였는지 보입니다.
+          </li>
+        </ol>
+        <p className="text-muted break-keep" style={{ fontSize: 12, marginTop: 8 }}>
+          ⚠️ 구글 시트의 <code>IMPORTDATA</code>로 이 주소를 직접 부를 수는 없습니다.
+          관리자 로그인이 필요한데 시트는 로그인 정보를 보내지 못하고, 인증을 풀면
+          <strong> 어떤 키워드를 노리고 있는지가 공개</strong>됩니다. 내려받아 올리는 편이 맞습니다.
+        </p>
+      </details>
+    </Panel>
   );
 }
 
