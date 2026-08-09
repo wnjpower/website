@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, FileText, MousePointerClick, Newspaper,
-  Inbox, Search, Bell, ExternalLink, LogOut, Menu, X,
+  Inbox, Search, Sparkles, Bell, ExternalLink, LogOut, Menu, X,
 } from 'lucide-react';
 import { createBrowserSupabase } from '@/lib/supabase-browser';
 
@@ -26,6 +26,7 @@ const NAV = [
   { href: '/admin/cta',           label: 'CTA 버튼',    icon: MousePointerClick },
   { href: '/admin/posts',         label: '게시판',      icon: Newspaper },
   { href: '/admin/seo',           label: '검색엔진',    icon: Search },
+  { href: '/admin/aeo',           label: 'AEO 추적',    icon: Sparkles },
   { href: '/admin/notifications', label: '알림 설정',   icon: Bell },
 ];
 

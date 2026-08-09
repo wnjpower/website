@@ -3,7 +3,7 @@
 > **프로덕션**: https://www.wnjpower.com (apex → www 308 리다이렉트)
 > **GitHub**: https://github.com/wnjpower/website · **Vercel**: `wnjpower-erp` 팀 / `wnj-website`
 > **Supabase**: `wnj-website` (서울 `ap-northeast-2`, ref `wtlvbilsakoktcrrqlfi`)
-> **최종 업데이트**: 2026-08-06
+> **최종 업데이트**: 2026-08-09
 
 > ✅ **완료된 변경 이력은 [`CHANGELOG.md`](CHANGELOG.md)** 참조.
 > 이 문서는 아직 끝나지 않은 항목만 추적한다.
@@ -217,6 +217,29 @@ TODO에 남아 있던 «코드로 처리 가능한» 항목을 전부 끝냈다.
 - [ ] **게시판 콘텐츠 0건** — `posts` 테이블이 비어 있다. 블로그·공지·시공실적 모두
       아직 글이 없다. SEO상 정기 발행이 유리하다(어드민 → 게시판)
 
+## 🟢 AEO (답변엔진 최적화) — 2026-08-09 추가
+
+> 어드민 → **AEO 추적**에서 키워드별 인용 준비도를 보고, 실제 인용 여부를 기록한다.
+> 점수는 사이트 문구가 바뀌면 즉시 다시 계산된다(저장하지 않는다).
+
+- [ ] **🔴 서비스 상세 4곳에 `FaqSchema` 붙일지 결정** — 진단이 시드 키워드 6개 중
+      4개에서 같은 지적을 냈다. `/services/*`는 각각 고유 FAQ 4개(합 16개)를 화면에
+      노출하면서 구조화 데이터로는 내보내지 않는다.
+      > 판단이 필요한 이유: [`components/FaqSchema.tsx`](components/FaqSchema.tsx)의
+      > 주석은 «중복은 감점이라 정본인 /faq에서만 렌더한다»고 하는데, 실제로는
+      > **홈과 /faq가 같은 항목을 중복 노출**하고 있다(홈 쪽 주석은 스펙 §7-1을 근거로
+      > 든다). 서비스 상세는 FAQ가 서로 달라 중복 문제가 없으므로 붙이는 쪽이
+      > 유리해 보이지만, 홈·/faq 중복부터 정리할지 함께 정해야 한다.
+- [ ] **관찰 기록을 월 1회 돌리기** — 등록된 질문을 ChatGPT·Perplexity·네이버 큐:에
+      그대로 물어보고 결과를 남긴다. 같은 질문도 답이 매번 달라지므로 **같은 조건으로
+      주기적으로** 봐야 추이가 보인다. 어드민 화면이 물어볼 문장을 그대로 보여준다.
+- [ ] **직답 문장에 주어 넣기** — 「계약전력 증설」·「배전반 설치」·「수전설비 공사」의
+      직답 문장이 «누가·어디서» 없이 시작한다. 답변엔진이 문맥에서 뽑아내면 주체가
+      사라져 인용되지 않는다. 「주식회사 우앤주전력은 …」 또는 「대구·경북에서 …」로
+      시작하도록 [`content/service-pages.ts`](content/service-pages.ts)의 `lead`를 손볼 것
+- [ ] **시드 키워드 6개 검토** — 사이트의 기존 SEO 키워드에서 뽑아 넣어 뒀다.
+      실제로 노릴 말이 아니면 지우고, 빠진 것은 추가하면 된다
+
 ## ⚪ 추후 개선 (선택)
 
 - [ ] **견적서 이메일 양식 개선** — 알림 메일을 "견적서" 양식으로 발전시키고
@@ -269,7 +292,8 @@ TODO에 남아 있던 «코드로 처리 가능한» 항목을 전부 끝냈다.
 | **DB 마이그레이션** | [`supabase/migrations/`](supabase/migrations) |
 | 유입 경로(광고 귀속) 판정 | [`lib/analytics/attribution.ts`](lib/analytics/attribution.ts) |
 | CTA 슬롯·A/B 배정 | [`lib/cta/schema.ts`](lib/cta/schema.ts) · [`lib/cta/get.ts`](lib/cta/get.ts) |
-| 한국어 SEO 분석기 | [`lib/seo/analyze.ts`](lib/seo/analyze.ts) |
+| 한국어 SEO 분석기 (글 단위 점수) | [`lib/seo/analyze.ts`](lib/seo/analyze.ts) |
+| **AEO 진단기 · 사이트 텍스트 코퍼스** | [`lib/seo/aeo.ts`](lib/seo/aeo.ts) · [`lib/seo/corpus.ts`](lib/seo/corpus.ts) |
 | 게시판(블로그·공지·시공실적) | [`lib/posts.ts`](lib/posts.ts) |
 | IndexNow 자동 색인 제출 | [`lib/indexnow.ts`](lib/indexnow.ts) · 키 파일 `public/<키>.txt` |
 | 인증·어드민 가드 | [`middleware.ts`](middleware.ts) · [`lib/supabase-server.ts`](lib/supabase-server.ts) |

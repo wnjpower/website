@@ -8,6 +8,7 @@ import { CONTENT_DEFAULTS, type ContentKey } from '@/lib/content/schema';
 import { CTA_SLOTS, type CtaSlot } from '@/lib/cta/schema';
 import { LEAD_STATUSES } from '@/lib/leads';
 import { pingPaths } from '@/lib/indexnow';
+import { AEO_ENGINES, type AeoEngine } from '@/lib/seo/aeo';
 
 /*
  * 서버 액션은 브라우저에서 직접 호출할 수 있는 엔드포인트다.
@@ -226,6 +227,132 @@ export async function updateLead(
     return { ok: true, message: '저장했습니다.' };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : '저장에 실패했습니다.' };
+  }
+}
+
+// ─────────────────────────────────────────────
+//  AEO 추적 — 키워드
+// ─────────────────────────────────────────────
+
+export interface AeoKeywordInput {
+  id?: string;
+  keyword: string;
+  question: string;
+  targetPath?: string | null;
+  priority: number;
+  active: boolean;
+  note?: string | null;
+}
+
+export async function saveAeoKeyword(input: AeoKeywordInput): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+
+    const keyword = input.keyword.trim();
+    if (!keyword) return { ok: false, error: '키워드를 입력하세요.' };
+    if (keyword.length > 100) return { ok: false, error: '키워드가 너무 깁니다 (100자 이내).' };
+
+    const row = {
+      keyword,
+      question: input.question.trim().slice(0, 300),
+      // 빈 문자열을 넣으면 «루트 경로»와 구분되지 않는다. 자동 선택은 null이다.
+      target_path: input.targetPath?.trim() || null,
+      priority: Math.max(0, Math.min(1000, Math.round(input.priority))),
+      active: input.active,
+      note: input.note?.trim() || null,
+    };
+
+    const db = await createServerSupabase();
+    const { error } = input.id
+      ? await db.from('aeo_keywords').update(row).eq('id', input.id)
+      : await db.from('aeo_keywords').insert(row);
+
+    if (error) {
+      // 같은 키워드를 두 번 등록하면 진단이 갈리고 관찰 기록도 나뉜다
+      if (error.code === '23505') {
+        return { ok: false, error: `"${keyword}"는 이미 추적 중입니다.` };
+      }
+      return { ok: false, error: error.message };
+    }
+
+    revalidatePath('/admin/aeo');
+    return { ok: true, message: '저장했습니다.' };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : '저장에 실패했습니다.' };
+  }
+}
+
+export async function deleteAeoKeyword(id: string): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    const db = await createServerSupabase();
+    // 관찰 기록은 on delete cascade로 함께 지워진다
+    const { error } = await db.from('aeo_keywords').delete().eq('id', id);
+    if (error) return { ok: false, error: error.message };
+
+    revalidatePath('/admin/aeo');
+    return { ok: true, message: '키워드와 관찰 기록을 지웠습니다.' };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : '삭제에 실패했습니다.' };
+  }
+}
+
+// ─────────────────────────────────────────────
+//  AEO 추적 — 관찰 기록
+// ─────────────────────────────────────────────
+
+export interface AeoObservationInput {
+  keywordId: string;
+  engine: string;
+  cited: boolean;
+  snippet?: string | null;
+  note?: string | null;
+  /** 관찰 시각. 나중에 몰아서 입력할 수 있어 직접 지정할 수 있게 둔다 */
+  observedAt?: string | null;
+}
+
+export async function recordAeoObservation(input: AeoObservationInput): Promise<ActionResult> {
+  try {
+    const user = await requireAdmin();
+
+    if (!AEO_ENGINES.includes(input.engine as AeoEngine)) {
+      return { ok: false, error: '알 수 없는 답변엔진입니다.' };
+    }
+
+    const db = await createServerSupabase();
+    const { error } = await db.from('aeo_observations').insert({
+      keyword_id: input.keywordId,
+      engine: input.engine,
+      cited: input.cited,
+      snippet: input.snippet?.trim().slice(0, 2000) || null,
+      note: input.note?.trim().slice(0, 1000) || null,
+      observed_at: input.observedAt || new Date().toISOString(),
+      created_by: user.id,
+    });
+
+    if (error) return { ok: false, error: error.message };
+
+    revalidatePath('/admin/aeo');
+    return {
+      ok: true,
+      message: input.cited ? '인용됨으로 기록했습니다.' : '인용 안 됨으로 기록했습니다.',
+    };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : '기록에 실패했습니다.' };
+  }
+}
+
+export async function deleteAeoObservation(id: string): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    const db = await createServerSupabase();
+    const { error } = await db.from('aeo_observations').delete().eq('id', id);
+    if (error) return { ok: false, error: error.message };
+
+    revalidatePath('/admin/aeo');
+    return { ok: true, message: '기록을 지웠습니다.' };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : '삭제에 실패했습니다.' };
   }
 }
 
